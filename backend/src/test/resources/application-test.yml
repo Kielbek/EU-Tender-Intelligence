@@ -1,0 +1,11 @@
+app:
+  public-url: http://localhost:4200
+  security:
+    # Test-only key (Base64 of 32 bytes). Never used outside tests.
+    jwt-secret: dGVzdC1vbmx5LWtleS1kby1ub3QtdXNlLWluLXByb2QhIQ==
+    refresh-cookie-secure: false
+    platform-admin-emails: admin@eti.test
+  reference:
+    import-on-startup: false
+  scheduling:
+    enabled: false
