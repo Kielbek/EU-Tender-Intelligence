@@ -1,0 +1,147 @@
+<div class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <h1 class="text-xl font-semibold tracking-tight">{{ 'status.title' | transloco }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ 'status.subtitle' | transloco }}</p>
+  </div>
+  <button
+    type="button"
+    class="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-medium hover:bg-canvas disabled:opacity-60"
+    [disabled]="state().kind === 'loading'"
+    (click)="load()"
+  >
+    <svg lucideRefreshCw class="size-4" [class.animate-spin]="state().kind === 'loading'" aria-hidden="true"></svg>
+    {{ 'status.refresh' | transloco }}
+  </button>
+</div>
+
+<div class="mt-6" aria-live="polite" [attr.aria-busy]="state().kind === 'loading'">
+  @switch (state().kind) {
+    @case ('loading') {
+      <p class="sr-only">{{ 'status.loading' | transloco }}</p>
+      <div class="grid gap-4 sm:grid-cols-2" data-testid="status-skeleton">
+        @for (i of [1, 2]; track i) {
+          <div class="rounded-lg border border-border bg-surface p-4">
+            <eti-skeleton size="h-4 w-24" />
+            <eti-skeleton class="mt-3" size="h-3 w-48" />
+          </div>
+        }
+      </div>
+      <div class="mt-6 rounded-lg border border-border bg-surface p-4">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <eti-skeleton class="mt-3 first:mt-0" size="h-4 w-full" />
+        }
+      </div>
+    }
+
+    @case ('error') {
+      @if (state(); as s) {
+        @if (s.kind === 'error') {
+          <div role="alert" class="rounded-lg border border-danger/30 bg-danger-soft p-4 text-sm" data-testid="status-error">
+            <div class="flex items-start gap-3">
+              <svg lucideCircleAlert class="mt-0.5 size-5 shrink-0 text-danger" aria-hidden="true"></svg>
+              <div>
+                <p class="font-semibold text-danger">{{ 'status.error.title' | transloco }}</p>
+                <p class="mt-1 text-ink">{{ 'status.error.body' | transloco }}</p>
+                @if (s.error.correlationId) {
+                  <p class="mt-2 text-xs text-ink-muted">
+                    {{ 'status.error.correlation' | transloco }}: <code>{{ s.error.correlationId }}</code>
+                  </p>
+                }
+                <button
+                  type="button"
+                  class="mt-3 inline-flex h-8 items-center rounded-md bg-navy-900 px-3 text-sm font-medium text-white hover:bg-navy-800"
+                  (click)="load()"
+                >
+                  {{ 'status.error.retry' | transloco }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    }
+
+    @case ('loaded') {
+      @if (state(); as s) {
+        @if (s.kind === 'loaded') {
+          <dl class="grid gap-4 text-sm sm:grid-cols-3">
+            <div class="rounded-lg border border-border bg-surface p-4">
+              <dt class="text-ink-muted">{{ 'status.version' | transloco }}</dt>
+              <dd class="mt-1 font-mono font-medium">{{ s.data.application.version }}</dd>
+            </div>
+            <div class="rounded-lg border border-border bg-surface p-4">
+              <dt class="text-ink-muted">{{ 'status.environment' | transloco }}</dt>
+              <dd class="mt-1 font-medium">{{ s.data.application.environment }}</dd>
+            </div>
+            <div class="rounded-lg border border-border bg-surface p-4">
+              <dt class="text-ink-muted">{{ 'status.checkedAt' | transloco }}</dt>
+              <dd class="mt-1 font-medium">
+                <time [attr.datetime]="s.data.checkedAt">{{ s.data.checkedAt | date: 'medium' : undefined : language.current() }}</time>
+              </dd>
+            </div>
+          </dl>
+
+          <section class="mt-8" aria-labelledby="deps-heading">
+            <h2 id="deps-heading" class="text-sm font-semibold uppercase tracking-wide text-ink-muted">
+              {{ 'status.dependencies' | transloco }}
+            </h2>
+            <ul class="mt-3 grid gap-4 sm:grid-cols-2">
+              @for (dep of s.data.dependencies; track dep.name) {
+                <li class="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface p-4">
+                  <div class="flex items-start gap-3">
+                    <svg lucideDatabase class="mt-0.5 size-4 text-ink-muted" aria-hidden="true"></svg>
+                    <div>
+                      <p class="font-medium">{{ dep.name }}</p>
+                      @if (dep.detail) {
+                        <p class="mt-1 text-xs text-ink-muted">{{ dep.detail }}</p>
+                      }
+                    </div>
+                  </div>
+                  <eti-badge [tone]="dep.status === 'UP' ? 'success' : 'danger'">
+                    {{ 'status.health.' + dep.status | transloco }}
+                  </eti-badge>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section class="mt-8" aria-labelledby="int-heading">
+            <h2 id="int-heading" class="text-sm font-semibold uppercase tracking-wide text-ink-muted">
+              {{ 'status.integrations' | transloco }}
+            </h2>
+            <div class="mt-3 overflow-x-auto rounded-lg border border-border bg-surface">
+              <table class="w-full text-left text-sm">
+                <thead class="border-b border-border text-xs text-ink-muted">
+                  <tr>
+                    <th scope="col" class="px-4 py-2 font-medium">{{ 'status.integration' | transloco }}</th>
+                    <th scope="col" class="px-4 py-2 font-medium">{{ 'status.readiness' | transloco }}</th>
+                    <th scope="col" class="px-4 py-2 font-medium">{{ 'status.credentials' | transloco }}</th>
+                    <th scope="col" class="px-4 py-2 text-right font-medium">{{ 'status.plannedStage' | transloco }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                  @for (integration of s.data.integrations; track integration.code) {
+                    <tr>
+                      <th scope="row" class="px-4 py-2.5 font-medium">
+                        {{ 'status.integrationName.' + integration.code | transloco }}
+                      </th>
+                      <td class="px-4 py-2.5">
+                        <eti-badge [tone]="readinessTone[integration.status]">
+                          {{ 'status.readinessValue.' + integration.status | transloco }}
+                        </eti-badge>
+                      </td>
+                      <td class="px-4 py-2.5 text-ink-muted">
+                        {{ (integration.configured ? 'status.configured' : 'status.notConfigured') | transloco }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right font-mono text-ink-muted">{{ integration.plannedStage }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+      }
+    }
+  }
+</div>

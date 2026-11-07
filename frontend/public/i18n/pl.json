@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "EU Tender Intelligence",
+    "skipToContent": "Przejdź do treści"
+  },
+  "nav": {
+    "main": "Nawigacja główna",
+    "systemStatus": "Status systemu",
+    "roadmap": "W przygotowaniu",
+    "roadmapItems": {
+      "dashboard": "Dashboard",
+      "search": "Wyszukiwarka przetargów",
+      "company": "Profil firmy",
+      "ai": "Analiza AI",
+      "alerts": "Powiadomienia"
+    },
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu"
+  },
+  "language": {
+    "label": "Język interfejsu",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "status": {
+    "title": "Status systemu",
+    "subtitle": "Stan usług platformy i gotowość integracji. Dane pobierane na żywo z backendu.",
+    "refresh": "Odśwież",
+    "loading": "Ładowanie statusu…",
+    "version": "Wersja",
+    "environment": "Środowisko",
+    "checkedAt": "Sprawdzono",
+    "dependencies": "Usługi infrastruktury",
+    "integrations": "Integracje zewnętrzne",
+    "integration": "Integracja",
+    "readiness": "Gotowość",
+    "credentials": "Konfiguracja",
+    "plannedStage": "Etap",
+    "configured": "skonfigurowano",
+    "notConfigured": "brak konfiguracji",
+    "health": {
+      "UP": "Działa",
+      "DOWN": "Niedostępna"
+    },
+    "readinessValue": {
+      "READY": "Gotowa",
+      "PENDING_CONFIGURATION": "Wymaga konfiguracji",
+      "NOT_IMPLEMENTED": "Niezaimplementowana"
+    },
+    "integrationName": {
+      "TED_SEARCH_API": "TED Search API",
+      "OBJECT_STORAGE_S3": "Magazyn dokumentów (S3)",
+      "LLM_PROVIDER": "Dostawca modelu AI",
+      "EMAIL_SMTP": "Poczta e-mail (SMTP)",
+      "STRIPE": "Płatności Stripe"
+    },
+    "error": {
+      "title": "Nie udało się pobrać statusu",
+      "body": "Backend jest niedostępny lub zwrócił błąd. Sprawdź, czy usługa API działa.",
+      "correlation": "Identyfikator zgłoszenia",
+      "retry": "Spróbuj ponownie"
+    }
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "body": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "back": "Wróć do statusu systemu"
+  }
+}

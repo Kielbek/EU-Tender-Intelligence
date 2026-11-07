@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "EU Tender Intelligence",
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "main": "Main navigation",
+    "systemStatus": "System status",
+    "roadmap": "Coming soon",
+    "roadmapItems": {
+      "dashboard": "Dashboard",
+      "search": "Tender search",
+      "company": "Company profile",
+      "ai": "AI analysis",
+      "alerts": "Notifications"
+    },
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "language": {
+    "label": "Interface language",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "status": {
+    "title": "System status",
+    "subtitle": "Platform services and integration readiness. Live data from the backend.",
+    "refresh": "Refresh",
+    "loading": "Loading status…",
+    "version": "Version",
+    "environment": "Environment",
+    "checkedAt": "Checked at",
+    "dependencies": "Infrastructure services",
+    "integrations": "External integrations",
+    "integration": "Integration",
+    "readiness": "Readiness",
+    "credentials": "Configuration",
+    "plannedStage": "Stage",
+    "configured": "configured",
+    "notConfigured": "not configured",
+    "health": {
+      "UP": "Operational",
+      "DOWN": "Unavailable"
+    },
+    "readinessValue": {
+      "READY": "Ready",
+      "PENDING_CONFIGURATION": "Needs configuration",
+      "NOT_IMPLEMENTED": "Not implemented"
+    },
+    "integrationName": {
+      "TED_SEARCH_API": "TED Search API",
+      "OBJECT_STORAGE_S3": "Document storage (S3)",
+      "LLM_PROVIDER": "AI model provider",
+      "EMAIL_SMTP": "E-mail (SMTP)",
+      "STRIPE": "Stripe payments"
+    },
+    "error": {
+      "title": "Could not load status",
+      "body": "The backend is unreachable or returned an error. Check that the API service is running.",
+      "correlation": "Request ID",
+      "retry": "Try again"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has moved.",
+    "back": "Back to system status"
+  }
+}

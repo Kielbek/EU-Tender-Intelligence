@@ -1,0 +1,75 @@
+<a
+  href="#main"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:shadow"
+>
+  {{ 'app.skipToContent' | transloco }}
+</a>
+
+<div class="flex min-h-dvh">
+  @if (menuOpen()) {
+    <div class="fixed inset-0 z-30 bg-navy-950/40 lg:hidden" (click)="closeMenu()" aria-hidden="true"></div>
+  }
+
+  <aside
+    id="eti-sidebar"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-navy-900 text-slate-200 transition-transform lg:static lg:translate-x-0"
+    [class.-translate-x-full]="!menuOpen()"
+  >
+    <div class="flex h-14 items-center gap-2 border-b border-white/10 px-4">
+      <svg lucideLandmark class="size-5 text-blue-300" aria-hidden="true"></svg>
+      <span class="text-sm font-semibold tracking-tight text-white">{{ 'app.name' | transloco }}</span>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4" [attr.aria-label]="'nav.main' | transloco">
+      <ul class="space-y-1">
+        <li>
+          <a
+            routerLink="/status"
+            routerLinkActive="bg-white/10 text-white"
+            ariaCurrentWhenActive="page"
+            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
+            (click)="closeMenu()"
+          >
+            <svg lucideActivity class="size-4" aria-hidden="true"></svg>
+            {{ 'nav.systemStatus' | transloco }}
+          </a>
+        </li>
+      </ul>
+
+      <p class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        {{ 'nav.roadmap' | transloco }}
+      </p>
+      <ul class="mt-2 space-y-1">
+        @for (item of roadmap; track item) {
+          <li class="px-3 py-1.5 text-sm text-slate-400">{{ 'nav.roadmapItems.' + item | transloco }}</li>
+        }
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur">
+      <button
+        type="button"
+        class="inline-flex size-9 items-center justify-center rounded-md text-ink-muted hover:bg-canvas lg:hidden"
+        [attr.aria-label]="(menuOpen() ? 'nav.closeMenu' : 'nav.openMenu') | transloco"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="eti-sidebar"
+        (click)="toggleMenu()"
+      >
+        @if (menuOpen()) {
+          <svg lucideX class="size-5" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideMenu class="size-5" aria-hidden="true"></svg>
+        }
+      </button>
+      <div class="ml-auto">
+        <eti-language-switcher />
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      <router-outlet />
+    </main>
+  </div>
+</div>
