@@ -37,6 +37,22 @@ Każdy punkt ma przyczynę: kod (`CPV_MATCH`, `WITHIN_DISTANCE`, …) z parametr
 * **Kraje**: lista krajów z profilu; bez listy – kraj siedziby (lub rejestracji). Odległość działa też przez granicę
   (np. Szczecin – Görlitz), gdy kraj jest na liście.
 
+### Cała Unia (i EOG)
+
+* Regiony NUTS są dla wszystkich państw UE oraz NO, CH, IS, LI (Eurostat, 2148 regionów). Siedzibę wybiera się:
+  kraj → region (NUTS 2) → podregion (NUTS 3); dodatkowe regiony – z kraju siedziby i krajów z listy firmy.
+* Kody NUTS Grecji i Wielkiej Brytanii to `EL` i `UK`, a w ogłoszeniach (ISO) `GR` i `GB` – silnik je mapuje.
+* Pokrycie kodem regionu otwartych przetargów (8.11.2026): PL 99%, DE 95%, FR 93%, ES 96%, IT 92%, CZ 92%, RO 100%,
+  PT 97%, BE 82%, SE 79%, FI 65%, **NL 43%** – przetarg bez regionu liczy się tylko po kraju („brakujące informacje”).
+* Sprawdzone na danych: Berlin 100 km → 173 dopasowania (najdalsze 48 km), Paryż 50 km → 178 (38 km),
+  Ateny 200 km → 12 (175 km).
+* W trybie `STRICT` przeliczanie czyta tylko przetargi z krajów firmy (szybciej przy dużych branżach).
+* „Dostawy w całym kraju” działa tylko dla firm, które realizują dostawy (albo nie podały rodzajów zamówień).
+
+**Czego jeszcze brakuje dla firm spoza Polski:** zamówienia krajowe poniżej progów UE mamy tylko z Polski (BZP);
+z innych krajów wyłącznie z TED (zamówienia powyżej progów UE i część dobrowolnych publikacji). Interfejs jest po
+polsku i angielsku.
+
 ### Wykluczenia (twarde reguły)
 
 * **Wykluczone słowa** (np. „most”) w tytule lub opisie,

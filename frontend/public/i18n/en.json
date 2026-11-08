@@ -1171,7 +1171,7 @@
     "title": "Working area and preferences",
     "subtitle": "Matching then takes into account the distance from your base, the regions you work in and what you do not do.",
     "area": "Where you work",
-    "voivodeship": "Region of the base",
+    "voivodeship": "Region of the base (NUTS 2)",
     "base": "Subregion of the base (NUTS 3)",
     "baseHint": "Distances are measured between subregion centres (Eurostat data).",
     "radius": "Working radius (works, on-site services)",
@@ -1183,7 +1183,7 @@
     "suppliesHint": "The radius does not apply to supply contracts in your country.",
     "extra": "Additional regions",
     "extraNone": "none",
-    "extraHint": "E.g. a branch in another region – always counted as your area.",
+    "extraHint": "E.g. a branch in another region or in a country from your list – always counted as your area.",
     "what": "What you look for and what you do not do",
     "include": "Keywords",
     "includePh": "e.g. road, pavement, lighting…",
@@ -1198,6 +1198,7 @@
     "days": "{{n}} days",
     "prepHint": "Tenders closing sooner disappear from matches and notifications.",
     "save": "Save matching settings",
-    "saved": "Saved. Matches are recomputed in the background (a few seconds)."
+    "saved": "Saved. Matches are recomputed in the background (a few seconds).",
+    "country": "Country of the base"
   }
 }

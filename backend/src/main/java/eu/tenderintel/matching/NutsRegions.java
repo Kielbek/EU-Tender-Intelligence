@@ -14,7 +14,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class NutsRegions {
 
-    public record Region(String code, int level, String countryCode, String name, GeoPoint point) {
+    /** {@code countryCode}: ISO 3166 (GR, GB) – NUTS uses EL and UK for these two countries. */
+    public record Region(String code, int level, String countryCode, String name, GeoPoint point, int version) {
+    }
+
+    /** NUTS country prefix → ISO 3166 code used everywhere else in the app (tenders, profiles). */
+    public static String iso(String nutsCountry) {
+        if (nutsCountry == null) {
+            return null;
+        }
+        return switch (nutsCountry) {
+            case "EL" -> "GR";
+            case "UK" -> "GB";
+            default -> nutsCountry;
+        };
+    }
+
+    /** ISO 3166 code → NUTS country prefix. */
+    public static String nutsCountry(String iso) {
+        if (iso == null) {
+            return null;
+        }
+        return switch (iso) {
+            case "GR" -> "EL";
+            case "GB" -> "UK";
+            default -> iso;
+        };
     }
 
     private final JdbcTemplate jdbc;
@@ -28,9 +53,9 @@ public class NutsRegions {
         Map<String, Region> r = regions;
         if (r == null) {
             Map<String, Region> loaded = new HashMap<>();
-            jdbc.query("select code, level, country_code, name, lat, lon from nuts_regions", rs -> {
-                loaded.put(rs.getString(1), new Region(rs.getString(1), rs.getInt(2), rs.getString(3).trim(),
-                        rs.getString(4), new GeoPoint(rs.getDouble(5), rs.getDouble(6))));
+            jdbc.query("select code, level, country_code, name, lat, lon, nuts_version from nuts_regions", rs -> {
+                loaded.put(rs.getString(1), new Region(rs.getString(1), rs.getInt(2), iso(rs.getString(3).trim()),
+                        rs.getString(4), new GeoPoint(rs.getDouble(5), rs.getDouble(6)), rs.getInt(7)));
             });
             r = Map.copyOf(loaded);
             regions = r;
@@ -60,9 +85,14 @@ public class NutsRegions {
         return r == null ? null : r.point();
     }
 
-    /** Regions of a country at a level (e.g. PL, 2 = voivodeships), sorted by name. */
+    /** Regions of a country (ISO code, e.g. PL or GR) at a level (2 = voivodeships in PL), sorted by name. */
     public List<Region> list(String country, int level) {
-        return all().values().stream().filter(r -> r.countryCode().equals(country) && r.level() == level)
+        String iso = iso(nutsCountry(country));
+        // Older NUTS versions stay in the table for codes in older notices, but are not offered for choosing.
+        List<Region> ofCountry = all().values().stream().filter(r -> r.countryCode().equals(iso) && r.level() == level)
+                .toList();
+        int newest = ofCountry.stream().mapToInt(Region::version).max().orElse(0);
+        return ofCountry.stream().filter(r -> r.version() == newest)
                 .sorted(java.util.Comparator.comparing(Region::name)).toList();
     }
 

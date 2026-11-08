@@ -1171,7 +1171,7 @@
     "title": "Obszar działania i preferencje",
     "subtitle": "Dzięki temu dopasowanie uwzględnia odległość od Twojej siedziby, regiony, w których pracujesz, i to, czego nie robisz.",
     "area": "Gdzie działasz",
-    "voivodeship": "Województwo siedziby",
+    "voivodeship": "Region siedziby (NUTS 2, w Polsce województwo)",
     "base": "Podregion siedziby (NUTS 3)",
     "baseHint": "Odległość liczymy między środkami podregionów (dane Eurostat).",
     "radius": "Promień działania (roboty, usługi na miejscu)",
@@ -1181,9 +1181,9 @@
     "strictHint": "Przetargi poza promieniem i wybranymi regionami nie pojawią się w dopasowaniach ani powiadomieniach.",
     "supplies": "Dostawy realizuję w całym kraju",
     "suppliesHint": "Promień nie dotyczy zamówień na dostawy w Twoim kraju.",
-    "extra": "Dodatkowe województwa",
+    "extra": "Dodatkowe regiony",
     "extraNone": "brak",
-    "extraHint": "Np. gdy masz oddział w innym województwie – liczą się zawsze jako Twój obszar.",
+    "extraHint": "Np. oddział w innym województwie lub kraju z Twojej listy – zawsze liczą się jako Twój obszar.",
     "what": "Czego szukasz, a czego nie robisz",
     "include": "Słowa kluczowe",
     "includePh": "np. drog, nawierzchni, oświetleni…",
@@ -1198,6 +1198,7 @@
     "days": "{{n}} dni",
     "prepHint": "Przetargi z bliższym terminem znikną z dopasowań i powiadomień.",
     "save": "Zapisz ustawienia dopasowania",
-    "saved": "Zapisano. Dopasowania przeliczamy w tle (kilka sekund)."
+    "saved": "Zapisano. Dopasowania przeliczamy w tle (kilka sekund).",
+    "country": "Kraj siedziby"
   }
 }

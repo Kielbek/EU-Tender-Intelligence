@@ -205,7 +205,8 @@ public final class MatchingEngine {
 
     private static Location location(Profile p, Tender t, List<Reason> met, List<Reason> unmet,
             List<Reason> missing) {
-        String home = p.baseNuts() != null ? p.baseNuts().substring(0, 2) : p.registrationCountry();
+        // NUTS uses EL/UK where tenders use the ISO codes GR/GB.
+        String home = p.baseNuts() != null ? NutsRegions.iso(p.baseNuts().substring(0, 2)) : p.registrationCountry();
         boolean countryOk = p.countriesOfInterest().isEmpty()
                 ? home == null || home.equals(t.countryCode()) : p.countriesOfInterest().contains(t.countryCode());
         if (!countryOk) {
@@ -224,7 +225,9 @@ public final class MatchingEngine {
                 }
             }
         }
-        if ("SUPPLIES".equals(t.contractType()) && p.suppliesNationwide() && home != null
+        // Only for companies that do supplies at all: a works-only company keeps its radius for everything.
+        boolean doesSupplies = p.contractTypes().isEmpty() || p.contractTypes().contains("SUPPLIES");
+        if ("SUPPLIES".equals(t.contractType()) && p.suppliesNationwide() && doesSupplies && home != null
                 && home.equals(t.countryCode())) {
             met.add(Reason.of("SUPPLIES_NATIONWIDE", "country", t.countryCode()));
             return new Location(MAX_LOCATION, null, km);

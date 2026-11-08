@@ -1,10 +1,12 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LucideMapPin } from '@lucide/angular';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import { CompanyProfile, CompanyService, DEFAULT_MATCHING, MatchingSettings, profileToRequest } from '../../core/api/company.service';
 import { ReferenceService } from '../../core/api/reference.service';
+import { countryName } from '../../core/format/format';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { CpvPickerComponent } from '../../shared/ui/cpv-picker.component';
@@ -13,6 +15,8 @@ import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.co
 import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 
 const RADII = [25, 50, 75, 100, 150, 200, 300, 500];
+/** Non-EU countries with NUTS regions that publish in TED. */
+const NUTS_EXTRA = ['NO', 'CH', 'IS', 'LI'];
 const PREP_DAYS = [3, 5, 7, 10, 14, 21, 30];
 
 /**
@@ -37,7 +41,11 @@ const PREP_DAYS = [3, 5, 7, 10, 14, 21, 30];
 
       <fieldset class="mt-6" [disabled]="!editable()">
         <legend class="eti-overline">{{ 'matchSettings.area' | transloco }}</legend>
-        <div class="mt-3 grid gap-4 md:grid-cols-3">
+        <div class="mt-3 grid gap-4 md:grid-cols-4">
+          <div>
+            <label class="eti-label" for="ms-country">{{ 'matchSettings.country' | transloco }}</label>
+            <eti-select inputId="ms-country" [options]="countryOptions()" [value]="baseCountry()" (valueChange)="setCountry($any($event))" [disabled]="!editable()" />
+          </div>
           <div>
             <label class="eti-label" for="ms-voiv">{{ 'matchSettings.voivodeship' | transloco }}</label>
             <eti-select inputId="ms-voiv" [options]="voivodeshipOptions()" [value]="voivodeship()" (valueChange)="setVoivodeship($any($event))" [disabled]="!editable()" />
@@ -126,8 +134,23 @@ export class MatchingSettingsComponent {
   protected readonly saved = signal(false);
   protected readonly error = signal<ApiError | null>(null);
 
-  private readonly voivodeships = toSignal(this.reference.regions('PL', 2), { initialValue: [] });
-  private readonly subregions = toSignal(this.reference.regions('PL', 3), { initialValue: [] });
+  /** Country of the base (any European country with NUTS regions). */
+  protected readonly baseCountry = signal('PL');
+  private readonly countries = toSignal(this.reference.countries(), { initialValue: [] });
+  private readonly voivodeships = toSignal(toObservable(this.baseCountry).pipe(switchMap((c) => this.reference.regions(c, 2))), { initialValue: [] });
+  private readonly subregions = toSignal(toObservable(this.baseCountry).pipe(switchMap((c) => this.reference.regions(c, 3))), { initialValue: [] });
+  /** Extra regions: level 2 of the base country and of every country of interest. */
+  private readonly extraRegions = toSignal(toObservable(computed(() =>
+    [...new Set([this.baseCountry(), ...this.profile().countriesOfInterest])])).pipe(
+    switchMap((codes) => combineLatest(codes.map((c) => this.reference.regions(c, 2)))),
+    map((lists) => lists.flat()),
+  ), { initialValue: [] });
+  protected readonly countryOptions = computed<SelectOption[]>(() => {
+    const lang = this.language.current();
+    return this.countries().filter((c) => c.isEu || NUTS_EXTRA.includes(c.code))
+      .map((c) => ({ value: c.code, label: countryName(c.code, lang) }))
+      .sort((a, b) => a.label.localeCompare(b.label, lang));
+  });
 
   protected readonly voivodeshipOptions = computed<SelectOption[]>(() => {
     this.translations();
@@ -137,7 +160,10 @@ export class MatchingSettingsComponent {
     const v = this.voivodeship();
     return [{ value: '', label: '—' }, ...this.subregions().filter((r) => v && r.code.startsWith(v)).map((r) => ({ value: r.code, label: r.name, hint: r.code }))];
   });
-  protected readonly extraOptions = computed<CheckOption[]>(() => this.voivodeships().map((r) => ({ value: r.code, label: r.name })));
+  protected readonly extraOptions = computed<CheckOption[]>(() => {
+    const several = new Set(this.extraRegions().map((r) => r.code.slice(0, 2))).size > 1;
+    return this.extraRegions().map((r) => ({ value: r.code, label: several ? `${r.name} (${r.code.slice(0, 2)})` : r.name }));
+  });
   protected readonly radiusOptions = computed<SelectOption[]>(() => {
     this.translations();
     return [{ value: '', label: this.transloco.translate('matchSettings.noLimit') },
@@ -155,8 +181,16 @@ export class MatchingSettingsComponent {
       this.s.set({ ...DEFAULT_MATCHING, ...m });
       // Polish voivodeships changed in NUTS 2016+ (PL91/PL92 = Mazowieckie): the first four characters identify them.
       this.voivodeship.set(m.baseNuts ? m.baseNuts.slice(0, 4) : '');
+      const nutsCountry = m.baseNuts?.slice(0, 2);
+      this.baseCountry.set(nutsCountry === 'EL' ? 'GR' : nutsCountry === 'UK' ? 'GB' : nutsCountry ?? this.profile().registrationCountry ?? 'PL');
       this.dirty.set(false);
     });
+  }
+
+  protected setCountry(code: string): void {
+    this.baseCountry.set(code);
+    this.voivodeship.set('');
+    this.patch({ baseNuts: null });
   }
 
   protected setVoivodeship(code: string): void {

@@ -78,6 +78,20 @@ class MatchingEngineTest {
     }
 
     @Test
+    void greekRegionsUseElButTendersUseGr() {
+        // A company in Athens (NUTS EL303) – tenders from Greece carry the ISO code GR.
+        Profile athens = new Profile(List.of("45233000"), List.of(), "GR", List.of("WORKS"), null, null, List.of(),
+                "EL303", new GeoPoint(37.98, 23.73), 200, true, List.of(), true, List.of(), List.of(), List.of());
+        Result r = MatchingEngine.score(athens, new Tender("GR", "45233120", List.of(), "WORKS", null, "EL305",
+                new GeoPoint(38.05, 23.55), null));
+        assertThat(r.excluded()).isFalse();
+        assertThat(codes(r.unmet())).doesNotContain("COUNTRY_OUTSIDE");
+        assertThat(codes(r.met())).contains("WITHIN_DISTANCE");
+        assertThat(NutsRegions.iso("EL")).isEqualTo("GR");
+        assertThat(NutsRegions.nutsCountry("GB")).isEqualTo("UK");
+    }
+
+    @Test
     void sameSubregionIsSaidPlainly() {
         Result r = MatchingEngine.score(local(false), at("PL213", KRAKOW, "WORKS", null));
         assertThat(r.distanceKm()).isZero();
@@ -117,6 +131,15 @@ class MatchingEngineTest {
                 SZCZECIN, null));
         assertThat(supplies.excluded()).isFalse();
         assertThat(codes(supplies.met())).contains("SUPPLIES_NATIONWIDE");
+    }
+
+    @Test
+    void nationwideSuppliesOnlyForCompaniesThatDoSupplies() {
+        // local(): works only, Kraków, 150 km → a supply contract in Szczecin stays outside the area.
+        Result r = MatchingEngine.score(local(true), new Tender("PL", "45233120", List.of(), "SUPPLIES", null, "PL424",
+                SZCZECIN, null));
+        assertThat(r.excluded()).isTrue();
+        assertThat(codes(r.met())).doesNotContain("SUPPLIES_NATIONWIDE");
     }
 
     @Test

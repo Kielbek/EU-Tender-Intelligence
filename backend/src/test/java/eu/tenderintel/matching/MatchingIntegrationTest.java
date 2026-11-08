@@ -1,6 +1,8 @@
 package eu.tenderintel.matching;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -269,6 +271,11 @@ class MatchingIntegrationTest {
                 .andExpect(jsonPath("$.code").value("invalid_region"));
         mvc.perform(get("/api/v1/regions").param("country", "PL").param("level", "2"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(17));
+        // Any European country; Greece is asked for by its ISO code (NUTS calls it EL).
+        mvc.perform(get("/api/v1/regions").param("country", "GR").param("level", "3"))
+                .andExpect(jsonPath("$[0].code").value(startsWith("EL")));
+        mvc.perform(get("/api/v1/regions").param("country", "DE").param("level", "2"))
+                .andExpect(jsonPath("$.length()").value(greaterThan(30)));
         // Keywords with commas/quotes are stored as data, not SQL.
         mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
                 .content(body.replace("[\"drog\"]", "[\"a,b\", \"x'y\\\"z\"]")))

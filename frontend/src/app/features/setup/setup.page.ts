@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -91,8 +92,10 @@ export class SetupPage {
   });
 
   private readonly reference = inject(ReferenceService);
-  private readonly voivodeships = toSignal(this.reference.regions('PL', 2), { initialValue: [] });
-  private readonly subregions = toSignal(this.reference.regions('PL', 3), { initialValue: [] });
+  /** Regions of the registration country chosen in step 1 (any European country). */
+  private readonly regionCountry = computed(() => this.registrationCountry() || 'PL');
+  private readonly voivodeships = toSignal(toObservable(this.regionCountry).pipe(switchMap((c) => this.reference.regions(c, 2))), { initialValue: [] });
+  private readonly subregions = toSignal(toObservable(this.regionCountry).pipe(switchMap((c) => this.reference.regions(c, 3))), { initialValue: [] });
   protected readonly voivodeshipOptions = computed<SelectOption[]>(() =>
     [{ value: '', label: '—' }, ...this.voivodeships().map((r) => ({ value: r.code, label: r.name }))]);
   protected readonly subregionOptions = computed<SelectOption[]>(() => {
@@ -103,6 +106,18 @@ export class SetupPage {
     this.translations();
     return [{ value: '', label: this.transloco.translate('matchSettings.noLimit') },
       ...[50, 100, 150, 200, 300].map((km) => ({ value: String(km), label: this.transloco.translate('matchSettings.km', { km }) }))];
+  });
+
+  /** Changing the country in step 1 drops a base chosen in another country. */
+  private readonly resetBase = effect(() => {
+    const country = this.regionCountry();
+    const prefix = country === 'GR' ? 'EL' : country === 'GB' ? 'UK' : country;
+    untracked(() => {
+      if (this.voivodeship() && !this.voivodeship().startsWith(prefix)) {
+        this.voivodeship.set('');
+        this.baseNuts.set('');
+      }
+    });
   });
 
   protected setVoivodeship(code: string): void {

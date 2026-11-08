@@ -160,11 +160,18 @@ public class MatchingService {
             }
             String[] divisions = profile.cpvCodes().stream().map(c -> c.substring(0, 2)).distinct()
                     .toArray(String[]::new);
+            // STRICT: tenders from countries outside the profile can never match – do not even read them.
+            String[] countries = !profile.strictRegion() ? new String[0]
+                    : !profile.countriesOfInterest().isEmpty() ? profile.countriesOfInterest().toArray(String[]::new)
+                    : profile.baseNuts() != null ? new String[] {NutsRegions.iso(profile.baseNuts().substring(0, 2))}
+                    : profile.registrationCountry() != null ? new String[] {profile.registrationCountry()}
+                    : new String[0];
             List<Object[]> rows = new java.util.ArrayList<>();
             jdbc.query("""
                     select TENDER_COLUMNS
                     from tenders t
                     where t.status = 'OPEN'
+                      and (cardinality(?::text[]) = 0 or t.country_code = any (?::text[]))
                       and (left(t.main_cpv, 2) = any (?)
                            or exists (select 1 from tender_cpv tc where tc.tender_id = t.id
                                       and left(tc.cpv_code, 2) = any (?)))
@@ -175,7 +182,7 @@ public class MatchingService {
                     rows.add(new Object[] {orgId, rs.getObject(1, UUID.class), result.score(),
                             json.writeValueAsString(result), MatchingEngine.VERSION});
                 }
-            }, divisions, divisions);
+            }, countries, countries, divisions, divisions);
             jdbc.batchUpdate("""
                     insert into tender_matches (organization_id, tender_id, score, breakdown, engine_version)
                     values (?, ?, ?, ?::jsonb, ?)
