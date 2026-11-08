@@ -51,7 +51,9 @@ export const LEGAL_TEXTS: Record<'pl' | 'en', Record<'terms' | 'privacy', LegalD
         {
           heading: 'Plany i limity',
           paragraphs: [
-            'Dostępne funkcje i limity (np. liczba analiz AI w miesiącu) zależą od planu organizacji. Opłaty za plany płatne zostaną uruchomione wraz z modułem płatności; do tego czasu dostępny jest plan bezpłatny.',
+            'Dostępne funkcje i limity (liczba użytkowników, zapisanych wyszukiwań, analiz AI i eksportów w miesiącu, e-maile natychmiastowe) zależą od planu organizacji i są opisane na stronie „Plan i płatności”. Plan bezpłatny nie wymaga podania karty.',
+            'Plany płatne są subskrypcją miesięczną lub roczną, odnawianą automatycznie do czasu anulowania. Cenę netto i podatek VAT widać przed zapłatą. Płatności obsługuje Stripe; faktura jest wystawiana po każdej płatności. Subskrypcję można w każdej chwili zmienić lub anulować w panelu „Zarządzaj płatnościami” – anulowanie działa z końcem opłaconego okresu, po czym organizacja przechodzi na plan bezpłatny, a jej dane pozostają.',
+            'Jeśli płatność się nie powiedzie, Stripe ponawia próbę, a administratorzy organizacji dostają e-mail. Po bezskutecznych próbach subskrypcja wygasa i organizacja przechodzi na plan bezpłatny.',
           ],
         },
         {
@@ -92,6 +94,8 @@ export const LEGAL_TEXTS: Record<'pl' | 'en', Record<'terms' | 'privacy', LegalD
             'Dane konta: adres e-mail, imię i nazwisko, język i strefa czasowa, skrót hasła (samego hasła nie przechowujemy), daty logowania i akceptacji regulaminu.',
             'Dane bezpieczeństwa: adres IP i przeglądarka przy logowaniu oraz w dzienniku zdarzeń (np. zmiana hasła, eksport danych).',
             'Dane organizacji: profil firmy, obserwowane przetargi i notatki, zapisane wyszukiwania, wgrane dokumenty, historia analiz AI i zużycie limitów.',
+            'Powiadomienia: ich treść, ustawienia (w aplikacji, częstotliwość e-maili) i daty odczytu. E-maile z powiadomieniami można wyłączyć linkiem w każdej wiadomości.',
+            'Płatności: dane rozliczeniowe (nazwa firmy, adres, NIP, e-mail do faktur), plan, status subskrypcji i faktury. Danych karty nie przechowujemy – przetwarza je Stripe.',
             'Ogłoszenia o zamówieniach to dane publiczne. Mogą zawierać dane kontaktowe pracowników zamawiających – przetwarzamy je tak, jak zostały opublikowane w źródle.',
           ],
         },
@@ -165,7 +169,9 @@ export const LEGAL_TEXTS: Record<'pl' | 'en', Record<'terms' | 'privacy', LegalD
         {
           heading: 'Plans and limits',
           paragraphs: [
-            'Available features and limits (e.g. AI analyses per month) depend on the organization’s plan. Paid plans start with the billing module; until then the free plan is available.',
+            'Features and limits (users, saved searches, AI analyses and exports per month, instant e-mails) depend on the organization’s plan and are shown on the “Plan and billing” page. The free plan needs no card.',
+            'Paid plans are monthly or yearly subscriptions renewed automatically until cancelled. The net price and VAT are shown before payment. Payments are handled by Stripe; an invoice is issued after every payment. The subscription can be changed or cancelled at any time under “Manage billing” – cancellation takes effect at the end of the paid period, after which the organization moves to the free plan and keeps its data.',
+            'If a payment fails, Stripe retries and the organization’s administrators receive an e-mail. After unsuccessful retries the subscription lapses and the organization moves to the free plan.',
           ],
         },
         {
@@ -204,6 +210,8 @@ export const LEGAL_TEXTS: Record<'pl' | 'en', Record<'terms' | 'privacy', LegalD
             'Account data: e-mail address, full name, language and time zone, a password hash (never the password), sign-in and terms-acceptance dates.',
             'Security data: IP address and browser at sign-in and in the event log (e.g. password change, data export).',
             'Organization data: company profile, watched tenders and notes, saved searches, uploaded documents, AI analysis history and usage.',
+            'Notifications: their content, settings (in-app, e-mail frequency) and read dates. Notification e-mails can be switched off with the link in every message.',
+            'Payments: billing details (company name, address, tax id, invoice e-mail), plan, subscription status and invoices. We never store card details – Stripe processes them.',
             'Procurement notices are public data. They may include contact details of authority staff – we process them as published by the source.',
           ],
         },

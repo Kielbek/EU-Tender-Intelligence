@@ -17,8 +17,9 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | 5a | Profil firmy, wyjaśnialne dopasowanie 0–100, lista dopasowanych przetargów, najlepsze przetargi na dashboardzie | ✅ |
 | 5b | Dokumenty przetargów, analiza AI (Claude) z cytatami, limity planów, koszty AI | ✅ (test z prawdziwym kluczem – do wykonania) |
 | 5b+ | Przetargi krajowe z Polski (BZP), RODO (eksport i usunięcie konta, regulamin, polityka prywatności), konfiguracja firmy po rejestracji (kroki na pełnym ekranie, z „Pomiń”), przewodnik „Pierwsze kroki”, BGN | ✅ |
-| 5c | OCR, tłumaczenia, wyszukiwanie w języku naturalnym, asystent AI | ⏳ następny |
-| 6–8 | Powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
+| 6 | Powiadomienia (w aplikacji i e-mail: natychmiast/dziennie/tygodniowo, wypisanie jednym kliknięciem), plany z limitami egzekwowanymi w backendzie, Stripe Checkout + Customer Portal + webhooki + Stripe Tax ([billing-notifications.md](docs/billing-notifications.md)) | ✅ (test z kontem Stripe w trybie testowym – do wykonania) |
+| 5c | OCR, tłumaczenia, wyszukiwanie w języku naturalnym, asystent AI | ⏳ |
+| 7–8 | Admin UI, analiza rynku, wdrożenie | 📋 plan |
 
 Co działa teraz:
 

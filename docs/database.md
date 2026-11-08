@@ -184,7 +184,7 @@ Przy dużym wolumenie: partycjonowanie `tender_versions` po roku publikacji.
 > Opis w [ai-analysis.md](ai-analysis.md).
 >
 > `V11` – źródło `PL_EZAMOWIENIA` (BZP) aktywowane; `V12` – indeks `raw_notices (data_source_id, fetched_at)` dla
-> przyrostowych importów BZP; `V13` – przeliczenie wartości w BGN na EUR po stałym kursie 1,95583 (euro w Bułgarii od 2026); `V14` – `users.setup_completed_at` (konfiguracja po rejestracji; istniejące konta oznaczone jako skonfigurowane). Reguły dopasowania opisuje [matching.md](matching.md).
+> przyrostowych importów BZP; `V13` – przeliczenie wartości w BGN na EUR po stałym kursie 1,95583 (euro w Bułgarii od 2026); `V15` – powiadomienia (`notification_preferences`, `notifications`, `notification_digests`, `notification_cursors`), płatności (`subscriptions`, `payments`, `stripe_events`, `usage_counters`, `organizations.plan_source`), alerty zapisanych wyszukiwań, nagłówek wypisania w `email_outbox`; `V14` – `users.setup_completed_at` (konfiguracja po rejestracji; istniejące konta oznaczone jako skonfigurowane). Reguły dopasowania opisuje [matching.md](matching.md).
 
 * **company_profiles** – `organization_id UNIQUE`, `name`, `registration_country`, `industry`, `description`, `website`, `countries_of_interest char(2)[]`,
   `size` (`MICRO`/`SMALL`/`MEDIUM`/`LARGE`), `annual_revenue`, `revenue_currency`, `years_of_experience`, `technical_resources`, `staff_resources`,

@@ -779,7 +779,8 @@
     "processor": {
       "HOSTING": "Hosting (serwery i baza danych)",
       "EMAIL": "Wysyłka e-maili",
-      "AI": "Model AI do analizy dokumentów"
+      "AI": "Model AI do analizy dokumentów",
+      "PAYMENTS": "Płatności i faktury"
     }
   },
   "onboarding": {

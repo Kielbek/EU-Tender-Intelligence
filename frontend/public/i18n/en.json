@@ -779,7 +779,8 @@
     "processor": {
       "HOSTING": "Hosting (servers and database)",
       "EMAIL": "E-mail delivery",
-      "AI": "AI model for document analysis"
+      "AI": "AI model for document analysis",
+      "PAYMENTS": "Payments and invoices"
     }
   },
   "onboarding": {

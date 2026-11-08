@@ -55,6 +55,14 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | POST | `/api/v1/me/setup-complete` | zalogowany | zakończenie lub pominięcie konfiguracji po rejestracji (idempotentne); zwraca `/me` z `setupCompleted: true` |
 | GET | `/api/v1/me/export` | zalogowany | RODO: wszystkie dane osobowe jako plik JSON (audyt `PERSONAL_DATA_EXPORTED`) |
 | DELETE | `/api/v1/me` `{password}` | zalogowany | RODO: usunięcie konta; 409 `transfer_admin_first`, 400 `invalid_current_password` |
+| GET | `/api/v1/billing/plans` | publiczny | plany, limity, ceny ze Stripe (kwoty w groszach/centach) |
+| GET | `/api/v1/organizations/{id}/billing` | członek | plan, subskrypcja, wykorzystanie limitów; faktury tylko dla administratora |
+| POST | `/api/v1/organizations/{id}/billing/checkout` `{plan, interval}` | `COMPANY_ADMIN` | adres Stripe Checkout; 409 `subscription_exists`/`manual_plan`, 503 `billing_not_configured` |
+| POST | `/api/v1/organizations/{id}/billing/portal` | `COMPANY_ADMIN` | adres Stripe Customer Portal |
+| POST | `/api/v1/webhooks/stripe` | podpis Stripe | zdarzenia subskrypcji i faktur (idempotentne) |
+| GET | `/api/v1/organizations/{id}/notifications?unread=&page=&size=` | członek | powiadomienia osoby + liczba nieprzeczytanych |
+| PUT | `/api/v1/organizations/{id}/notification-preferences` | członek | preferencje; `INSTANT` bez planu płatnego → 402 `instant_alerts_unavailable` |
+| POST | `/api/v1/notifications/unsubscribe` | token z e-maila | wypisanie (JSON `{token}` albo RFC 8058 `?token=` + formularz) |
 | GET | `/api/v1/system/legal` | publiczny | dane operatora (z konfiguracji) i podmioty przetwarzające – do regulaminu i polityki prywatności |
 
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
@@ -73,7 +81,7 @@ Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call
 | Przetargi | `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language` |
 | Firma | `/company-profile/documents` (Etap 5b) |
 | AI (5c) | `POST /translations`, `POST /tenders/search/natural-language`, `POST /assistant/messages` (SSE) |
-| Powiadomienia | `GET /notifications`, `POST /notifications/{id}/read`, `GET/PUT /notification-preferences` |
-| Płatności | `GET /plans`, `POST /billing/checkout-session`, `POST /billing/portal-session`, `GET /billing/usage`, `POST /webhooks/stripe` (podpis) |
+| Powiadomienia | `GET /organizations/{id}/notifications`, `…/notifications/unread-count`, `POST …/notifications/{nid}/read`, `POST …/notifications/read-all`, `GET/PUT …/notification-preferences`, `POST /notifications/unsubscribe` (token), `PUT …/saved-searches/{sid}/alert` |
+| Płatności | `GET /billing/plans` (publiczny), `GET /organizations/{id}/billing`, `POST …/billing/checkout`, `POST …/billing/portal`, `POST /webhooks/stripe` (podpis), admin: `GET /admin/organizations`, `PUT /admin/organizations/{id}/plan`, `POST /admin/notifications/scan` |
 | Admin | `/admin/organizations`, `/admin/ai-usage` |
 | Growth | `/admin/crm/*`, `/admin/campaigns/*`, `/public/reports/subscribe`, `/partners/me/*`, `/referrals/me` – patrz [growth-system.md](growth-system.md) |
