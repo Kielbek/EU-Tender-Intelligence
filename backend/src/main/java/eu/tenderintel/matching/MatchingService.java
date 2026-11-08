@@ -46,9 +46,11 @@ public class MatchingService {
     private final TenderQueries tenders;
     private final JsonMapper json;
     private final ExecutorService executor;
+    private final NutsRegions nuts;
 
     MatchingService(JdbcTemplate jdbc, TransactionTemplate tx, OrganizationAccess access, TenderQueries tenders,
-            JsonMapper json) {
+            JsonMapper json, NutsRegions nuts) {
+        this.nuts = nuts;
         this.jdbc = jdbc;
         this.tx = tx;
         this.access = access;
@@ -89,33 +91,46 @@ public class MatchingService {
         if (cached != null && System.currentTimeMillis() - profileCacheAt < PROFILE_CACHE_MILLIS) {
             return cached;
         }
-        Map<UUID, List<String>> cpv = new java.util.HashMap<>();
-        jdbc.query("select p.organization_id, c.cpv_code from company_cpv c join company_profiles p "
-                + "on p.id = c.company_profile_id order by c.cpv_code", rs -> {
-                    cpv.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
-                            .add(rs.getString(2));
-                });
-        Map<UUID, List<Reference>> refs = new java.util.HashMap<>();
-        jdbc.query("select p.organization_id, r.title, r.cpv_code from company_references r join company_profiles p "
-                + "on p.id = r.company_profile_id", rs -> {
-                    refs.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
-                            .add(new Reference(rs.getString(2), rs.getString(3)));
-                });
-        Map<UUID, Profile> loaded = new java.util.HashMap<>();
-        jdbc.query("""
-                select organization_id, countries_of_interest, registration_country, contract_types,
-                       min_contract_value_eur, max_contract_value_eur
-                from company_profiles
-                """, rs -> {
-                    UUID org = rs.getObject(1, UUID.class);
-                    loaded.put(org, new Profile(cpv.getOrDefault(org, List.of()), list(rs.getArray(2)),
-                            rs.getString(3), list(rs.getArray(4)), rs.getBigDecimal(5), rs.getBigDecimal(6),
-                            refs.getOrDefault(org, List.of())));
-                });
-        Map<UUID, Profile> result = Map.copyOf(loaded);
+        Map<UUID, Profile> result = Map.copyOf(loadProfiles(null));
         profileCache = result;
         profileCacheAt = System.currentTimeMillis();
         return result;
+    }
+
+    /** Profiles of all organizations ({@code orgId} null) or of one, with CPV codes and references. */
+    private Map<UUID, Profile> loadProfiles(UUID orgId) {
+        String filter = orgId == null ? "" : " where p.organization_id = ?";
+        Object[] args = orgId == null ? new Object[0] : new Object[] {orgId};
+        Map<UUID, List<String>> cpv = new java.util.HashMap<>();
+        jdbc.query("select p.organization_id, c.cpv_code from company_cpv c join company_profiles p "
+                + "on p.id = c.company_profile_id" + filter + " order by c.cpv_code", rs -> {
+                    cpv.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
+                            .add(rs.getString(2));
+                }, args);
+        Map<UUID, List<Reference>> refs = new java.util.HashMap<>();
+        jdbc.query("select p.organization_id, r.title, r.cpv_code from company_references r join company_profiles p "
+                + "on p.id = r.company_profile_id" + filter, rs -> {
+                    refs.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
+                            .add(new Reference(rs.getString(2), rs.getString(3)));
+                }, args);
+        Map<UUID, Profile> loaded = new java.util.HashMap<>();
+        jdbc.query("""
+                select p.organization_id, p.countries_of_interest, p.registration_country, p.contract_types,
+                       p.min_contract_value_eur, p.max_contract_value_eur, p.base_nuts, p.max_distance_km,
+                       p.region_mode, p.extra_regions, p.supplies_nationwide, p.include_keywords, p.exclude_keywords,
+                       p.excluded_cpv
+                from company_profiles p
+                """ + filter, rs -> {
+                    UUID org = rs.getObject(1, UUID.class);
+                    String base = rs.getString(7);
+                    loaded.put(org, new Profile(cpv.getOrDefault(org, List.of()), list(rs.getArray(2)),
+                            rs.getString(3) == null ? null : rs.getString(3).trim(), list(rs.getArray(4)),
+                            rs.getBigDecimal(5), rs.getBigDecimal(6), refs.getOrDefault(org, List.of()), base,
+                            nuts.point(base), (Integer) rs.getObject(8, Integer.class), "STRICT".equals(rs.getString(9)),
+                            list(rs.getArray(10)), rs.getBoolean(11), list(rs.getArray(12)), list(rs.getArray(13)),
+                            list(rs.getArray(14))));
+                }, args);
+        return loaded;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -147,16 +162,14 @@ public class MatchingService {
                     .toArray(String[]::new);
             List<Object[]> rows = new java.util.ArrayList<>();
             jdbc.query("""
-                    select t.id, t.country_code, t.main_cpv, t.contract_type, t.estimated_value_eur,
-                           coalesce((select array_agg(cpv_code) from tender_cpv tc where tc.tender_id = t.id), '{}')
+                    select TENDER_COLUMNS
                     from tenders t
                     where t.status = 'OPEN'
                       and (left(t.main_cpv, 2) = any (?)
                            or exists (select 1 from tender_cpv tc where tc.tender_id = t.id
                                       and left(tc.cpv_code, 2) = any (?)))
-                    """, rs -> {
-                Tender tender = new Tender(rs.getString(2), rs.getString(3), list(rs.getArray(6)), rs.getString(4),
-                        rs.getBigDecimal(5));
+                    """.replace("TENDER_COLUMNS", TENDER_COLUMNS), rs -> {
+                Tender tender = tender(rs);
                 Result result = MatchingEngine.score(profile, tender);
                 if (result.score() >= MIN_STORED) {
                     rows.add(new Object[] {orgId, rs.getObject(1, UUID.class), result.score(),
@@ -212,10 +225,20 @@ public class MatchingService {
         Long total = jdbc.queryForObject("""
                 select count(*) from tender_matches m join tenders t on t.id = m.tender_id
                 where m.organization_id = ? and m.score >= ? and t.status = 'OPEN'
+                  and not exists (select 1 from match_dismissals d where d.organization_id = m.organization_id
+                                  and d.tender_id = m.tender_id)
+                  and (t.submission_deadline is null or t.submission_deadline >= now() + make_interval(days =>
+                       coalesce((select p.min_days_to_deadline from company_profiles p
+                                 where p.organization_id = m.organization_id), 0)))
                 """, Long.class, orgId, minScore);
         List<Object[]> rows = jdbc.query("""
                 select m.tender_id, m.score, m.breakdown::text from tender_matches m join tenders t on t.id = m.tender_id
                 where m.organization_id = ? and m.score >= ? and t.status = 'OPEN'
+                  and not exists (select 1 from match_dismissals d where d.organization_id = m.organization_id
+                                  and d.tender_id = m.tender_id)
+                  and (t.submission_deadline is null or t.submission_deadline >= now() + make_interval(days =>
+                       coalesce((select p.min_days_to_deadline from company_profiles p
+                                 where p.organization_id = m.organization_id), 0)))
                 order by m.score desc, t.submission_deadline nulls last, t.id
                 limit ? offset ?
                 """, (rs, i) -> new Object[] {rs.getObject(1, UUID.class), rs.getInt(2), rs.getString(3)}, orgId,
@@ -247,8 +270,66 @@ public class MatchingService {
         Long n = jdbc.queryForObject("""
                 select count(*) from tender_matches m join tenders t on t.id = m.tender_id
                 where m.organization_id = ? and m.score >= ? and t.status = 'OPEN'
+                  and not exists (select 1 from match_dismissals d where d.organization_id = m.organization_id
+                                  and d.tender_id = m.tender_id)
+                  and (t.submission_deadline is null or t.submission_deadline >= now() + make_interval(days =>
+                       coalesce((select p.min_days_to_deadline from company_profiles p
+                                 where p.organization_id = m.organization_id), 0)))
                 """, Long.class, orgId, minScore);
         return n == null ? 0 : n;
+    }
+
+    static final java.util.Set<String> DISMISS_REASONS = java.util.Set.of("LOCATION", "SECTOR", "VALUE",
+            "CONTRACT_TYPE", "REQUIREMENTS", "DEADLINE", "OTHER");
+
+    /** "Not relevant": hides the tender from the organization's matches; the reason helps to tune the profile. */
+    public void dismiss(UUID orgId, UUID userId, UUID tenderId, String reason) {
+        access.requireMember(orgId, userId);
+        if (!DISMISS_REASONS.contains(reason)) {
+            throw ApiException.badRequest("invalid_reason", "Unknown reason");
+        }
+        Integer exists = jdbc.queryForObject("select count(*) from tenders where id = ?", Integer.class, tenderId);
+        if (exists == null || exists == 0) {
+            throw ApiException.notFound("Tender");
+        }
+        jdbc.update("""
+                insert into match_dismissals (organization_id, tender_id, reason, user_id) values (?, ?, ?, ?)
+                on conflict (organization_id, tender_id) do update set reason = excluded.reason,
+                    user_id = excluded.user_id, created_at = now()
+                """, orgId, tenderId, reason, userId);
+    }
+
+    public void undismiss(UUID orgId, UUID userId, UUID tenderId) {
+        access.requireMember(orgId, userId);
+        jdbc.update("delete from match_dismissals where organization_id = ? and tender_id = ?", orgId, tenderId);
+    }
+
+    /** How often each reason was given in the last 90 days (drives hints such as "narrow the radius"). */
+    public Map<String, Long> dismissalReasons(UUID orgId, UUID userId) {
+        access.requireMember(orgId, userId);
+        Map<String, Long> out = new java.util.LinkedHashMap<>();
+        jdbc.query("""
+                select reason, count(*) from match_dismissals
+                where organization_id = ? and created_at > now() - interval '90 days'
+                group by reason order by count(*) desc
+                """, rs -> {
+                    out.put(rs.getString(1), rs.getLong(2));
+                }, orgId);
+        return out;
+    }
+
+    /** After an engine change, stored matches are recomputed with the new rules (in the background). */
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    void recomputeOutdated() {
+        List<UUID> orgs = jdbc.queryForList("""
+                select p.organization_id from company_profiles p
+                where exists (select 1 from tender_matches m where m.organization_id = p.organization_id
+                              and m.engine_version <> ?)
+                """, UUID.class, MatchingEngine.VERSION);
+        if (!orgs.isEmpty()) {
+            log.info("Matching engine v{}: recomputing {} organizations", MatchingEngine.VERSION, orgs.size());
+            orgs.forEach(org -> executor.execute(() -> safely(() -> recompute(org))));
+        }
     }
 
     public boolean hasProfile(UUID orgId) {
@@ -258,34 +339,25 @@ public class MatchingService {
     }
 
     Profile loadProfile(UUID orgId) {
-        List<Object[]> rows = jdbc.query("""
-                select id, countries_of_interest, registration_country, contract_types, min_contract_value_eur,
-                       max_contract_value_eur
-                from company_profiles where organization_id = ?
-                """, (rs, i) -> new Object[] {rs.getObject(1, UUID.class), list(rs.getArray(2)), rs.getString(3),
-                list(rs.getArray(4)), rs.getBigDecimal(5), rs.getBigDecimal(6)}, orgId);
-        if (rows.isEmpty()) {
-            return null;
-        }
-        Object[] r = rows.getFirst();
-        UUID pid = (UUID) r[0];
-        List<String> cpv = jdbc.queryForList("select cpv_code from company_cpv where company_profile_id = ? "
-                + "order by cpv_code", String.class, pid);
-        List<Reference> refs = jdbc.query("select title, cpv_code from company_references where company_profile_id = ?",
-                (rs, i) -> new Reference(rs.getString(1), rs.getString(2)), pid);
-        @SuppressWarnings("unchecked")
-        Profile profile = new Profile(cpv, (List<String>) r[1], (String) r[2], (List<String>) r[3],
-                (java.math.BigDecimal) r[4], (java.math.BigDecimal) r[5], refs);
-        return profile;
+        return loadProfiles(orgId).get(orgId);
+    }
+
+    /** id, country, CPV, type, value, NUTS and text (title + start of the description, for keywords). */
+    static final String TENDER_COLUMNS = """
+            t.id, t.country_code, t.main_cpv, t.contract_type, t.estimated_value_eur,
+            coalesce((select array_agg(cpv_code) from tender_cpv tc where tc.tender_id = t.id), '{}'),
+            t.nuts_code, left(coalesce(t.title, '') || ' ' || coalesce(t.description, ''), 4000)
+            """;
+
+    private Tender tender(java.sql.ResultSet rs) throws SQLException {
+        String nutsCode = rs.getString(7);
+        return new Tender(rs.getString(2).trim(), rs.getString(3), list(rs.getArray(6)), rs.getString(4),
+                rs.getBigDecimal(5), nutsCode, nuts.point(nutsCode), rs.getString(8));
     }
 
     private Tender loadTender(UUID tenderId) {
-        List<Tender> rows = jdbc.query("""
-                select t.country_code, t.main_cpv, t.contract_type, t.estimated_value_eur,
-                       coalesce((select array_agg(cpv_code) from tender_cpv tc where tc.tender_id = t.id), '{}')
-                from tenders t where t.id = ?
-                """, (rs, i) -> new Tender(rs.getString(1), rs.getString(2), list(rs.getArray(5)), rs.getString(3),
-                rs.getBigDecimal(4)), tenderId);
+        List<Tender> rows = jdbc.query("select " + TENDER_COLUMNS + " from tenders t where t.id = ?",
+                (rs, i) -> tender(rs), tenderId);
         return rows.isEmpty() ? null : rows.getFirst();
     }
 

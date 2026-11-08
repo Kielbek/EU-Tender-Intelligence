@@ -10,6 +10,9 @@ import { reasonText } from './match-reasons';
   selector: 'eti-match-explanation',
   imports: [TranslocoPipe, LucideCheck, LucideX, LucideCircleHelp],
   template: `
+    @if (breakdown().excluded) {
+      <p class="mb-3 rounded-[var(--radius-control)] border border-danger/20 bg-danger-soft px-3 py-2 text-[13px] text-danger" role="note">{{ 'match.excluded' | transloco }}</p>
+    }
     <dl class="space-y-2.5">
       @for (c of breakdown().components; track c.key) {
         <div>

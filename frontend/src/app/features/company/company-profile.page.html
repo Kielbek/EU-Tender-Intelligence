@@ -209,6 +209,12 @@
       </aside>
     </div>
 
+    @if (profile(); as p) {
+      <div class="mt-4">
+        <eti-matching-settings [profile]="p" [orgId]="org.currentId()!" [editable]="isAdmin()" (savedProfile)="profile.set($event)" />
+      </div>
+    }
+
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
       <section class="eti-card p-5" aria-labelledby="refs-heading">
         <h2 id="refs-heading" class="eti-h2">{{ 'company.references' | transloco }}</h2>

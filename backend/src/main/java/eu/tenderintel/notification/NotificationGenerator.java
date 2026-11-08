@@ -114,6 +114,12 @@ class NotificationGenerator {
                   -- (thousands of existing tenders) are on the matches page, not in notifications.
                   and t.created_at > ? and t.published_at > ?
                   and m.score >= coalesce(p.min_score, %d)
+                  -- Not dismissed as irrelevant, and enough time left to prepare an offer.
+                  and not exists (select 1 from match_dismissals d where d.organization_id = m.organization_id
+                                  and d.tender_id = m.tender_id)
+                  and (t.submission_deadline is null or t.submission_deadline >= now() + make_interval(days =>
+                       coalesce((select cp.min_days_to_deadline from company_profiles cp
+                                 where cp.organization_id = m.organization_id), 0)))
                   and %s
                 on conflict (user_id, dedup_key) do nothing
                 """.formatted(delivery(t), recipients("m.organization_id", t), t.defaultMinScore(), wanted(t)),

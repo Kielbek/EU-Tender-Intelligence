@@ -36,8 +36,11 @@ public class CompanyProfileService {
     private final AuditService audit;
     private final ApplicationEventPublisher events;
 
+    private final eu.tenderintel.matching.NutsRegions nuts;
+
     CompanyProfileService(JdbcTemplate jdbc, OrganizationAccess access, AuditService audit,
-            ApplicationEventPublisher events) {
+            ApplicationEventPublisher events, eu.tenderintel.matching.NutsRegions nuts) {
+        this.nuts = nuts;
         this.jdbc = jdbc;
         this.access = access;
         this.audit = audit;
@@ -83,6 +86,9 @@ public class CompanyProfileService {
                 r.employees(), r.annualRevenue(), r.annualRevenue() == null ? null : r.revenueCurrency(),
                 r.yearsOfExperience(), r.minContractValueEur(), r.maxContractValueEur(),
                 blank(r.technicalResources()), blank(r.staffResources()), blank(r.financialCapacity()), id);
+        if (r.matching() != null) {
+            saveMatching(id, r.matching());
+        }
         jdbc.update("delete from company_cpv where company_profile_id = ?", id);
         UUID pid = id;
         jdbc.batchUpdate("insert into company_cpv (company_profile_id, cpv_code) values (?, ?)",
@@ -143,6 +149,34 @@ public class CompanyProfileService {
         return id;
     }
 
+    private void saveMatching(UUID profileId, CompanyDtos.MatchingSettings m) {
+        if (m.baseNuts() != null && !nuts.exists(m.baseNuts())) {
+            throw ApiException.badRequest("invalid_region", "Unknown NUTS region: " + m.baseNuts());
+        }
+        for (String region : m.extraRegions()) {
+            if (!nuts.exists(region)) {
+                throw ApiException.badRequest("invalid_region", "Unknown NUTS region: " + region);
+            }
+        }
+        jdbc.update("""
+                update company_profiles set base_nuts = ?, max_distance_km = ?, region_mode = ?,
+                    extra_regions = ?::varchar(5)[], supplies_nationwide = ?, include_keywords = ?::text[],
+                    exclude_keywords = ?::text[], excluded_cpv = ?::varchar(8)[], min_days_to_deadline = ?
+                where id = ?
+                """, m.baseNuts(), m.maxDistanceKm(), m.regionMode(), array(m.extraRegions()),
+                m.suppliesNationwide(), array(clean(m.includeKeywords())), array(clean(m.excludeKeywords())),
+                array(m.excludedCpv()), m.minDaysToDeadline(), profileId);
+    }
+
+    /** Bound as a real SQL array by the driver (free text such as keywords is never spliced into a literal). */
+    private static String[] array(List<String> values) {
+        return values.stream().distinct().toArray(String[]::new);
+    }
+
+    private static List<String> clean(List<String> words) {
+        return words.stream().map(String::strip).filter(w -> !w.isEmpty()).distinct().toList();
+    }
+
     private UUID profileId(UUID orgId) {
         List<UUID> ids = jdbc.queryForList("select id from company_profiles where organization_id = ?", UUID.class,
                 orgId);
@@ -184,7 +218,17 @@ public class CompanyProfileService {
                 rs.getBigDecimal("min_contract_value_eur"), rs.getBigDecimal("max_contract_value_eur"),
                 rs.getString("technical_resources"), rs.getString("staff_resources"),
                 rs.getString("financial_capacity"), List.copyOf(labels.keySet()), labels, certs, refs,
-                rs.getTimestamp("updated_at").toInstant());
+                rs.getTimestamp("updated_at").toInstant(), new CompanyDtos.MatchingSettings(rs.getString("base_nuts"),
+                        (Integer) rs.getObject("max_distance_km"), rs.getString("region_mode"),
+                        list(rs.getArray("extra_regions")), rs.getBoolean("supplies_nationwide"),
+                        list(rs.getArray("include_keywords")), list(rs.getArray("exclude_keywords")),
+                        list(rs.getArray("excluded_cpv")), (Integer) rs.getObject("min_days_to_deadline"),
+                        regionName(rs.getString("base_nuts"))));
+    }
+
+    private String regionName(String code) {
+        eu.tenderintel.matching.NutsRegions.Region r = nuts.find(code);
+        return r == null ? null : r.name();
     }
 
     static List<String> list(Array array) throws SQLException {

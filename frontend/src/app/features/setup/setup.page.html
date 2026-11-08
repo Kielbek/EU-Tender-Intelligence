@@ -85,6 +85,21 @@
               <h1 class="eti-h1">{{ 'setup.s3.title' | transloco }}</h1>
               <p class="eti-subtitle mt-2">{{ 'setup.s3.subtitle' | transloco }}</p>
               <div class="mt-8 space-y-6">
+                <div class="grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <label class="eti-label" for="setup-voiv">{{ 'matchSettings.voivodeship' | transloco }}</label>
+                    <eti-select inputId="setup-voiv" [options]="voivodeshipOptions()" [value]="voivodeship()" (valueChange)="setVoivodeship($any($event))" />
+                  </div>
+                  <div>
+                    <label class="eti-label" for="setup-base">{{ 'matchSettings.base' | transloco }}</label>
+                    <eti-select inputId="setup-base" [options]="subregionOptions()" [value]="baseNuts()" (valueChange)="baseNuts.set($any($event))" [disabled]="!voivodeship()" />
+                  </div>
+                  <div>
+                    <label class="eti-label" for="setup-radius">{{ 'matchSettings.radius' | transloco }}</label>
+                    <eti-select inputId="setup-radius" [options]="radiusOptions()" [value]="radius()" (valueChange)="radius.set($any($event))" />
+                  </div>
+                </div>
+                <p class="eti-hint -mt-3">{{ 'setup.s3.areaHint' | transloco }}</p>
                 <div>
                   <span class="eti-label">{{ 'company.countriesOfInterest' | transloco }}</span>
                   <eti-multi-check class="mt-1 block" [label]="'company.countries' | transloco" [options]="countryOptions()"

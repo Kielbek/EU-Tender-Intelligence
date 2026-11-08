@@ -114,7 +114,8 @@
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "today": "Today",
-    "clear": "Clear"
+    "clear": "Clear",
+    "remove": "Remove"
   },
   "auth": {
     "tagline": "Public tenders from across the European Union in one place.",
@@ -628,7 +629,8 @@
       "countries": "Countries or country of registration",
       "contractTypes": "Contract types",
       "valueRange": "Value range",
-      "references": "References with a CPV code"
+      "references": "References with a CPV code",
+      "area": "Base and working area"
     },
     "done": "complete",
     "todo": "missing",
@@ -684,7 +686,8 @@
       "location": "Location",
       "value": "Value",
       "contractType": "Contract type",
-      "experience": "Experience"
+      "experience": "Experience",
+      "keywords": "Keywords"
     },
     "reason": {
       "CPV_MATCH": "CPV {{tenderCpv}} falls within your sector {{profileCpv}}",
@@ -707,8 +710,44 @@
       "PROFILE_NO_CONTRACT_TYPES": "The profile does not specify contract types",
       "REFERENCE_SAME_SECTOR": "You have a reference in this sector: {{title}}",
       "NO_RELATED_REFERENCE": "No reference in this sector",
-      "PROFILE_NO_REFERENCES": "The profile has no references"
-    }
+      "PROFILE_NO_REFERENCES": "The profile has no references",
+      "WITHIN_DISTANCE": "About {{km}} km from your base – within your {{radius}} km radius",
+      "BEYOND_DISTANCE": "About {{km}} km from your base – outside your {{radius}} km radius",
+      "DISTANCE": "About {{km}} km from your base",
+      "IN_SELECTED_REGION": "In a region you chose ({{region}})",
+      "SUPPLIES_NATIONWIDE": "Supplies in your country – you deliver nationwide",
+      "TENDER_NO_LOCATION": "The notice gives no region – only the country counts",
+      "PROFILE_NO_BASE": "Set your base in the company profile to use distance",
+      "KEYWORD_MATCH": "Contains your words: {{keywords}}",
+      "NO_KEYWORD": "Contains none of your keywords",
+      "EXCLUDED_KEYWORD": "Contains an excluded word: {{keyword}}",
+      "EXCLUDED_CPV": "Industry excluded in the profile ({{profileCpv}})",
+      "SAME_AREA": "In your own subregion (where your base is)"
+    },
+    "excluded": "Excluded by your profile settings – not shown among matches.",
+    "distance": "about {{km}} km from your base",
+    "notRelevant": "Not relevant",
+    "notRelevantTitle": "Why is this tender not relevant?",
+    "undo": "Undo",
+    "hidden": "Hidden: {{title}}",
+    "dismiss": {
+      "LOCATION": "Too far / wrong region",
+      "SECTOR": "Not our industry",
+      "VALUE": "Wrong contract value",
+      "CONTRACT_TYPE": "Other contract type",
+      "REQUIREMENTS": "We do not meet the conditions",
+      "DEADLINE": "Too little time",
+      "OTHER": "Other reason"
+    },
+    "hint": {
+      "LOCATION": "You often dismiss tenders because of their location – set your base and working radius in the company profile.",
+      "SECTOR": "You often dismiss tenders from other industries – add excluded CPV codes or words in the company profile.",
+      "VALUE": "You often dismiss tenders because of their value – narrow the value range in the company profile.",
+      "DEADLINE": "You often lack time – set the minimum preparation time in the company profile.",
+      "CONTRACT_TYPE": "You often dismiss tenders because of the contract type – adjust contract types in the company profile."
+    },
+    "tuneProfile": "Adjust the profile",
+    "sameArea": "in your subregion"
   },
   "analysis": {
     "title": "Document analysis (AI)",
@@ -854,7 +893,8 @@
     "s3": {
       "title": "Where and how big?",
       "subtitle": "Countries you want to bid in and the size of contracts you take on.",
-      "valueHint": "Values in euro. Leave empty if the value should not affect matching."
+      "valueHint": "Values in euro. Leave empty if the value should not affect matching.",
+      "areaHint": "Your base and radius decide whether a tender on the other side of the country is shown. Without a radius, nearer tenders still rank higher."
     },
     "done": {
       "title": "All set!",
@@ -1126,5 +1166,38 @@
       "searchHintAuthorities": "Authorities are the bodies publishing tenders – type the full name (no abbreviations) or the tax id."
     },
     "vatNote": "Amounts: TED – net, BZP – gross offer prices (with VAT); the price/estimate ratio uses TED notices only (net to net)."
+  },
+  "matchSettings": {
+    "title": "Working area and preferences",
+    "subtitle": "Matching then takes into account the distance from your base, the regions you work in and what you do not do.",
+    "area": "Where you work",
+    "voivodeship": "Region of the base",
+    "base": "Subregion of the base (NUTS 3)",
+    "baseHint": "Distances are measured between subregion centres (Eurostat data).",
+    "radius": "Working radius (works, on-site services)",
+    "noLimit": "No limit – nearer is better",
+    "km": "up to {{km}} km",
+    "strict": "Show only tenders in my area",
+    "strictHint": "Tenders outside the radius and chosen regions will not appear in matches or notifications.",
+    "supplies": "I deliver supplies nationwide",
+    "suppliesHint": "The radius does not apply to supply contracts in your country.",
+    "extra": "Additional regions",
+    "extraNone": "none",
+    "extraHint": "E.g. a branch in another region – always counted as your area.",
+    "what": "What you look for and what you do not do",
+    "include": "Keywords",
+    "includePh": "e.g. road, pavement, lighting…",
+    "includeHint": "The beginning of a word is enough (road → roads, roadworks). Case and accents do not matter.",
+    "exclude": "Excluded words",
+    "excludePh": "e.g. bridge, viaduct…",
+    "excludeHint": "A tender with such a word in its title or description is not matched.",
+    "excludedCpv": "Excluded industries (CPV)",
+    "excludedCpvHint": "Codes you never do, even inside your industries (e.g. 45221 – bridges).",
+    "prep": "Minimum time to prepare an offer",
+    "prepNone": "no requirement",
+    "days": "{{n}} days",
+    "prepHint": "Tenders closing sooner disappear from matches and notifications.",
+    "save": "Save matching settings",
+    "saved": "Saved. Matches are recomputed in the background (a few seconds)."
   }
 }

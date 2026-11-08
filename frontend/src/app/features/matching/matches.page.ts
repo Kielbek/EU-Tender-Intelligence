@@ -1,9 +1,9 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiError, toApiError } from '../../core/api/api-error';
-import { MatchingService } from '../../core/api/company.service';
+import { DISMISS_REASONS, DismissReason, MatchingService } from '../../core/api/company.service';
 import { MatchView } from '../../core/api/matching.model';
 import { Page } from '../../core/api/tender.model';
 import { FORMAT_PIPES } from '../../core/format/format.pipes';
@@ -37,6 +37,14 @@ export class MatchesPage {
   protected readonly error = signal<ApiError | null>(null);
   protected readonly loading = signal(false);
   protected readonly expanded = signal<string | null>(null);
+  protected readonly reasons = DISMISS_REASONS;
+  /** Row whose "Not relevant" reason menu is open. */
+  protected readonly dismissing = signal<string | null>(null);
+  /** Last hidden tender, for "Undo". */
+  protected readonly lastHidden = signal<{ id: string; title: string } | null>(null);
+  /** A hint when one reason keeps coming back (three times or more in 90 days). */
+  protected readonly hint = signal<DismissReason | null>(null);
+  private static readonly HINTABLE: DismissReason[] = ['LOCATION', 'SECTOR', 'VALUE', 'DEADLINE', 'CONTRACT_TYPE'];
   private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
 
   constructor() {
@@ -55,6 +63,7 @@ export class MatchesPage {
       lang = this.language.current()): void {
     this.loading.set(true);
     this.error.set(null);
+    this.loadHint(orgId);
     this.api.list(orgId, min, page, PAGE_SIZE, lang).subscribe({
       next: (d) => {
         this.data.set(d);
@@ -64,6 +73,59 @@ export class MatchesPage {
         this.error.set(toApiError(err));
         this.loading.set(false);
       },
+    });
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected closeMenu(e: MouseEvent): void {
+    if (this.dismissing() && !(e.target as Element | null)?.closest?.('[data-dismiss-menu]')) {
+      this.dismissing.set(null);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  protected escape(): void {
+    this.dismissing.set(null);
+  }
+
+  private loadHint(orgId: string): void {
+    this.api.dismissalReasons(orgId).subscribe({
+      next: (r) => {
+        const top = (Object.entries(r) as [DismissReason, number][]).sort((a, b) => b[1] - a[1])[0];
+        this.hint.set(top && top[1] >= 3 && MatchesPage.HINTABLE.includes(top[0]) ? top[0] : null);
+      },
+      error: () => this.hint.set(null),
+    });
+  }
+
+  protected dismiss(m: MatchView, reason: DismissReason): void {
+    const orgId = this.org.currentId();
+    if (!orgId) {
+      return;
+    }
+    this.dismissing.set(null);
+    this.api.dismiss(orgId, m.tender.id, reason).subscribe({
+      next: () => {
+        this.data.update((d) => (d ? { ...d, items: d.items.filter((x) => x.tender.id !== m.tender.id), totalItems: d.totalItems - 1 } : d));
+        this.lastHidden.set({ id: m.tender.id, title: m.tender.title });
+        this.loadHint(orgId);
+      },
+      error: (err: unknown) => this.error.set(toApiError(err)),
+    });
+  }
+
+  protected undo(): void {
+    const orgId = this.org.currentId();
+    const last = this.lastHidden();
+    if (!orgId || !last) {
+      return;
+    }
+    this.api.undismiss(orgId, last.id).subscribe({
+      next: () => {
+        this.lastHidden.set(null);
+        this.load();
+      },
+      error: (err: unknown) => this.error.set(toApiError(err)),
     });
   }
 

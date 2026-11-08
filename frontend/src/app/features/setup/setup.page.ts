@@ -9,6 +9,7 @@ import { ApiError, toApiError } from '../../core/api/api-error';
 import {
   CompanyProfile,
   CompanyProfileRequest,
+  DEFAULT_MATCHING,
   CompanyService,
   CompanySize,
   MatchingService,
@@ -67,6 +68,9 @@ export class SetupPage {
   protected readonly contractTypes = signal<ProfileContractType[]>([]);
   protected readonly countriesOfInterest = signal<string[]>(['PL']);
   protected readonly minValue = signal<number | null>(null);
+  protected readonly voivodeship = signal('');
+  protected readonly baseNuts = signal('');
+  protected readonly radius = signal('');
   protected readonly maxValue = signal<number | null>(null);
 
   protected readonly typeOptions: ProfileContractType[] = ['WORKS', 'SUPPLIES', 'SERVICES'];
@@ -85,6 +89,28 @@ export class SetupPage {
       ...(['MICRO', 'SMALL', 'MEDIUM', 'LARGE'] as CompanySize[]).map((s) => ({
         value: s, label: this.transloco.translate('company.sizes.' + s) }))];
   });
+
+  private readonly reference = inject(ReferenceService);
+  private readonly voivodeships = toSignal(this.reference.regions('PL', 2), { initialValue: [] });
+  private readonly subregions = toSignal(this.reference.regions('PL', 3), { initialValue: [] });
+  protected readonly voivodeshipOptions = computed<SelectOption[]>(() =>
+    [{ value: '', label: '—' }, ...this.voivodeships().map((r) => ({ value: r.code, label: r.name }))]);
+  protected readonly subregionOptions = computed<SelectOption[]>(() => {
+    const v = this.voivodeship();
+    return [{ value: '', label: '—' }, ...this.subregions().filter((r) => v && r.code.startsWith(v)).map((r) => ({ value: r.code, label: r.name }))];
+  });
+  protected readonly radiusOptions = computed<SelectOption[]>(() => {
+    this.translations();
+    return [{ value: '', label: this.transloco.translate('matchSettings.noLimit') },
+      ...[50, 100, 150, 200, 300].map((km) => ({ value: String(km), label: this.transloco.translate('matchSettings.km', { km }) }))];
+  });
+
+  protected setVoivodeship(code: string): void {
+    this.voivodeship.set(code);
+    if (!this.baseNuts().startsWith(code)) {
+      this.baseNuts.set('');
+    }
+  }
 
   protected readonly rangeInvalid = computed(() => {
     const min = this.minValue();
@@ -131,6 +157,13 @@ export class SetupPage {
               this.countriesOfInterest.set(p.countriesOfInterest);
             }
             this.minValue.set(p.minContractValueEur ?? null);
+            if (p.matching?.baseNuts) {
+              this.baseNuts.set(p.matching.baseNuts);
+              this.voivodeship.set(p.matching.baseNuts.slice(0, 4));
+            }
+            if (p.matching?.maxDistanceKm) {
+              this.radius.set(String(p.matching.maxDistanceKm));
+            }
             this.maxValue.set(p.maxContractValueEur ?? null);
             this.ready.set(true);
           },
@@ -187,6 +220,9 @@ export class SetupPage {
       staffResources: p?.staffResources,
       financialCapacity: p?.financialCapacity,
       cpvCodes: this.cpvCodes(),
+      // Only when the base was chosen; otherwise the stored matching settings stay as they are.
+      matching: this.baseNuts() ? { ...DEFAULT_MATCHING, ...(p?.matching ?? {}), baseNuts: this.baseNuts(),
+        maxDistanceKm: this.radius() ? Number(this.radius()) : null } : undefined,
     };
     this.busy.set(true);
     this.error.set(null);

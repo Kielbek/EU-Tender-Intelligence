@@ -25,7 +25,27 @@ public final class CompanyDtos {
             Integer yearsOfExperience, BigDecimal minContractValueEur, BigDecimal maxContractValueEur,
             String technicalResources, String staffResources, String financialCapacity, List<String> cpvCodes,
             Map<String, String> cpvLabels, List<CertificationView> certifications, List<ReferenceView> references,
-            Instant updatedAt) {
+            Instant updatedAt, MatchingSettings matching) {
+    }
+
+    /**
+     * Where and what the company really does – used by matching v2. {@code baseNuts}: NUTS 3 subregion of the base;
+     * {@code maxDistanceKm} null = no limit; {@code regionMode} STRICT leaves out tenders outside the area;
+     * {@code extraRegions}: regions (any NUTS level) where it also works; keywords are matched as word stems
+     * without diacritics; {@code excludedCpv}: codes or prefixes it never does.
+     */
+    public record MatchingSettings(
+            @Pattern(regexp = "^[A-Z]{2}[A-Z0-9]{1,3}$") String baseNuts,
+            @Min(10) @Max(2000) Integer maxDistanceKm,
+            @NotNull @Pattern(regexp = "^(PREFER|STRICT)$") String regionMode,
+            @NotNull @Size(max = 50) List<@Pattern(regexp = "^[A-Z]{2}[A-Z0-9]{0,3}$") String> extraRegions,
+            boolean suppliesNationwide,
+            @NotNull @Size(max = 30) List<@NotBlank @Size(max = 60) String> includeKeywords,
+            @NotNull @Size(max = 30) List<@NotBlank @Size(max = 60) String> excludeKeywords,
+            @NotNull @Size(max = 50) List<@Pattern(regexp = "^\\d{2,8}$") String> excludedCpv,
+            @Min(0) @Max(60) Integer minDaysToDeadline,
+            /* Name of the base region, for display (ignored on save). */
+            String baseName) {
     }
 
     public record CompanyProfileRequest(
@@ -46,7 +66,9 @@ public final class CompanyDtos {
             @Size(max = 5000) String technicalResources,
             @Size(max = 5000) String staffResources,
             @Size(max = 5000) String financialCapacity,
-            @NotNull @Size(max = 50) List<@Pattern(regexp = "^\\d{8}$") String> cpvCodes) {
+            @NotNull @Size(max = 50) List<@Pattern(regexp = "^\\d{8}$") String> cpvCodes,
+            /* Optional: when absent (e.g. the first-run setup), the stored matching settings stay as they are. */
+            @jakarta.validation.Valid MatchingSettings matching) {
     }
 
     public record CertificationView(UUID id, String name, String issuer, LocalDate validUntil) {

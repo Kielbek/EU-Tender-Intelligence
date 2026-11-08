@@ -114,7 +114,8 @@
     "prevMonth": "Poprzedni miesiąc",
     "nextMonth": "Następny miesiąc",
     "today": "Dzisiaj",
-    "clear": "Wyczyść"
+    "clear": "Wyczyść",
+    "remove": "Usuń"
   },
   "auth": {
     "tagline": "Przetargi publiczne z całej Unii Europejskiej w jednym miejscu.",
@@ -628,7 +629,8 @@
       "countries": "Kraje lub kraj rejestracji",
       "contractTypes": "Rodzaje zamówień",
       "valueRange": "Zakres wartości",
-      "references": "Referencje z kodem CPV"
+      "references": "Referencje z kodem CPV",
+      "area": "Siedziba i obszar działania"
     },
     "done": "uzupełnione",
     "todo": "do uzupełnienia",
@@ -684,7 +686,8 @@
       "location": "Lokalizacja",
       "value": "Wartość",
       "contractType": "Rodzaj zamówienia",
-      "experience": "Doświadczenie"
+      "experience": "Doświadczenie",
+      "keywords": "Słowa kluczowe"
     },
     "reason": {
       "CPV_MATCH": "Kod CPV {{tenderCpv}} mieści się w Twojej branży {{profileCpv}}",
@@ -707,8 +710,44 @@
       "PROFILE_NO_CONTRACT_TYPES": "Profil nie określa rodzajów zamówień",
       "REFERENCE_SAME_SECTOR": "Masz referencję z tej branży: {{title}}",
       "NO_RELATED_REFERENCE": "Brak referencji z tej branży",
-      "PROFILE_NO_REFERENCES": "Profil nie zawiera referencji"
-    }
+      "PROFILE_NO_REFERENCES": "Profil nie zawiera referencji",
+      "WITHIN_DISTANCE": "Ok. {{km}} km od siedziby – w Twoim promieniu {{radius}} km",
+      "BEYOND_DISTANCE": "Ok. {{km}} km od siedziby – poza promieniem {{radius}} km",
+      "DISTANCE": "Ok. {{km}} km od siedziby",
+      "IN_SELECTED_REGION": "W regionie, który wybrałeś ({{region}})",
+      "SUPPLIES_NATIONWIDE": "Dostawa w Twoim kraju – realizujesz dostawy w całym kraju",
+      "TENDER_NO_LOCATION": "Ogłoszenie nie podaje regionu – liczymy tylko kraj",
+      "PROFILE_NO_BASE": "Ustaw siedzibę w profilu firmy, aby liczyć odległość",
+      "KEYWORD_MATCH": "Zawiera Twoje słowa: {{keywords}}",
+      "NO_KEYWORD": "Nie zawiera żadnego z Twoich słów kluczowych",
+      "EXCLUDED_KEYWORD": "Zawiera wykluczone słowo: {{keyword}}",
+      "EXCLUDED_CPV": "Branża wykluczona w profilu ({{profileCpv}})",
+      "SAME_AREA": "W Twoim podregionie (tam, gdzie siedziba)"
+    },
+    "excluded": "Wykluczone przez ustawienia profilu – nie pokazujemy go w dopasowaniach.",
+    "distance": "ok. {{km}} km od siedziby",
+    "notRelevant": "Nie pasuje",
+    "notRelevantTitle": "Dlaczego ten przetarg nie pasuje?",
+    "undo": "Cofnij",
+    "hidden": "Ukryto: {{title}}",
+    "dismiss": {
+      "LOCATION": "Za daleko / zły region",
+      "SECTOR": "Nie nasza branża",
+      "VALUE": "Zła wartość zamówienia",
+      "CONTRACT_TYPE": "Inny rodzaj zamówienia",
+      "REQUIREMENTS": "Nie spełniamy warunków",
+      "DEADLINE": "Za mało czasu",
+      "OTHER": "Inny powód"
+    },
+    "hint": {
+      "LOCATION": "Często odrzucasz przetargi z powodu lokalizacji – ustaw siedzibę i promień działania w profilu firmy.",
+      "SECTOR": "Często odrzucasz przetargi z innych branż – dodaj wykluczone kody CPV lub słowa w profilu firmy.",
+      "VALUE": "Często odrzucasz przetargi z powodu wartości – zawęź zakres wartości w profilu firmy.",
+      "DEADLINE": "Często brakuje Ci czasu – ustaw minimalny czas na przygotowanie oferty w profilu firmy.",
+      "CONTRACT_TYPE": "Często odrzucasz przetargi z powodu rodzaju zamówienia – popraw rodzaje zamówień w profilu firmy."
+    },
+    "tuneProfile": "Dostosuj profil",
+    "sameArea": "w Twoim podregionie"
   },
   "analysis": {
     "title": "Analiza dokumentacji (AI)",
@@ -854,7 +893,8 @@
     "s3": {
       "title": "Gdzie i za ile?",
       "subtitle": "Kraje, w których chcesz startować, i wielkość zamówień, które realizujecie.",
-      "valueHint": "Wartości w euro. Możesz zostawić puste – wtedy wartość nie wpływa na dopasowanie."
+      "valueHint": "Wartości w euro. Możesz zostawić puste – wtedy wartość nie wpływa na dopasowanie.",
+      "areaHint": "Siedziba i promień decydują, czy pokażemy Ci przetarg z drugiego końca kraju. Bez promienia bliższe przetargi i tak będą wyżej."
     },
     "done": {
       "title": "Gotowe!",
@@ -1126,5 +1166,38 @@
       "searchHintAuthorities": "Zamawiający to instytucje publikujące przetargi – wpisz pełną nazwę (bez skrótów) albo NIP/REGON."
     },
     "vatNote": "Kwoty: TED – netto, BZP – ceny ofert brutto (z VAT); stosunek ceny do wartości szacunkowej liczymy tylko z ogłoszeń TED (netto do netto)."
+  },
+  "matchSettings": {
+    "title": "Obszar działania i preferencje",
+    "subtitle": "Dzięki temu dopasowanie uwzględnia odległość od Twojej siedziby, regiony, w których pracujesz, i to, czego nie robisz.",
+    "area": "Gdzie działasz",
+    "voivodeship": "Województwo siedziby",
+    "base": "Podregion siedziby (NUTS 3)",
+    "baseHint": "Odległość liczymy między środkami podregionów (dane Eurostat).",
+    "radius": "Promień działania (roboty, usługi na miejscu)",
+    "noLimit": "Bez limitu – bliżej znaczy lepiej",
+    "km": "do {{km}} km",
+    "strict": "Pokazuj tylko przetargi w moim obszarze",
+    "strictHint": "Przetargi poza promieniem i wybranymi regionami nie pojawią się w dopasowaniach ani powiadomieniach.",
+    "supplies": "Dostawy realizuję w całym kraju",
+    "suppliesHint": "Promień nie dotyczy zamówień na dostawy w Twoim kraju.",
+    "extra": "Dodatkowe województwa",
+    "extraNone": "brak",
+    "extraHint": "Np. gdy masz oddział w innym województwie – liczą się zawsze jako Twój obszar.",
+    "what": "Czego szukasz, a czego nie robisz",
+    "include": "Słowa kluczowe",
+    "includePh": "np. drog, nawierzchni, oświetleni…",
+    "includeHint": "Wystarczy początek słowa (drog → drogowe, drogi). Wielkość liter i polskie znaki bez znaczenia.",
+    "exclude": "Wykluczone słowa",
+    "excludePh": "np. most, wiadukt…",
+    "excludeHint": "Przetarg z takim słowem w tytule lub opisie nie będzie dopasowany.",
+    "excludedCpv": "Wykluczone branże (CPV)",
+    "excludedCpvHint": "Kody, których nie realizujesz, nawet jeśli należą do Twoich branż (np. 45221 – mosty).",
+    "prep": "Minimalny czas na przygotowanie oferty",
+    "prepNone": "bez wymagań",
+    "days": "{{n}} dni",
+    "prepHint": "Przetargi z bliższym terminem znikną z dopasowań i powiadomień.",
+    "save": "Zapisz ustawienia dopasowania",
+    "saved": "Zapisano. Dopasowania przeliczamy w tle (kilka sekund)."
   }
 }

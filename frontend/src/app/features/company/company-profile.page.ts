@@ -24,6 +24,7 @@ import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.co
 import { DateInputComponent } from '../../shared/ui/date-input.component';
 import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
+import { MatchingSettingsComponent } from './matching-settings.component';
 
 type Num = number | null;
 
@@ -44,7 +45,7 @@ function text(value: string | null | undefined): string | undefined {
 @Component({
   selector: 'eti-company-profile-page',
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, CpvPickerComponent,
-    MultiCheckComponent, SkeletonComponent, SelectComponent, DateInputComponent, LucideCheck, LucideCircle, LucideLock, LucideTrash2],
+    MultiCheckComponent, SkeletonComponent, SelectComponent, DateInputComponent, MatchingSettingsComponent, LucideCheck, LucideCircle, LucideLock, LucideTrash2],
   templateUrl: './company-profile.page.html',
 })
 export class CompanyProfilePage {
@@ -134,6 +135,7 @@ export class CompanyProfilePage {
     return [
       item('cpv', !!p?.cpvCodes.length),
       item('countries', !!p && (p.countriesOfInterest.length > 0 || !!p.registrationCountry)),
+      item('area', !!p?.matching?.baseNuts),
       item('contractTypes', !!p?.contractTypes.length),
       item('valueRange', !!p && (p.minContractValueEur != null || p.maxContractValueEur != null)),
       item('references', !!p?.references.length),

@@ -66,7 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/system/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/countries/**", "/api/v1/currencies/**",
-                                "/api/v1/cpv/**").permitAll()
+                                "/api/v1/cpv/**", "/api/v1/regions/**", "/api/v1/regions").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login",
                                 "/api/v1/auth/refresh", "/api/v1/auth/logout", "/api/v1/auth/verify-email",
                                 "/api/v1/auth/verify-email/resend", "/api/v1/auth/password/forgot",

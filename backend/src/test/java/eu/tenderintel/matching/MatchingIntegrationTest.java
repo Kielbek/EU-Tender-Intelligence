@@ -139,28 +139,29 @@ class MatchingIntegrationTest {
 
         mvc.perform(put(profile).with(alice.bearer()).contentType(MediaType.APPLICATION_JSON).content(PROFILE))
                 .andExpect(status().isOk());
-        // T1: DE, 45200000, WORKS, 2.5 M EUR → 45 + 20 + 15 + 10 + 0 (no references).
-        await(() -> Integer.valueOf(90).equals(storedScore(org, TenderFixtures.T1)));
-        // T2: same division only (12) + PL + value + type → 57: stored, but below the "good match" threshold.
-        assertThat(storedScore(org, TenderFixtures.T2)).isEqualTo(57);
+        // T1: DE, 45200000, WORKS, 2.5 M EUR → 35 + 15 (country only: no base region, no tender NUTS) + 15 + 10
+        // + 5 (no keywords declared) + 0 (no references) = 80.
+        await(() -> Integer.valueOf(80).equals(storedScore(org, TenderFixtures.T1)));
+        // T2: same division only (9) + 15 + 15 + 10 + 5 → 54: stored, but below the "good match" threshold.
+        assertThat(storedScore(org, TenderFixtures.T2)).isEqualTo(54);
         // T3 is cancelled: never stored.
         assertThat(storedScore(org, TenderFixtures.T3)).isNull();
 
         mvc.perform(get(matches + "?lang=pl").with(alice.bearer()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T1 + "')].score").value(90))
+                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T1 + "')].score").value(80))
                 .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')]").isEmpty());
         mvc.perform(get(matches + "?minScore=40").with(alice.bearer()))
-                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')].score").value(57));
+                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')].score").value(54));
         mvc.perform(get(matches + "?minScore=10").with(alice.bearer())).andExpect(status().isBadRequest());
         mvc.perform(get(matches).with(mallory.bearer())).andExpect(status().isNotFound());
 
         JsonNode explained = api.readJson(mvc.perform(get(matches + "/" + TenderFixtures.T1).with(alice.bearer()))
                 .andExpect(status().isOk()).andReturn().getResponse());
-        assertThat(explained.get("score").asInt()).isEqualTo(90);
+        assertThat(explained.get("score").asInt()).isEqualTo(80);
         assertThat(explained.get("breakdown").get("met").get(0).get("code").asString()).isEqualTo("CPV_MATCH");
-        assertThat(explained.get("breakdown").get("missing").get(0).get("code").asString())
-                .isEqualTo("PROFILE_NO_REFERENCES");
+        assertThat(explained.get("breakdown").get("missing").toString()).contains("PROFILE_NO_REFERENCES")
+                .contains("PROFILE_NO_BASE");
         assertThat(explained.get("tender").get("title").asString()).isEqualTo("Neubau einer Grundschule");
         // Explanations are live, also for tenders that are not stored.
         mvc.perform(get(matches + "/" + TenderFixtures.T3).with(alice.bearer())).andExpect(status().isOk());
@@ -173,13 +174,13 @@ class MatchingIntegrationTest {
                                  "value":1200000,"currency":"PLN","yearCompleted":2024,"cpvCode":"45214200"}
                                 """))
                 .andExpect(status().isCreated());
-        await(() -> Integer.valueOf(100).equals(storedScore(org, TenderFixtures.T1)));
-        assertThat(storedScore(org, TenderFixtures.T2)).isEqualTo(67);
+        await(() -> Integer.valueOf(85).equals(storedScore(org, TenderFixtures.T1)));
+        assertThat(storedScore(org, TenderFixtures.T2)).isEqualTo(59);
 
         mvc.perform(get("/api/v1/organizations/" + org + "/dashboard?lang=pl").with(alice.bearer()))
                 .andExpect(jsonPath("$.hasProfile").value(true))
                 .andExpect(jsonPath("$.goodMatches").value(matching.countAtLeast(UUID.fromString(org), 60)))
-                .andExpect(jsonPath("$.topMatches[0].score").value(100));
+                .andExpect(jsonPath("$.topMatches[0].score").value(85));
     }
 
     @Test
@@ -190,14 +191,89 @@ class MatchingIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(PROFILE)).andExpect(status().isOk());
         await(() -> storedScore(org, TenderFixtures.T1) != null);
 
-        // The tender changes: value above the declared maximum → 75 (still stored).
+        // The tender changes: value above the declared maximum → 65 (still stored).
         jdbc.update("update tenders set estimated_value_eur = 9000000 where id = ?::uuid", TenderFixtures.T1);
         matching.rescoreTender(UUID.fromString(TenderFixtures.T1));
-        assertThat(storedScore(org, TenderFixtures.T1)).isEqualTo(75);
+        assertThat(storedScore(org, TenderFixtures.T1)).isEqualTo(65);
 
         // The tender is cancelled → its match disappears.
         jdbc.update("update tenders set status = 'CANCELLED' where id = ?::uuid", TenderFixtures.T1);
         matching.rescoreTender(UUID.fromString(TenderFixtures.T1));
         assertThat(storedScore(org, TenderFixtures.T1)).isNull();
+    }
+
+    @Test
+    void locationKeywordsDismissalsAndPreparationTime() throws Exception {
+        Session ola = api.registerVerifyLogin("v2-" + System.nanoTime() + "@match.test");
+        String org = org(ola);
+        // T2 (Łódź, PL711) and T1 (Germany) – give them places; base in Kraków (PL213), radius 150 km, STRICT.
+        jdbc.update("update tenders set nuts_code = 'PL711' where id = ?::uuid", TenderFixtures.T2);
+        jdbc.update("update tenders set nuts_code = 'DE300' where id = ?::uuid", TenderFixtures.T1);
+        String body = """
+                {"name":"Drogbud Kraków","registrationCountry":"PL","countriesOfInterest":["PL","DE"],
+                 "contractTypes":["WORKS"],"cpvCodes":["45000000"],
+                 "matching":{"baseNuts":"PL213","maxDistanceKm":150,"regionMode":"STRICT","extraRegions":[],
+                   "suppliesNationwide":true,"includeKeywords":["drog"],"excludeKeywords":[],"excludedCpv":[],
+                   "minDaysToDeadline":null}}
+                """;
+        String profile = "/api/v1/organizations/" + org + "/company-profile";
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.matching.baseNuts").value("PL213"))
+                .andExpect(jsonPath("$.matching.baseName").value("Miasto Kraków"))
+                .andExpect(jsonPath("$.matching.includeKeywords[0]").value("drog"));
+        // Łódź is ~190 km from Kraków: outside 150 km in STRICT mode → not a match; Berlin far away too.
+        await(() -> storedScore(org, TenderFixtures.T2) == null && storedScore(org, TenderFixtures.T1) == null);
+        JsonNode t2 = api.readJson(mvc.perform(get("/api/v1/organizations/" + org + "/matches/" + TenderFixtures.T2)
+                .with(ola.bearer())).andReturn().getResponse());
+        assertThat(t2.get("breakdown").get("excluded").asBoolean()).isTrue();
+        assertThat(t2.get("breakdown").get("distanceKm").asInt()).isBetween(150, 230);
+
+        // A wider radius brings Łódź in; the keyword "drog" matches "Roboty drogowe" in its description.
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("\"maxDistanceKm\":150", "\"maxDistanceKm\":300"))).andExpect(status().isOk());
+        await(() -> storedScore(org, TenderFixtures.T2) != null);
+        JsonNode list = api.readJson(mvc.perform(get("/api/v1/organizations/" + org + "/matches?minScore=40")
+                .with(ola.bearer())).andReturn().getResponse());
+        assertThat(list.get("items").toString()).contains(TenderFixtures.T2).contains("KEYWORD_MATCH")
+                .contains("WITHIN_DISTANCE");
+
+        // Too little time to prepare: T2 closes on 2026-11-20 – with 60 days required it is left out of the list.
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("\"maxDistanceKm\":150", "\"maxDistanceKm\":300")
+                        .replace("\"minDaysToDeadline\":null", "\"minDaysToDeadline\":60"))).andExpect(status().isOk());
+        await(() -> storedScore(org, TenderFixtures.T2) != null);
+        mvc.perform(get("/api/v1/organizations/" + org + "/matches?minScore=40").with(ola.bearer()))
+                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')]").isEmpty());
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("\"maxDistanceKm\":150", "\"maxDistanceKm\":300"))).andExpect(status().isOk());
+        await(() -> storedScore(org, TenderFixtures.T2) != null);
+
+        // "Not relevant" hides it and is counted; undo brings it back.
+        String dismissal = "/api/v1/organizations/" + org + "/matches/" + TenderFixtures.T2 + "/dismissal";
+        mvc.perform(put(dismissal).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reason\":\"LOCATION\"}")).andExpect(status().isNoContent());
+        mvc.perform(put(dismissal).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reason\":\"BOGUS\"}")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/v1/organizations/" + org + "/matches?minScore=40").with(ola.bearer()))
+                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')]").isEmpty());
+        mvc.perform(get("/api/v1/organizations/" + org + "/matches/dismissal-reasons").with(ola.bearer()))
+                .andExpect(jsonPath("$.LOCATION").value(1));
+        mvc.perform(delete(dismissal).with(ola.bearer())).andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/organizations/" + org + "/matches?minScore=40").with(ola.bearer()))
+                .andExpect(jsonPath("$.items[?(@.tender.id == '" + TenderFixtures.T2 + "')]").isNotEmpty());
+
+        // Unknown regions are rejected; the region list is public reference data.
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("PL213", "PL999"))).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid_region"));
+        mvc.perform(get("/api/v1/regions").param("country", "PL").param("level", "2"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(17));
+        // Keywords with commas/quotes are stored as data, not SQL.
+        mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("[\"drog\"]", "[\"a,b\", \"x'y\\\"z\"]")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.matching.includeKeywords[0]").value("a,b"))
+                .andExpect(jsonPath("$.matching.includeKeywords[1]").value("x'y\"z"));
     }
 }

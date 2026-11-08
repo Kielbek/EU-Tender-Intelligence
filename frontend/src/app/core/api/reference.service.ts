@@ -34,4 +34,23 @@ export class ReferenceService {
   currencies(): Observable<Currency[]> {
     return this.currencies$;
   }
+
+  /** NUTS regions of a country: level 2 = voivodeships (PL), 3 = subregions. Cached per country and level. */
+  regions(country: string, level: 2 | 3): Observable<Region[]> {
+    const key = `${country}:${level}`;
+    let cached = this.regionCache.get(key);
+    if (!cached) {
+      cached = this.http.get<Region[]>('/api/v1/regions', { params: { country, level } }).pipe(shareReplay(1));
+      this.regionCache.set(key, cached);
+    }
+    return cached;
+  }
+
+  private readonly regionCache = new Map<string, Observable<Region[]>>();
+}
+
+export interface Region {
+  code: string;
+  name: string;
+  level: number;
 }
