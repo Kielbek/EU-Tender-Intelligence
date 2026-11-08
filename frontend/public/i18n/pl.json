@@ -8,8 +8,8 @@
     "systemStatus": "Status systemu",
     "roadmap": "W przygotowaniu",
     "roadmapItems": {
-      "ai": "Analiza AI",
-      "alerts": "Powiadomienia"
+      "alerts": "Powiadomienia",
+      "assistant": "Asystent AI"
     },
     "openMenu": "Otwórz menu",
     "closeMenu": "Zamknij menu",
@@ -62,7 +62,7 @@
     "integrationName": {
       "TED_SEARCH_API": "TED Search API",
       "OBJECT_STORAGE_S3": "Magazyn dokumentów (S3)",
-      "LLM_PROVIDER": "Dostawca modelu AI",
+      "CLAUDE_API": "Claude (Anthropic) – analiza AI",
       "EMAIL_SMTP": "Poczta e-mail (SMTP)",
       "STRIPE": "Płatności Stripe"
     },
@@ -231,7 +231,14 @@
     "invalid_timezone": "Nieznana strefa czasowa.",
     "correlation": "Identyfikator zgłoszenia",
     "invalid_filters": "Nieprawidłowe filtry wyszukiwania.",
-    "duplicate_name": "Masz już zapisane wyszukiwanie o tej nazwie."
+    "duplicate_name": "Masz już zapisane wyszukiwanie o tej nazwie.",
+    "empty_file": "Plik jest pusty.",
+    "file_too_large": "Plik jest za duży (limit 25 MB).",
+    "unsupported_file": "Nieobsługiwany typ pliku. Obsługujemy PDF, DOCX, DOC, ODT, RTF, TXT, XLSX, XLS, ODS i archiwa ZIP.",
+    "invalid_archive": "Nie udało się odczytać archiwum ZIP.",
+    "ai_quota_exceeded": "Wykorzystano miesięczny limit analiz AI w Twoim planie.",
+    "ai_not_configured": "Analiza AI nie jest jeszcze skonfigurowana na tym serwerze.",
+    "no_documents_link": "Ogłoszenie nie zawiera linku do dokumentów."
   },
   "charts": {
     "showTable": "Pokaż jako tabelę"
@@ -307,7 +314,7 @@
     "noDescription": "Ogłoszenie nie zawiera opisu.",
     "documents": "Dokumentacja",
     "documentsLink": "Dokumenty zamówienia na platformie zamawiającego",
-    "documentsNote": "Dokumenty są udostępniane przez zamawiającego – mogą wymagać rejestracji na jego platformie. Pobieranie i analiza AI dokumentów pojawią się w kolejnym etapie.",
+    "documentsNote": "Dokumenty udostępnia zamawiający – często wymagają rejestracji na jego platformie. Pobrane pliki dodaj w sekcji „Analiza dokumentacji (AI)”.",
     "noDocuments": "Ogłoszenie nie zawiera linku do dokumentów.",
     "original": "Oryginalne ogłoszenie",
     "sources": "Źródła",
@@ -326,8 +333,7 @@
     "disclaimer": "Informacje pochodzą z oficjalnych ogłoszeń i służą pomocniczo. Wiążąca jest treść oryginalnego ogłoszenia.",
     "source": "Źródło: TED – Tenders Electronic Daily",
     "participation": "Warunki udziału",
-    "awardCriteria": "Kryteria oceny ofert",
-    "aiPending": "Szczegółowe warunki udziału, kryteria oceny i wymagania wyciągnie z dokumentacji analiza AI (Etap 5b)."
+    "awardCriteria": "Kryteria oceny ofert"
   },
   "watch": {
     "add": "Obserwuj",
@@ -609,5 +615,83 @@
       "NO_RELATED_REFERENCE": "Brak referencji z tej branży",
       "PROFILE_NO_REFERENCES": "Profil nie zawiera referencji"
     }
+  },
+  "analysis": {
+    "title": "Analiza dokumentacji (AI)",
+    "subtitle": "Warunki udziału, kryteria, terminy, wadium i ryzyka – każdy punkt z cytatem ze źródła.",
+    "quota": "Analizy w tym miesiącu: {{remaining}} z {{limit}} (plan {{plan}})",
+    "documents": "Dokumenty do analizy",
+    "noticeDocument": "Ogłoszenie o zamówieniu (dane z TED)",
+    "always": "zawsze uwzględniane",
+    "scopePublic": "publiczny",
+    "scopeOrg": "wgrany przez Twoją organizację (prywatny)",
+    "pages": "stron: {{n}}",
+    "extraction": {
+      "NO_TEXT_LAYER": "Skan bez warstwy tekstowej – nie da się go zacytować, więc nie trafi do analizy (OCR w przygotowaniu).",
+      "FAILED": "Nie udało się odczytać pliku.",
+      "UNSUPPORTED": "Nieobsługiwany format.",
+      "PENDING": "Przetwarzanie…",
+      "SKIPPED": "Pominięty."
+    },
+    "remove": "Usuń: {{name}}",
+    "removeConfirm": "Usunąć plik „{{name}}”?",
+    "upload": "Dodaj pliki",
+    "uploading": "Wysyłanie…",
+    "uploadHint": "PDF, DOCX, DOC, ODT, RTF, TXT, XLSX, XLS, ODS lub ZIP, do 25 MB. Wgrane pliki widzi tylko Twoja organizacja.",
+    "fetchPublic": "Pobierz z linku w ogłoszeniu",
+    "fetch": {
+      "FETCHED": "Pobrano dokumenty z linku w ogłoszeniu.",
+      "REQUIRES_LOGIN": "Portal zamawiającego wymaga logowania lub weryfikacji przeglądarki.",
+      "NOT_ACCESSIBLE": "Nie udało się pobrać pliku z linku w ogłoszeniu."
+    },
+    "notConfigured": "Analiza AI nie jest jeszcze skonfigurowana na tym serwerze (brak klucza API Anthropic).",
+    "running": "Analiza w toku – zwykle trwa 1–3 minuty. Możesz zostać na stronie albo wrócić później.",
+    "failed": {
+      "ai_error": "Analiza nie powiodła się. Spróbuj ponownie – limit nie został zużyty.",
+      "ai_rate_limited": "Serwis AI jest chwilowo przeciążony. Spróbuj ponownie za kilka minut – limit nie został zużyty.",
+      "ai_auth_failed": "Klucz API Anthropic został odrzucony. Skontaktuj się z administratorem.",
+      "ai_model_unavailable": "Skonfigurowany model AI jest niedostępny. Skontaktuj się z administratorem.",
+      "ai_refused": "Model odmówił analizy tych dokumentów. Limit nie został zużyty.",
+      "ai_not_configured": "Analiza AI nie jest skonfigurowana.",
+      "interrupted": "Analiza została przerwana (restart serwera). Uruchom ją ponownie – limit nie został zużyty."
+    },
+    "stale": "Od ostatniej analizy zmieniły się dokumenty. Uruchom analizę ponownie, aby je uwzględnić.",
+    "run": "Analizuj dokumentację",
+    "rerun": "Analizuj ponownie",
+    "runHint": "Dokumenty w analizie: {{n}}. Analizy publicznych dokumentów są współdzielone – ponowne otwarcie nie zużywa limitu.",
+    "quotaUsed": "Limit analiz w tym miesiącu został wykorzystany. Gotowe analizy możesz nadal otwierać.",
+    "basedOn": "Na podstawie dokumentów: {{n}} · {{date}}",
+    "shared": "analiza dokumentów publicznych",
+    "skipped": "Pominięte z powodu limitu wielkości zapytania",
+    "truncated": "Odpowiedź została skrócona (limit długości). Część sekcji może być niepełna.",
+    "section": {
+      "SUMMARY": "Podsumowanie",
+      "SCOPE": "Przedmiot zamówienia",
+      "DEADLINES": "Terminy",
+      "CONDITIONS": "Warunki udziału",
+      "DOCUMENTS": "Wymagane dokumenty",
+      "CRITERIA": "Kryteria oceny ofert",
+      "SECURITY": "Wadium i zabezpieczenie",
+      "CONTRACT": "Warunki umowy",
+      "RISKS": "Na co uważać"
+    },
+    "notFound": "Nie znaleziono informacji w dostępnej dokumentacji.",
+    "sources": "Źródła ({{n}})",
+    "page": "s. {{pages}}",
+    "synthesis": "synteza AI",
+    "disclaimer": "Analiza AI ma charakter pomocniczy i może zawierać błędy. Każdy punkt sprawdź w cytowanym dokumencie – wiążąca jest dokumentacja zamawiającego.",
+    "fetchReason": {
+      "INVALID_LINK": "Link w ogłoszeniu jest nieprawidłowy.",
+      "PRIVATE_NETWORK": "Link prowadzi do sieci prywatnej – ze względów bezpieczeństwa go nie otwieramy.",
+      "UNREACHABLE": "Nie udało się połączyć z portalem zamawiającego.",
+      "LOGIN_REQUIRED": "Portal zamawiającego wymaga logowania.",
+      "BROWSER_CHECK": "Portal zamawiającego wymaga weryfikacji przeglądarki – nie obchodzimy takich zabezpieczeń.",
+      "HTTP_ERROR": "Portal zamawiającego zwrócił błąd.",
+      "PORTAL_PAGE": "Link prowadzi do strony portalu, a nie bezpośrednio do pliku.",
+      "TOO_LARGE": "Plik jest większy niż dopuszczalny limit.",
+      "TOO_MANY_REDIRECTS": "Zbyt wiele przekierowań.",
+      "UNSUPPORTED": "Link nie prowadzi do obsługiwanego dokumentu."
+    },
+    "fetchManual": "Pobierz dokumenty na portalu zamawiającego i dodaj je tutaj."
   }
 }

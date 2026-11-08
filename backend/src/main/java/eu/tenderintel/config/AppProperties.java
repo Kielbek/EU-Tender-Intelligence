@@ -25,6 +25,7 @@ public record AppProperties(
         @Valid @NotNull Mail mail,
         @Valid @NotNull Reference reference,
         @Valid @NotNull Ted ted,
+        @Valid @NotNull Ai ai,
         @Valid @NotNull Integrations integrations) {
 
     public record Cors(@NotNull List<String> allowedOrigins) {
@@ -66,12 +67,32 @@ public record AppProperties(
     }
 
     /**
+     * Claude (Anthropic) for tender document analysis. A blank key disables AI features: endpoints answer
+     * {@code 503 ai_not_configured} and the status page shows {@code PENDING_CONFIGURATION}.
+     */
+    public record Ai(
+            String anthropicApiKey,
+            @DefaultValue("claude-sonnet-5-5") @NotBlank String analysisModel,
+            /* low | medium | high | xhigh | max */
+            @DefaultValue("medium") @NotBlank String analysisEffort,
+            @DefaultValue("32000") long analysisMaxOutputTokens,
+            /* Uploaded file limit; the whole request to Claude is capped below 32 MB. */
+            @DefaultValue("25") int maxUploadMb,
+            /* Raw PDF bytes sent in one request (base64 adds a third; the API caps a request at 32 MB). */
+            @DefaultValue("22") int maxPdfMbPerRequest,
+            @DefaultValue("2") int workers,
+            @DefaultValue("PT10M") Duration requestTimeout) {
+
+        public boolean configured() {
+            return anthropicApiKey != null && !anthropicApiKey.isBlank();
+        }
+    }
+
+    /**
      * Credentials/endpoints of external services. A blank value means "not configured"; the system status endpoint
      * reports such integrations as {@code PENDING_CONFIGURATION} instead of pretending they work.
      */
     public record Integrations(
-            String llmProvider,
-            String llmApiKey,
             String stripeSecretKey,
             String stripeWebhookSecret,
             String smtpHost,

@@ -46,7 +46,7 @@ public class SystemStatusService {
                 integration("TED_SEARCH_API", true, true, 3),
                 integration("OBJECT_STORAGE_S3", false,
                         all(i.s3Endpoint(), i.s3AccessKey(), i.s3SecretKey(), i.s3Bucket()), 5),
-                integration("LLM_PROVIDER", false, all(i.llmProvider(), i.llmApiKey()), 5),
+                integration("CLAUDE_API", true, props.ai().configured(), 5),
                 integration("EMAIL_SMTP", true, all(i.smtpHost()), 2),
                 integration("STRIPE", false, all(i.stripeSecretKey(), i.stripeWebhookSecret()), 6));
     }

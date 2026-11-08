@@ -16,7 +16,7 @@ Oryginalna specyfikacja proponowała FastAPI + Next.js. Na wyraźne życzenie w�
 | Alembic | **Flyway** (`backend/src/main/resources/db/migration`) | Wersjonowane migracje SQL, uruchamiane przy starcie |
 | Celery + Redis | **JobRunr** (kolejka zadań w PostgreSQL, retry, dashboard) + Spring `@Scheduled` + ShedLock | Brak osobnego brokera, trwałe zadania, retry z backoffem, panel zadań dla admina |
 | Redis | Redis: cache, rate limiting (Bucket4j), sesje odświeżania, blokady | |
-| OpenAI / wymienny LLM | **Spring AI** (abstrakcja `ChatModel`/`EmbeddingModel`: OpenAI, Anthropic, Mistral, Azure, Ollama) | Wymiana providera konfiguracją |
+| OpenAI / wymienny LLM | **Claude (Anthropic)** przez oficjalne Anthropic Java SDK, za interfejsem `ClaudeGateway` | Natywne cytaty ze źródeł (strona PDF), kontekst 1 mln tokenów; dostawcę można wymienić, implementując interfejs |
 | pgvector | pgvector + Spring AI `PgVectorStore` lub własne repozytorium SQL | RAG w tej samej bazie, izolacja danych przez SQL |
 | OCR | Apache Tika + Tesseract (Tess4J) w workerze | Działa lokalnie, bez wysyłania dokumentów do zewnętrznych usług |
 | OpenSearch | Opcjonalnie od Etapu 7; do tego czasu PostgreSQL FTS + `pg_trgm` | Unikamy przedwczesnej złożoności |

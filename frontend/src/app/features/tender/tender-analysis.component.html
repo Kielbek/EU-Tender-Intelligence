@@ -1,0 +1,171 @@
+@let lang = language.current();
+<section class="eti-card p-5" aria-labelledby="analysis-heading">
+  <div class="flex flex-wrap items-start gap-3">
+    <div class="min-w-0 flex-1">
+      <h2 id="analysis-heading" class="eti-h2 flex items-center gap-2">
+        <svg lucideSparkles class="size-4 text-accent" aria-hidden="true"></svg>{{ 'analysis.title' | transloco }}
+      </h2>
+      <p class="eti-subtitle mt-0.5">{{ 'analysis.subtitle' | transloco }}</p>
+    </div>
+    @if (quota(); as q) {
+      @if (q.configured) {
+        <span class="eti-num rounded-md bg-canvas px-2 py-1 text-xs text-ink-muted">
+          {{ 'analysis.quota' | transloco: { remaining: q.remaining, limit: q.limit, plan: q.planCode } }}
+        </span>
+      }
+    }
+  </div>
+
+  <eti-api-error class="mt-3 block" [error]="error()" />
+
+  <!-- Documents -->
+  <h3 class="mt-5 text-xs font-semibold text-ink-muted">{{ 'analysis.documents' | transloco }}</h3>
+  <ul class="mt-2 divide-y divide-track rounded-[10px] border border-border text-[13px]">
+    <li class="flex items-center gap-3 px-3 py-2.5">
+      <svg lucideFileText class="size-4 shrink-0 text-ink-muted" aria-hidden="true"></svg>
+      <span class="min-w-0 flex-1 truncate text-ink">{{ 'analysis.noticeDocument' | transloco }}</span>
+      <span class="text-xs text-ink-muted">{{ 'analysis.always' | transloco }}</span>
+    </li>
+    @for (d of files(); track d.id) {
+      <li class="flex items-center gap-3 px-3 py-2.5">
+        <svg lucideFileText class="size-4 shrink-0 text-ink-muted" aria-hidden="true"></svg>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-ink">{{ d.fileName }}</p>
+          <p class="text-xs text-ink-muted">
+            {{ (d.scope === 'PUBLIC' ? 'analysis.scopePublic' : 'analysis.scopeOrg') | transloco }}
+            · {{ size(d.sizeBytes) }}
+            @if (d.pageCount) { · {{ 'analysis.pages' | transloco: { n: d.pageCount } }} }
+          </p>
+          @if (d.extractionStatus !== 'DONE') {
+            <p class="text-xs text-warning">{{ 'analysis.extraction.' + d.extractionStatus | transloco }}</p>
+          }
+        </div>
+        @if (d.scope === 'ORGANIZATION') {
+          <button type="button" class="eti-btn-ghost h-8 px-2 text-danger" [disabled]="busy()"
+                  [attr.aria-label]="'analysis.remove' | transloco: { name: d.fileName }" (click)="remove(d)">
+            <svg lucideTrash2 class="size-4" aria-hidden="true"></svg>
+          </button>
+        }
+      </li>
+    }
+  </ul>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <label class="eti-btn-secondary h-9 cursor-pointer has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+      @if (uploading()) {
+        <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>{{ 'analysis.uploading' | transloco }}
+      } @else {
+        <svg lucideUpload class="size-4" aria-hidden="true"></svg>{{ 'analysis.upload' | transloco }}
+      }
+      <input type="file" class="sr-only" multiple [disabled]="uploading()"
+             accept=".pdf,.docx,.doc,.odt,.rtf,.txt,.xlsx,.xls,.ods,.zip" (change)="onFiles($event)" />
+    </label>
+    @if (documentsUrl()) {
+      <button type="button" class="eti-btn-ghost h-9" [disabled]="busy()" (click)="fetchPublic()">
+        {{ 'analysis.fetchPublic' | transloco }}
+      </button>
+    }
+  </div>
+  <p class="eti-hint">{{ 'analysis.uploadHint' | transloco }}</p>
+  @if (fetchInfo(); as f) {
+    @if (f.status !== 'FETCHED') {
+      <p class="eti-note mt-2" role="status">
+        {{ (f.detail ? 'analysis.fetchReason.' + f.detail : 'analysis.fetch.' + f.status) | transloco }}
+        {{ 'analysis.fetchManual' | transloco }}
+      </p>
+    } @else {
+      <p class="mt-2 text-xs text-success" role="status">{{ 'analysis.fetch.FETCHED' | transloco }}</p>
+    }
+  }
+
+  <!-- Analysis -->
+  <div class="mt-5 border-t border-border pt-5" aria-live="polite">
+    @if (quota() && !quota()!.configured) {
+      <p class="eti-note">{{ 'analysis.notConfigured' | transloco }}</p>
+    } @else if (running()) {
+      <p class="flex items-center gap-2 text-sm text-ink-soft" role="status">
+        <svg lucideLoaderCircle class="size-4 animate-spin text-accent" aria-hidden="true"></svg>
+        {{ 'analysis.running' | transloco }}
+      </p>
+    } @else {
+      @if (analysis()?.status === 'FAILED') {
+        <p class="eti-alert-error mb-3" role="alert">{{ 'analysis.failed.' + (analysis()!.errorCode ?? 'ai_error') | transloco }}</p>
+      }
+      @if (analysis()?.status === 'DONE' && analysis()!.stale) {
+        <p class="eti-note mb-3">{{ 'analysis.stale' | transloco }}</p>
+      }
+      @if (needsRun()) {
+        <div class="flex flex-wrap items-center gap-3">
+          <button type="button" class="eti-btn-primary" [disabled]="!canAnalyze() || (quota()?.remaining === 0)"
+                  (click)="analyze()">
+            <svg lucideSparkles class="size-4" aria-hidden="true"></svg>
+            {{ (analysis() ? 'analysis.rerun' : 'analysis.run') | transloco }}
+          </button>
+          <span class="text-xs text-ink-muted">
+            {{ 'analysis.runHint' | transloco: { n: usableDocs().length + 1 } }}
+          </span>
+        </div>
+        @if (quota()?.remaining === 0) {
+          <p class="eti-note mt-2">{{ 'analysis.quotaUsed' | transloco }}</p>
+        }
+      }
+    }
+
+    @if (analysis()?.status === 'DONE' && analysis()!.result; as r) {
+      <div class="mt-4">
+        <p class="text-xs text-ink-muted">
+          {{ 'analysis.basedOn' | transloco: { n: r.documents.length, date: (analysis()!.completedAt | userDateTime: lang) } }}
+          @if (analysis()!.scope === 'PUBLIC') { · {{ 'analysis.shared' | transloco }} }
+        </p>
+        @if (r.skippedDocuments.length) {
+          <p class="eti-note mt-2">
+            {{ 'analysis.skipped' | transloco }}:
+            @for (s of r.skippedDocuments; track $index; let last = $last) {{{ s.title }}@if (!last) {, }}
+          </p>
+        }
+        @if (r.truncated) {
+          <p class="eti-note mt-2">{{ 'analysis.truncated' | transloco }}</p>
+        }
+
+        <div class="mt-4 space-y-5">
+          @for (s of r.sections; track s.key) {
+            <section [attr.aria-labelledby]="'an-' + s.key">
+              <h3 [id]="'an-' + s.key" class="text-[13px] font-semibold text-ink">{{ 'analysis.section.' + s.key | transloco }}</h3>
+              @if (s.notFound) {
+                <p class="mt-1 text-[13px] text-ink-muted">{{ 'analysis.notFound' | transloco }}</p>
+              } @else {
+                <ul class="mt-1.5 space-y-2">
+                  @for (f of s.findings; track $index; let i = $index) {
+                    <li class="text-[13px] leading-relaxed text-ink-soft">
+                      <span>{{ f.text }}</span>
+                      @if (f.sources.length) {
+                        <button type="button" class="eti-link ml-1.5 text-xs whitespace-nowrap"
+                                [attr.aria-expanded]="openSources().has(s.key + i)" [attr.aria-controls]="'src-' + s.key + i"
+                                (click)="toggleSources(s.key + i)">
+                          {{ 'analysis.sources' | transloco: { n: f.sources.length } }}
+                        </button>
+                        @if (openSources().has(s.key + i)) {
+                          <div [id]="'src-' + s.key + i" class="mt-1.5 space-y-1.5">
+                            @for (src of f.sources; track $index) {
+                              <figure class="rounded-md border-l-2 border-accent bg-subtle px-3 py-1.5">
+                                <blockquote class="text-xs whitespace-pre-line text-ink">„{{ src.quote }}”</blockquote>
+                                <figcaption class="mt-0.5 text-[11px] text-ink-muted">{{ sourceLabel(src) }}</figcaption>
+                              </figure>
+                            }
+                          </div>
+                        }
+                      } @else if (!f.cited) {
+                        <span class="ml-1.5 text-[11px] text-ink-faint">({{ 'analysis.synthesis' | transloco }})</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+        </div>
+        <p class="eti-note mt-5">{{ 'analysis.disclaimer' | transloco }}</p>
+      </div>
+    }
+  </div>
+</section>

@@ -68,5 +68,8 @@ cd frontend && npx ng test --watch=false && npx ng build
 * **CI/CD**: GitHub Actions – testy → build obrazów → push do rejestru → wdrożenie (Compose/Kamal lub k8s przy większej skali).
 * `API_DOCS_ENABLED=false` na produkcji, `CORS_ALLOWED_ORIGINS` ustawione na domenę aplikacji.
 * `REFRESH_COOKIE_SECURE=true`, `APP_PUBLIC_URL` = adres aplikacji (linki w e-mailach), prawdziwy dostawca SMTP z SPF/DKIM/DMARC.
+* `ANTHROPIC_API_KEY` (konsola Anthropic → API keys) włącza analizę AI. Po wdrożeniu wykonaj `POST /api/v1/admin/ai/check`.
+  Ustaw w konsoli Anthropic miesięczny limit wydatków i podpisz DPA (Anthropic jest podprocesorem danych z wgrywanych dokumentów).
+  Zewnętrzne reverse proxy musi przyjmować pliki do 25 MB (nginx w obrazie frontendu ma `client_max_body_size 50m`).
 * `JWT_SECRET` unikalny per środowisko; rotacja = wylogowanie wszystkich (access tokeny żyją 15 min).
 * `server.forward-headers-strategy=framework`: backend ufa `X-Forwarded-For` – wystaw go **tylko** za zaufanym reverse proxy (inaczej limity per IP można obejść).

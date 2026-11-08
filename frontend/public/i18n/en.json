@@ -8,8 +8,8 @@
     "systemStatus": "System status",
     "roadmap": "Coming soon",
     "roadmapItems": {
-      "ai": "AI analysis",
-      "alerts": "Notifications"
+      "alerts": "Notifications",
+      "assistant": "AI assistant"
     },
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -62,7 +62,7 @@
     "integrationName": {
       "TED_SEARCH_API": "TED Search API",
       "OBJECT_STORAGE_S3": "Document storage (S3)",
-      "LLM_PROVIDER": "AI model provider",
+      "CLAUDE_API": "Claude (Anthropic) – AI analysis",
       "EMAIL_SMTP": "E-mail (SMTP)",
       "STRIPE": "Stripe payments"
     },
@@ -231,7 +231,14 @@
     "invalid_timezone": "Unknown time zone.",
     "correlation": "Request ID",
     "invalid_filters": "Invalid search filters.",
-    "duplicate_name": "You already have a saved search with this name."
+    "duplicate_name": "You already have a saved search with this name.",
+    "empty_file": "The file is empty.",
+    "file_too_large": "The file is too large (25 MB limit).",
+    "unsupported_file": "Unsupported file type. We support PDF, DOCX, DOC, ODT, RTF, TXT, XLSX, XLS, ODS and ZIP archives.",
+    "invalid_archive": "The ZIP archive could not be read.",
+    "ai_quota_exceeded": "Your plan’s monthly AI analysis limit has been used.",
+    "ai_not_configured": "AI analysis is not configured on this server yet.",
+    "no_documents_link": "The notice has no documents link."
   },
   "charts": {
     "showTable": "Show as table"
@@ -307,7 +314,7 @@
     "noDescription": "The notice has no description.",
     "documents": "Documents",
     "documentsLink": "Procurement documents on the buyer's platform",
-    "documentsNote": "Documents are provided by the contracting authority and may require registration on its platform. Document download and AI analysis come in the next stage.",
+    "documentsNote": "The contracting authority publishes the documents – often only after registering on its platform. Add downloaded files in the “Document analysis (AI)” section.",
     "noDocuments": "The notice contains no documents link.",
     "original": "Original notice",
     "sources": "Sources",
@@ -326,8 +333,7 @@
     "disclaimer": "Information comes from official notices and is for guidance only. The original notice is binding.",
     "source": "Source: TED – Tenders Electronic Daily",
     "participation": "Conditions for participation",
-    "awardCriteria": "Award criteria",
-    "aiPending": "Detailed participation conditions, award criteria and requirements will be extracted from the documents by AI analysis (Stage 5b)."
+    "awardCriteria": "Award criteria"
   },
   "watch": {
     "add": "Watch",
@@ -609,5 +615,83 @@
       "NO_RELATED_REFERENCE": "No reference in this sector",
       "PROFILE_NO_REFERENCES": "The profile has no references"
     }
+  },
+  "analysis": {
+    "title": "Document analysis (AI)",
+    "subtitle": "Conditions, criteria, deadlines, guarantees and risks – every point with a quote from the source.",
+    "quota": "Analyses this month: {{remaining}} of {{limit}} left ({{plan}} plan)",
+    "documents": "Documents to analyse",
+    "noticeDocument": "Contract notice (data from TED)",
+    "always": "always included",
+    "scopePublic": "public",
+    "scopeOrg": "uploaded by your organization (private)",
+    "pages": "{{n}} pages",
+    "extraction": {
+      "NO_TEXT_LAYER": "Scan without a text layer – it cannot be quoted, so it is left out of the analysis (OCR coming).",
+      "FAILED": "The file could not be read.",
+      "UNSUPPORTED": "Unsupported format.",
+      "PENDING": "Processing…",
+      "SKIPPED": "Skipped."
+    },
+    "remove": "Remove: {{name}}",
+    "removeConfirm": "Remove the file “{{name}}”?",
+    "upload": "Add files",
+    "uploading": "Uploading…",
+    "uploadHint": "PDF, DOCX, DOC, ODT, RTF, TXT, XLSX, XLS, ODS or ZIP, up to 25 MB. Uploaded files are visible to your organization only.",
+    "fetchPublic": "Fetch from the notice link",
+    "fetch": {
+      "FETCHED": "Documents fetched from the notice link.",
+      "REQUIRES_LOGIN": "The authority’s portal requires signing in or a browser check.",
+      "NOT_ACCESSIBLE": "The file could not be fetched from the notice link."
+    },
+    "notConfigured": "AI analysis is not configured on this server yet (no Anthropic API key).",
+    "running": "Analysis in progress – usually 1–3 minutes. You can stay on the page or come back later.",
+    "failed": {
+      "ai_error": "The analysis failed. Try again – it did not use your limit.",
+      "ai_rate_limited": "The AI service is busy. Try again in a few minutes – it did not use your limit.",
+      "ai_auth_failed": "The Anthropic API key was rejected. Contact the administrator.",
+      "ai_model_unavailable": "The configured AI model is unavailable. Contact the administrator.",
+      "ai_refused": "The model declined to analyse these documents. It did not use your limit.",
+      "ai_not_configured": "AI analysis is not configured.",
+      "interrupted": "The analysis was interrupted (server restart). Run it again – it did not use your limit."
+    },
+    "stale": "The documents changed since the last analysis. Run it again to include them.",
+    "run": "Analyse documents",
+    "rerun": "Analyse again",
+    "runHint": "Documents in the analysis: {{n}}. Analyses of public documents are shared – opening them again does not use your limit.",
+    "quotaUsed": "This month’s analysis limit is used up. You can still open finished analyses.",
+    "basedOn": "Based on {{n}} documents · {{date}}",
+    "shared": "analysis of public documents",
+    "skipped": "Left out because of the request size limit",
+    "truncated": "The answer was cut short (length limit). Some sections may be incomplete.",
+    "section": {
+      "SUMMARY": "Summary",
+      "SCOPE": "Subject of the contract",
+      "DEADLINES": "Deadlines",
+      "CONDITIONS": "Conditions for participation",
+      "DOCUMENTS": "Required documents",
+      "CRITERIA": "Award criteria",
+      "SECURITY": "Bid bond and performance security",
+      "CONTRACT": "Contract terms",
+      "RISKS": "Watch out for"
+    },
+    "notFound": "No information found in the available documents.",
+    "sources": "Sources ({{n}})",
+    "page": "p. {{pages}}",
+    "synthesis": "AI synthesis",
+    "disclaimer": "The AI analysis is an aid and may contain errors. Check every point in the quoted document – the authority’s documents are binding.",
+    "fetchReason": {
+      "INVALID_LINK": "The link in the notice is invalid.",
+      "PRIVATE_NETWORK": "The link points to a private network – it is not opened for security reasons.",
+      "UNREACHABLE": "The authority’s portal could not be reached.",
+      "LOGIN_REQUIRED": "The authority’s portal requires signing in.",
+      "BROWSER_CHECK": "The authority’s portal requires a browser check – such protections are never bypassed.",
+      "HTTP_ERROR": "The authority’s portal returned an error.",
+      "PORTAL_PAGE": "The link opens a portal page, not a file.",
+      "TOO_LARGE": "The file exceeds the size limit.",
+      "TOO_MANY_REDIRECTS": "Too many redirects.",
+      "UNSUPPORTED": "The link does not lead to a supported document."
+    },
+    "fetchManual": "Download the documents on the authority’s portal and add them here."
   }
 }

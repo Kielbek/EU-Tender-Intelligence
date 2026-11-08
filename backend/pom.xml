@@ -21,6 +21,8 @@
         <java.version>21</java.version>
         <springdoc.version>3.2.0</springdoc.version>
         <bouncycastle.version>1.86</bouncycastle.version>
+        <anthropic.version>3.6.0</anthropic.version>
+        <tika.version>3.3.3</tika.version>
         <fastexcel.version>0.20.2</fastexcel.version>
     </properties>
 
@@ -65,6 +67,23 @@
             <groupId>org.dhatim</groupId>
             <artifactId>fastexcel</artifactId>
             <version>${fastexcel.version}</version>
+        </dependency>
+        <dependency>
+            <!-- Official Anthropic SDK: tender document analysis with Claude -->
+            <groupId>com.anthropic</groupId>
+            <artifactId>anthropic-java</artifactId>
+            <version>${anthropic.version}</version>
+        </dependency>
+        <dependency>
+            <!-- Text extraction from DOCX/DOC/ODT/RTF/XLSX tender documents; PDF page counts -->
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>

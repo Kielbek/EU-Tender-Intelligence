@@ -15,7 +15,8 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | 3 | Integracja TED: pobieranie, normalizacja eForms, deduplikacja, wersje i historia zmian, harmonogram | ✅ |
 | 4 | Dashboard, wyszukiwarka z filtrami i CPV, szczegóły przetargu z historią zmian, obserwowane (zespół), zapisane wyszukiwania, eksport CSV/XLSX | ✅ |
 | 5a | Profil firmy, wyjaśnialne dopasowanie 0–100, lista dopasowanych przetargów, najlepsze przetargi na dashboardzie | ✅ |
-| 5b | Dokumenty przetargów, OCR, analiza AI z cytatami, tłumaczenia | ⏳ następny |
+| 5b | Dokumenty przetargów, analiza AI (Claude) z cytatami, limity planów, koszty AI | ✅ (test z prawdziwym kluczem – do wykonania) |
+| 5c | OCR, tłumaczenia, wyszukiwanie w języku naturalnym, asystent AI | ⏳ następny |
 | 6–8 | Powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
 
 Co działa teraz:
@@ -30,6 +31,9 @@ Co działa teraz:
   Test na żywo: ~18,8 tys. ogłoszeń z 5 dni, 0 błędów – szczegóły w [docs/ted-integration.md](docs/ted-integration.md).
 * **Profil firmy i dopasowanie 0–100** z uzasadnieniem (spełnione / niespełnione / brakujące informacje), przeliczane automatycznie
   po zmianie profilu i po imporcie ogłoszeń. To wskaźnik zgodności, nie szansa na wygraną – reguły w [docs/matching.md](docs/matching.md).
+* **Analiza dokumentacji AI (Claude)**: dokumenty z linku w ogłoszeniu (tylko bezpośrednie pliki, bez obchodzenia zabezpieczeń)
+  lub wgrane przez firmę. Każdy punkt ma cytat ze źródła, punkty bez cytatu są odrzucane. Analizy publicznych dokumentów są współdzielone,
+  obowiązują limity planów. Wymaga `ANTHROPIC_API_KEY`, szczegóły w [docs/ai-analysis.md](docs/ai-analysis.md).
 * API przetargów (filtry, CPV, wartość w EUR, pełnotekstowe bez polskich znaków, sortowanie, paginacja, historia zmian).
 * **Dashboard** z prawdziwymi danymi: otwarte i nowe przetargi, obserwowane i ich wartość, najbliższe terminy, ostatnie
   zmiany, wykres ogłoszeń dziennie, branże (CPV) i kraje – każdy wykres także jako tabela.

@@ -93,8 +93,11 @@
         } @else {
           <p class="mt-2 text-sm text-ink-muted">{{ 'tender.noDescription' | transloco }}</p>
         }
-        <p class="mt-4 rounded-md bg-canvas px-3 py-2 text-xs text-ink-muted">{{ 'tender.aiPending' | transloco }}</p>
       </section>
+
+      @if (org.currentId()) {
+        <eti-tender-analysis [tenderId]="t.id" [documentsUrl]="t.documentsUrl" />
+      }
 
       <section class="eti-card p-5" aria-labelledby="cpv-heading">
         <h2 id="cpv-heading" class="eti-h2">{{ 'tender.cpv' | transloco }}</h2>

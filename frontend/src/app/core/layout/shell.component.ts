@@ -64,7 +64,7 @@ export class ShellComponent {
       .map((p) => p[0]!.toUpperCase())
       .join(''),
   );
-  protected readonly roadmap = ['ai', 'alerts'] as const;
+  protected readonly roadmap = ['assistant', 'alerts'] as const;
 
   protected readonly workItems = [
     { path: '/', icon: 'dashboard', key: 'nav.dashboard', exact: true, query: null },

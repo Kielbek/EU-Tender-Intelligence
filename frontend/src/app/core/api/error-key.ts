@@ -20,11 +20,21 @@ const KNOWN_CODES = new Set([
   'invalid_timezone',
   'invalid_filters',
   'duplicate_name',
+  'empty_file',
+  'file_too_large',
+  'unsupported_file',
+  'invalid_archive',
+  'ai_quota_exceeded',
+  'ai_not_configured',
+  'no_documents_link',
 ]);
 
 export function errorKey(error: ApiError): string {
   if (error.status === 0) {
     return 'errors.network';
+  }
+  if (error.status === 413) {
+    return 'errors.file_too_large';
   }
   if (error.code && KNOWN_CODES.has(error.code)) {
     return `errors.${error.code}`;

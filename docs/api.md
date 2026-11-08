@@ -6,7 +6,7 @@
 * Każda odpowiedź ma nagłówek `X-Request-Id` (przekazany przez klienta, jeśli poprawny, lub wygenerowany).
 * Specyfikacja OpenAPI generowana z kodu: `GET /v3/api-docs`, Swagger UI: `/swagger-ui.html` (wyłączane `API_DOCS_ENABLED=false`).
 
-## Endpointy – Etapy 1–5a `[ZAIMPLEMENTOWANE]`
+## Endpointy – Etapy 1–5b `[ZAIMPLEMENTOWANE]`
 
 Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 
@@ -44,12 +44,18 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | POST/DELETE | `/api/v1/organizations/{id}/company-profile/certifications[/{cid}]`, `/references[/{rid}]` | `COMPANY_ADMIN` | 409 `profile_missing`, jeśli profilu jeszcze nie ma |
 | GET | `/api/v1/organizations/{id}/matches?minScore=40..100&page&size&lang` | członek | otwarte przetargi z wynikiem ≥ `minScore` (domyślnie 60), sortowane malejąco; każdy z `breakdown` |
 | GET | `/api/v1/organizations/{id}/matches/{tenderId}?lang=` | członek | wyjaśnienie liczone na żywo; 404 `profile_missing` |
+| GET/POST/DELETE | `/api/v1/organizations/{id}/tenders/{tid}/documents[/{docId}]` | członek | lista (publiczne + własne), upload `multipart file` (413/400 `file_too_large`, `unsupported_file`, `invalid_archive`, `empty_file`), usunięcie własnych |
+| POST | `/api/v1/organizations/{id}/tenders/{tid}/documents/fetch-public` | członek | pobranie z linku w ogłoszeniu, tylko bezpośredni plik; `status` FETCHED/REQUIRES_LOGIN/NOT_ACCESSIBLE + `detail` (kod przyczyny); 409 `no_documents_link` |
+| POST | `/api/v1/organizations/{id}/tenders/{tid}/analyses?lang=` | członek | 202 nowa analiza, 200 istniejąca (bez limitu); 402 `ai_quota_exceeded`, 503 `ai_not_configured` |
+| GET | `/api/v1/organizations/{id}/tenders/{tid}/analyses/latest?lang=` | członek | status, wynik (sekcje, punkty, cytaty), `stale`; 404 `analysis_missing` |
+| GET | `/api/v1/organizations/{id}/ai/quota` | członek | plan, limit, wykorzystanie w miesiącu |
+| POST / GET | `/api/v1/admin/ai/check`, `/api/v1/admin/ai/usage` | `PLATFORM_ADMIN` | test klucza Anthropic (na żywo); zużycie i koszt per organizacja |
 | POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania TED dla tego samego okna |
 
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
 `too_many_attempts`, `rate_limited` (+ `Retry-After`), `email_not_verified`, `account_disabled`, `invalid_token`, `invalid_session`,
 `weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `job_already_running`,
-`invalid_window`, `window_too_large`, `not_retryable`, `invalid_filters`, `duplicate_name`, `too_many_saved_searches`, `profile_missing`, `invalid_value_range`, `internal_error`.
+`invalid_window`, `window_too_large`, `not_retryable`, `invalid_filters`, `duplicate_name`, `too_many_saved_searches`, `profile_missing`, `invalid_value_range`, `empty_file`, `file_too_large`, `unsupported_file`, `invalid_archive`, `no_documents_link`, `analysis_missing`, `ai_quota_exceeded`, `ai_not_configured`, `internal_error`.
 
 Wartości `changeKind` w historii zmian: `PRIOR_INFORMATION`, `COMPETITION`, `CHANGE`, `CANCELLATION`, `AWARD`, `MODIFICATION`, `OTHER`.
 Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call`, `neg-wo-call`, `comp-dial`, `innovation`, `oth-single`, `oth-mult`.
@@ -61,7 +67,7 @@ Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call
 | Użytkownik (RODO) | `DELETE /me`, `GET /me/export` |
 | Przetargi | `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language` |
 | Firma | `/company-profile/documents` (Etap 5b) |
-| AI | `POST /tenders/{id}/analyses`, `GET /analyses/{id}`, `POST /translations`, `POST /assistant/messages` (SSE) |
+| AI (5c) | `POST /translations`, `POST /tenders/search/natural-language`, `POST /assistant/messages` (SSE) |
 | Powiadomienia | `GET /notifications`, `POST /notifications/{id}/read`, `GET/PUT /notification-preferences` |
 | Płatności | `GET /plans`, `POST /billing/checkout-session`, `POST /billing/portal-session`, `GET /billing/usage`, `POST /webhooks/stripe` (podpis) |
 | Admin | `/admin/organizations`, `/admin/ai-usage` |
