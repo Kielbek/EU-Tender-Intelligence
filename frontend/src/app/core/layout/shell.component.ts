@@ -1,29 +1,58 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideActivity,
   LucideBookmark,
   LucideBriefcase,
   LucideBuilding2,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideHouse,
+  LucideLandmark,
   LucideLayoutDashboard,
+  LucideLogOut,
+  LucideMenu,
   LucideSearch,
   LucideStar,
   LucideTarget,
-  LucideLandmark,
-  LucideLogOut,
-  LucideMenu,
   LucideUserRound,
   LucideX,
 } from '@lucide/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { OrgContextService } from '../org/org-context.service';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 
+type Icon = 'dashboard' | 'search' | 'target' | 'star' | 'bookmark' | 'briefcase' | 'building' | 'user' | 'activity';
+
+interface NavItem {
+  path: string;
+  icon: Icon;
+  key: string;
+  exact: boolean;
+  query: Record<string, string> | null;
+}
+
+interface NavSection {
+  id: string;
+  key: string;
+  items: NavItem[];
+}
+
+/** Breadcrumb trail declared on routes: `data: { section: 'nav.workspace', crumb: 'nav.search' }`. */
+export interface Crumb {
+  key: string;
+  link?: string;
+}
+
+const COLLAPSE_KEY = 'eti.sidebar.collapsed';
+
 /**
- * Application frame: sidebar + topbar. Only implemented screens are links; upcoming modules are listed as plain,
- * non-interactive text so there are no dead buttons.
+ * Application frame: sidebar + top bar + breadcrumbs + footer. Only implemented screens are links; upcoming modules
+ * are listed as plain, non-interactive text so there are no dead buttons.
  */
 @Component({
   selector: 'eti-shell',
@@ -38,13 +67,16 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
     LucideBookmark,
     LucideBriefcase,
     LucideBuilding2,
+    LucideChevronDown,
+    LucideChevronRight,
+    LucideHouse,
+    LucideLandmark,
     LucideLayoutDashboard,
+    LucideLogOut,
+    LucideMenu,
     LucideSearch,
     LucideStar,
     LucideTarget,
-    LucideLandmark,
-    LucideLogOut,
-    LucideMenu,
     LucideUserRound,
     LucideX,
   ],
@@ -54,8 +86,15 @@ export class ShellComponent {
   protected readonly auth = inject(AuthService);
   protected readonly org = inject(OrgContextService);
   private readonly router = inject(Router);
+  /** Mobile drawer. */
   protected readonly menuOpen = signal(false);
+  /** Desktop: sidebar hidden to give the content the full width. */
+  protected readonly sidebarHidden = signal(readFlag(COLLAPSE_KEY));
+  /** Sidebar sections folded by the user. */
+  protected readonly folded = signal<Set<string>>(new Set());
   protected globalQuery = '';
+  protected readonly year = new Date().getFullYear();
+
   protected readonly initials = computed(() =>
     (this.auth.user()?.fullName ?? '')
       .split(/\s+/)
@@ -66,13 +105,44 @@ export class ShellComponent {
   );
   protected readonly roadmap = ['assistant', 'alerts'] as const;
 
-  protected readonly workItems = [
-    { path: '/', icon: 'dashboard', key: 'nav.dashboard', exact: true, query: null },
-    { path: '/search', icon: 'search', key: 'nav.search', exact: false, query: { status: 'OPEN' } },
-    { path: '/matches', icon: 'target', key: 'nav.matches', exact: false, query: null },
-    { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
-    { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
-  ] as const;
+  protected readonly sections: NavSection[] = [
+    {
+      id: 'work',
+      key: 'nav.workspace',
+      items: [
+        { path: '/', icon: 'dashboard', key: 'nav.dashboard', exact: true, query: null },
+        { path: '/search', icon: 'search', key: 'nav.search', exact: false, query: { status: 'OPEN' } },
+        { path: '/matches', icon: 'target', key: 'nav.matches', exact: false, query: null },
+        { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
+        { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
+      ],
+    },
+    {
+      id: 'org',
+      key: 'nav.organizationSection',
+      items: [
+        { path: '/company', icon: 'briefcase', key: 'nav.company', exact: false, query: null },
+        { path: '/organization', icon: 'building', key: 'nav.organization', exact: false, query: null },
+      ],
+    },
+    {
+      id: 'account',
+      key: 'nav.accountSection',
+      items: [
+        { path: '/account', icon: 'user', key: 'nav.account', exact: false, query: null },
+        { path: '/status', icon: 'activity', key: 'nav.systemStatus', exact: false, query: null },
+      ],
+    },
+  ];
+
+  /** Breadcrumbs of the deepest active route. */
+  protected readonly crumbs = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => crumbsOf(this.router.routerState.snapshot.root)),
+    ),
+    { initialValue: crumbsOf(this.router.routerState.snapshot.root) },
+  );
 
   protected toggleMenu(): void {
     this.menuOpen.update((open) => !open);
@@ -80,6 +150,28 @@ export class ShellComponent {
 
   protected closeMenu(): void {
     this.menuOpen.set(false);
+  }
+
+  /** One button: opens the drawer on small screens, hides/shows the sidebar on desktop. */
+  protected toggleSidebar(): void {
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      this.sidebarHidden.update((v) => !v);
+      writeFlag(COLLAPSE_KEY, this.sidebarHidden());
+    } else {
+      this.toggleMenu();
+    }
+  }
+
+  protected toggleSection(id: string): void {
+    this.folded.update((set) => {
+      const next = new Set(set);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }
 
   /** Top-bar search over open tenders: full text, or a CPV code when only digits are typed. */
@@ -98,5 +190,42 @@ export class ShellComponent {
 
   protected logout(): void {
     this.auth.logout().subscribe(() => void this.router.navigate(['/auth/login']));
+  }
+}
+
+function crumbsOf(root: ActivatedRouteSnapshot): Crumb[] {
+  let r: ActivatedRouteSnapshot = root;
+  while (r.firstChild) {
+    r = r.firstChild;
+  }
+  const out: Crumb[] = [];
+  const section = r.data['section'] as string | undefined;
+  const parent = r.data['parent'] as Crumb | undefined;
+  const crumb = r.data['crumb'] as string | undefined;
+  if (section) {
+    out.push({ key: section });
+  }
+  if (parent) {
+    out.push(parent);
+  }
+  if (crumb) {
+    out.push({ key: crumb });
+  }
+  return out;
+}
+
+function readFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeFlag(key: string, value: boolean): void {
+  try {
+    localStorage.setItem(key, value ? '1' : '0');
+  } catch {
+    // storage unavailable – the choice lasts for this session
   }
 }

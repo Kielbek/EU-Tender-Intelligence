@@ -1,10 +1,9 @@
 @let lang = language.current();
 <div class="flex flex-wrap items-end gap-4">
-  <div>
-    <p class="eti-eyebrow">{{ 'dashboard.title' | transloco }}</p>
-    <h1 class="eti-h1 mt-1">{{ 'dashboard.greeting' | transloco: { name: firstName() } }}</h1>
+  <div class="min-w-0">
+    <h1 class="eti-h1">{{ 'dashboard.greeting' | transloco: { name: firstName() } }}</h1>
     @if (data(); as d) {
-      <p class="eti-subtitle mt-1.5">
+      <p class="eti-subtitle mt-1">
         @if (d.lastIngestionAt) {
           {{ 'dashboard.freshness' | transloco: { time: (d.lastIngestionAt | userDateTime: lang) } }}
         } @else {
@@ -25,89 +24,135 @@
     <button type="button" class="eti-btn-secondary mt-3" (click)="load()">{{ 'common.retry' | transloco }}</button>
   } @else if (!data()) {
     <p class="sr-only">{{ 'common.loading' | transloco }}</p>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">
+    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
       @for (i of [1, 2, 3, 4]; track i) {
-        <div class="eti-card space-y-3 px-5 py-[18px]"><eti-skeleton size="h-3 w-24" /><eti-skeleton size="h-7 w-20" /></div>
+        <div class="eti-card space-y-3 px-[22px] py-5"><eti-skeleton size="h-4 w-32" /><eti-skeleton size="h-3 w-48" /><eti-skeleton size="h-9 w-24" /></div>
       }
     </div>
-    <div class="mt-4 grid gap-4 lg:grid-cols-3" aria-hidden="true">
-      <div class="eti-card h-72 p-5 lg:col-span-2"><eti-skeleton size="h-full w-full" /></div>
-      <div class="eti-card h-72 p-5"><eti-skeleton size="h-full w-full" /></div>
+    <div class="mt-5 grid gap-5 lg:grid-cols-3" aria-hidden="true">
+      <div class="eti-card h-80 p-5 lg:col-span-2"><eti-skeleton size="h-full w-full" /></div>
+      <div class="eti-card h-80 p-5"><eti-skeleton size="h-full w-full" /></div>
     </div>
   } @else if (data(); as d) {
-    <section [attr.aria-label]="'dashboard.kpi' | transloco" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <a routerLink="/search" [queryParams]="{ status: 'OPEN' }" class="rounded-[14px] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
-        <eti-stat-tile [label]="'dashboard.openTenders' | transloco" [value]="fmtInt()(d.openTenders)"
-                       [hint]="'dashboard.inCountries' | transloco: { n: d.openCountries }" />
+    <!-- KPIs -->
+    <section [attr.aria-label]="'dashboard.kpi' | transloco" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <a routerLink="/search" [queryParams]="{ status: 'OPEN' }" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
+        <eti-stat-tile [label]="'dashboard.openTenders' | transloco" [description]="'dashboard.openTendersDesc' | transloco"
+                       [value]="fmtInt()(d.openTenders)" [hint]="'dashboard.inCountries' | transloco: { n: d.openCountries }"
+                       [bars]="countryMiniBars()" color="var(--color-series-1)" />
       </a>
-      <eti-stat-tile [label]="'dashboard.newTenders' | transloco" [value]="fmtInt()(d.newLast7Days)"
-                     [hint]="'dashboard.newTendersHint' | transloco" />
-      <a routerLink="/search" [queryParams]="dueSoonQuery()" class="rounded-[14px] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
-        <eti-stat-tile [label]="'dashboard.dueSoon' | transloco" [value]="fmtInt()(d.dueWithin7Days)"
-                       [hint]="'dashboard.dueSoonHint' | transloco" />
+      <eti-stat-tile [label]="'dashboard.newTenders' | transloco" [description]="'dashboard.newTendersDesc' | transloco"
+                     [value]="fmtInt()(d.newLast7Days)" [trend]="newTrend()" [trendLabel]="'dashboard.vsPreviousWeek' | transloco"
+                     [hint]="'dashboard.newTendersHint' | transloco" [locale]="lang"
+                     [bars]="newBars()" color="var(--color-series-4)" />
+      <a routerLink="/search" [queryParams]="dueSoonQuery()" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
+        <eti-stat-tile [label]="'dashboard.dueSoon' | transloco" [description]="'dashboard.dueSoonDesc' | transloco"
+                       [value]="fmtInt()(d.dueWithin7Days)" [hint]="'dashboard.dueSoonHint' | transloco"
+                       [bars]="deadlineBars()" color="var(--color-series-3)" />
       </a>
-      <a routerLink="/watchlist" class="rounded-[14px] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
-        <eti-stat-tile [label]="'dashboard.watchedValue' | transloco" [value]="watchedValue(d)"
-                       [hint]="watchedHint(d)" />
-      </a>
-    </section>
-
-
-    <section class="eti-card mt-4 overflow-hidden" aria-labelledby="matches-heading">
-      <div class="flex flex-wrap items-baseline gap-3 px-[22px] pt-5 pb-3">
-        <h2 id="matches-heading" class="eti-h2">{{ 'dashboard.bestMatches' | transloco }}</h2>
-        @if (d.hasProfile) {
-          <span class="eti-subtitle">{{ 'dashboard.bestMatchesHint' | transloco: { n: d.goodMatches } }}</span>
-          <a routerLink="/matches" class="eti-link ml-auto text-[13px]">{{ 'dashboard.seeAll' | transloco }}</a>
-        }
-      </div>
-      @if (!d.hasProfile) {
-        <div class="flex flex-wrap items-center gap-4 border-t border-border px-[22px] py-5">
-          <p class="min-w-0 flex-1 text-sm text-ink-muted">{{ 'dashboard.noProfile' | transloco }}</p>
-          <a routerLink="/company" class="eti-btn-primary">{{ 'match.createProfile' | transloco }}</a>
-        </div>
-      } @else if (d.topMatches.length === 0) {
-        <div class="border-t border-border px-[22px] py-6 text-center">
-          <p class="text-sm text-ink-muted">{{ 'dashboard.noGoodMatches' | transloco }}</p>
-          <a routerLink="/matches" class="eti-btn-secondary mt-3">{{ 'dashboard.lowerMatches' | transloco }}</a>
-        </div>
+      @if (d.hasProfile) {
+        <a routerLink="/matches" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
+          <eti-stat-tile [label]="'dashboard.goodMatches' | transloco" [description]="'dashboard.goodMatchesDesc' | transloco"
+                         [value]="fmtInt()(d.goodMatches)" [hint]="'dashboard.goodMatchesHint' | transloco"
+                         [bars]="bandBars()" color="var(--color-series-1)" />
+        </a>
       } @else {
-        <ul class="divide-y divide-track border-t border-border">
-          @for (m of d.topMatches; track m.tender.id) {
-            <li class="flex items-center gap-4 px-[22px] py-3">
-              <eti-match-score [score]="m.score" />
-              <div class="min-w-0 flex-1 text-[13px]">
-                <a [routerLink]="['/tenders', m.tender.id]" class="line-clamp-1 font-medium text-ink hover:text-accent">{{ m.tender.title }}</a>
-                <span class="block truncate text-ink-muted">{{ m.tender.authorityName }} · {{ m.tender.countryCode | country: lang }}</span>
-              </div>
-              <span class="eti-num hidden text-right text-[13px] whitespace-nowrap sm:block">{{ m.tender.estimatedValue | money: m.tender.currency : lang }}</span>
-              <span class="hidden w-32 text-[13px] whitespace-nowrap md:block"><eti-deadline [iso]="m.tender.submissionDeadline" [locale]="lang" /></span>
-            </li>
-          }
-        </ul>
+        <a routerLink="/watchlist" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
+          <eti-stat-tile [label]="'dashboard.watchedValue' | transloco" [description]="'dashboard.watchedValueDesc' | transloco"
+                         [value]="watchedValue(d)" [hint]="'dashboard.watchedCount' | transloco: { n: d.watchedActive }" />
+        </a>
       }
     </section>
 
-    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+    <!-- Notices per day + contract types -->
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3 [&>*]:min-w-0">
       <section class="eti-card px-[22px] py-5 lg:col-span-2" aria-labelledby="perday-heading">
-        <h2 id="perday-heading" class="eti-h2">{{ 'dashboard.noticesPerDay' | transloco }}</h2>
-        <p class="eti-subtitle mt-0.5">{{ 'dashboard.noticesHint' | transloco }}</p>
-        <div class="mt-5">
+        <eti-card-header headingId="perday-heading" [title]="'dashboard.noticesPerDay' | transloco"
+                         [description]="'dashboard.noticesHint' | transloco" [refreshable]="true" (refresh)="load()" />
+        <div class="mt-6">
           <eti-column-chart [points]="perDay()" [caption]="'dashboard.noticesCaption' | transloco" [format]="fmtCompact()" />
         </div>
       </section>
-      <section class="eti-card px-[22px] py-5" aria-labelledby="country-heading">
-        <h2 id="country-heading" class="eti-h2">{{ 'dashboard.byCountry' | transloco }}</h2>
-        <div class="mt-4"><eti-bar-list [items]="countryBars()" [caption]="'dashboard.byCountry' | transloco" [format]="fmtInt()" /></div>
+      <section class="eti-card px-[22px] py-5" aria-labelledby="types-heading">
+        <eti-card-header headingId="types-heading" [title]="'dashboard.byType' | transloco"
+                         [description]="'dashboard.byTypeHint' | transloco" />
+        <div class="mt-6">
+          <eti-donut-chart [slices]="typeSlices()" [caption]="'dashboard.byType' | transloco"
+                           [totalText]="fmtCompact()(typeTotal())" [centerLabel]="'dashboard.openShort' | transloco" />
+        </div>
+        <ul class="mt-6 space-y-3">
+          @for (s of typeSlices(); track s.key) {
+            <li class="flex items-center gap-3 text-[14px]">
+              <span class="size-2.5 shrink-0 rounded-full" [style.background]="s.color" aria-hidden="true"></span>
+              <a [routerLink]="['/search']" [queryParams]="s.key === 'UNKNOWN' ? { status: 'OPEN' } : { status: 'OPEN', contractType: s.key }"
+                 class="min-w-0 flex-1 truncate text-ink-soft hover:text-accent">{{ s.label }}</a>
+              <span class="eti-num text-ink">{{ fmtInt()(s.value) }}</span>
+              <span class="eti-num w-12 text-right text-ink-muted">{{ typeTotal() ? ((s.value / typeTotal()) * 100).toFixed(0) : 0 }}%</span>
+            </li>
+          }
+        </ul>
       </section>
     </div>
 
-    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+    <!-- Best matches + countries -->
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3 [&>*]:min-w-0">
+      <section class="eti-card overflow-hidden lg:col-span-2" aria-labelledby="matches-heading">
+        <div class="px-[22px] pt-5 pb-4">
+          <eti-card-header headingId="matches-heading" [title]="'dashboard.bestMatches' | transloco"
+                           [description]="d.hasProfile ? ('dashboard.bestMatchesHint' | transloco: { n: fmtInt()(d.goodMatches) }) : ('dashboard.bestMatchesDesc' | transloco)">
+            @if (d.hasProfile) {
+              <a routerLink="/matches" class="eti-link mt-0.5 text-[13px] whitespace-nowrap">{{ 'dashboard.seeAll' | transloco }}</a>
+            }
+          </eti-card-header>
+        </div>
+        @if (!d.hasProfile) {
+          <div class="flex flex-wrap items-center gap-4 border-t border-border px-[22px] py-5">
+            <p class="min-w-0 flex-1 text-sm text-ink-muted">{{ 'dashboard.noProfile' | transloco }}</p>
+            <a routerLink="/company" class="eti-btn-primary">{{ 'match.createProfile' | transloco }}</a>
+          </div>
+        } @else if (d.topMatches.length === 0) {
+          <div class="border-t border-border px-[22px] py-6 text-center">
+            <p class="text-sm text-ink-muted">{{ 'dashboard.noGoodMatches' | transloco }}</p>
+            <a routerLink="/matches" class="eti-btn-secondary mt-3">{{ 'dashboard.lowerMatches' | transloco }}</a>
+          </div>
+        } @else {
+          <ul class="divide-y divide-track border-t border-border">
+            @for (m of d.topMatches; track m.tender.id) {
+              <li class="flex items-center gap-4 px-[22px] py-3.5">
+                <eti-match-score [score]="m.score" />
+                <div class="min-w-0 flex-1 text-[13px]">
+                  <a [routerLink]="['/tenders', m.tender.id]" class="line-clamp-1 text-[14px] font-medium text-ink hover:text-accent">{{ m.tender.title }}</a>
+                  <span class="block truncate text-ink-muted">{{ m.tender.authorityName }} · {{ m.tender.countryCode | country: lang }}</span>
+                </div>
+                <div class="hidden shrink-0 text-right text-[13px] sm:block">
+                  <p class="eti-num text-ink">{{ m.tender.estimatedValue | money: m.tender.currency : lang }}</p>
+                  <p class="mt-0.5 whitespace-nowrap"><eti-deadline [iso]="m.tender.submissionDeadline" [locale]="lang" /></p>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="eti-card px-[22px] py-5" aria-labelledby="country-heading">
+        <eti-card-header headingId="country-heading" [title]="'dashboard.byCountry' | transloco"
+                         [description]="'dashboard.byCountryHint' | transloco" />
+        <p class="mt-5 text-[13px] text-ink-muted">{{ 'dashboard.openTenders' | transloco }}</p>
+        <p class="eti-kpi mt-1.5">{{ fmtInt()(d.openTenders) }}</p>
+        <div class="mt-5">
+          <eti-segmented-bar [segments]="countrySegments()" [caption]="'dashboard.byCountry' | transloco" [format]="fmtInt()" />
+        </div>
+      </section>
+    </div>
+
+    <!-- Watch-list deadlines + team pipeline -->
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3 [&>*]:min-w-0">
       <section class="eti-card overflow-hidden lg:col-span-2" aria-labelledby="upcoming-heading">
-        <div class="flex flex-wrap items-baseline gap-3 px-[22px] pt-5 pb-3">
-          <h2 id="upcoming-heading" class="eti-h2">{{ 'dashboard.upcoming' | transloco }}</h2>
-          <span class="eti-subtitle">{{ 'dashboard.upcomingHint' | transloco }}</span>
-          <a routerLink="/watchlist" class="eti-link ml-auto text-[13px]">{{ 'dashboard.seeAll' | transloco }}</a>
+        <div class="px-[22px] pt-5 pb-4">
+          <eti-card-header headingId="upcoming-heading" [title]="'dashboard.upcoming' | transloco"
+                           [description]="'dashboard.upcomingHint' | transloco">
+            <a routerLink="/watchlist" class="eti-link mt-0.5 text-[13px] whitespace-nowrap">{{ 'dashboard.seeAll' | transloco }}</a>
+          </eti-card-header>
         </div>
         @if (d.upcomingDeadlines.length === 0) {
           <div class="border-t border-border px-[22px] py-8 text-center">
@@ -143,45 +188,61 @@
         }
       </section>
 
+      <section class="eti-card px-[22px] py-5" aria-labelledby="pipeline-heading">
+        <eti-card-header headingId="pipeline-heading" [title]="'dashboard.pipeline' | transloco"
+                         [description]="'dashboard.pipelineHint' | transloco" />
+        @if (pipelineTotal() === 0) {
+          <p class="mt-5 text-sm text-ink-muted">{{ 'dashboard.pipelineEmpty' | transloco }}</p>
+        } @else {
+          <div class="mt-6"><eti-progress-list [rows]="pipelineRows()" /></div>
+        }
+      </section>
+    </div>
+
+    <!-- Sectors + updates -->
+    <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3 [&>*]:min-w-0">
       <section class="eti-card px-[22px] py-5" aria-labelledby="cpv-heading">
-        <h2 id="cpv-heading" class="eti-h2">{{ 'dashboard.topCpv' | transloco }}</h2>
-        <ol class="mt-4 space-y-3.5">
+        <eti-card-header headingId="cpv-heading" [title]="'dashboard.topCpv' | transloco"
+                         [description]="'dashboard.topCpvHint' | transloco" />
+        <ol class="mt-5 space-y-4">
           @for (b of cpvItems(); track b.key) {
             <li>
               <a [routerLink]="['/search']" [queryParams]="{ cpv: b.key, status: 'OPEN' }" class="group block">
-                <span class="flex justify-between gap-2 text-sm">
+                <span class="flex justify-between gap-2 text-[14px]">
                   <span class="min-w-0 truncate text-ink-soft group-hover:text-accent"><span class="eti-num text-ink-muted">{{ b.division }}</span> · {{ b.label }}</span>
                   <span class="eti-num text-ink">{{ fmtInt()(b.count) }}</span>
                 </span>
-                <span class="mt-1.5 block h-1.5 rounded bg-track" aria-hidden="true">
-                  <span class="block h-1.5 rounded bg-chart" [style.width.%]="b.share"></span>
+                <span class="mt-2 block h-2.5 rounded-full bg-track" aria-hidden="true">
+                  <span class="block h-2.5 rounded-full bg-chart" [style.width.%]="b.share"></span>
                 </span>
               </a>
             </li>
           }
         </ol>
       </section>
-    </div>
 
-    <section class="eti-card mt-4 px-[22px] py-5" aria-labelledby="updates-heading">
-      <h2 id="updates-heading" class="eti-h2">{{ 'dashboard.updates' | transloco }}</h2>
-      <p class="eti-subtitle mt-0.5">{{ (d.updatesScope === 'WATCHED' ? 'dashboard.updatesWatched' : 'dashboard.updatesAll') | transloco }}</p>
-      @if (d.recentUpdates.length === 0) {
-        <p class="mt-3 text-sm text-ink-muted">{{ 'dashboard.updatesEmpty' | transloco }}</p>
-      } @else {
-        <ul class="mt-3 divide-y divide-track">
-          @for (u of d.recentUpdates; track u.tenderId + u.publishedAt + u.changeKind) {
-            <li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2.5 text-[13px]">
-              <span class="w-36 shrink-0 font-medium text-ink">{{ 'tender.changeKind.' + u.changeKind | transloco }}</span>
-              <a [routerLink]="['/tenders', u.tenderId]" class="min-w-0 flex-1 truncate text-ink-soft hover:text-accent">{{ u.title }}</a>
-              <span class="text-ink-muted">
-                @for (f of u.changedFields; track f; let last = $last) {{{ 'tender.field.' + f | transloco }}@if (!last) {, }}
-              </span>
-              <span class="whitespace-nowrap text-ink-muted">{{ u.countryCode | country: lang }} · {{ u.publishedAt | userDate: lang }}</span>
-            </li>
-          }
-        </ul>
-      }
-    </section>
+      <section class="eti-card px-[22px] py-5 lg:col-span-2" aria-labelledby="updates-heading">
+        <eti-card-header headingId="updates-heading" [title]="'dashboard.updates' | transloco"
+                         [description]="(d.updatesScope === 'WATCHED' ? 'dashboard.updatesWatched' : 'dashboard.updatesAll') | transloco" />
+        @if (d.recentUpdates.length === 0) {
+          <p class="mt-4 text-sm text-ink-muted">{{ 'dashboard.updatesEmpty' | transloco }}</p>
+        } @else {
+          <ul class="mt-3 divide-y divide-track">
+            @for (u of d.recentUpdates; track u.tenderId + u.publishedAt + u.changeKind) {
+              <li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-3 text-[13px]">
+                <span class="w-36 shrink-0 font-medium text-ink">{{ 'tender.changeKind.' + u.changeKind | transloco }}</span>
+                <a [routerLink]="['/tenders', u.tenderId]" class="min-w-0 flex-1 truncate text-ink-soft hover:text-accent">{{ u.title }}</a>
+                <span class="whitespace-nowrap text-ink-muted">{{ u.countryCode | country: lang }} · {{ u.publishedAt | userDate: lang }}</span>
+                @if (u.changedFields.length) {
+                  <span class="basis-full pl-[156px] text-ink-muted max-sm:pl-0">
+                    @for (f of u.changedFields; track f; let last = $last) {{{ 'tender.field.' + f | transloco }}@if (!last) {, }}
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
   }
 </div>

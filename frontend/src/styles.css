@@ -22,6 +22,8 @@
 
   /* Page and component surfaces: everything is white; canvas is only a subtle hover / table-header tint. */
   --color-surface: #ffffff;
+  /* Sidebar: a barely-there grey, separating navigation from content. */
+  --color-sidebar: #f9fafb;
   --color-canvas: #f7f8fa;
   --color-subtle: #fafafb;
   --color-border: #eef0f3;
@@ -40,8 +42,20 @@
   --color-danger: #b42318;
   --color-danger-soft: #fef3f2;
 
-  --radius-card: 14px;
-  --radius-control: 10px;
+  --radius-card: 10px;
+  --radius-control: 8px;
+}
+
+/* Chart series are read through var() in templates, so they live outside @theme (Tailwind emits only used theme
+   variables). Categorical, fixed order – validated: CVD separation and normal-vision floor pass; orange and yellow are
+   below 3:1 on white, so they are always shown with a legend carrying the values. */
+:root {
+  --color-series-1: #2457f5;
+  --color-series-2: #ef7d2d;
+  --color-series-3: #16a37f;
+  --color-series-4: #8257e6;
+  --color-series-5: #d6498f;
+  --color-series-6: #d9a000;
 }
 
 @layer base {
@@ -75,13 +89,18 @@
     @apply text-[13px] text-ink-muted;
   }
   .eti-h1 {
-    @apply text-[26px] leading-tight font-semibold tracking-[-0.02em] text-ink;
+    @apply text-[28px] leading-tight font-semibold tracking-[-0.02em] text-ink;
   }
   .eti-h2 {
-    @apply text-[15px] font-semibold text-ink;
+    @apply text-[17px] font-semibold tracking-[-0.01em] text-ink;
+  }
+  /* Big KPI figure: large and light, like a printed report. */
+  .eti-kpi {
+    @apply text-[34px] leading-none font-medium tracking-[-0.03em] text-ink;
+    font-variant-numeric: tabular-nums;
   }
   .eti-subtitle {
-    @apply text-[13px] text-ink-muted;
+    @apply text-[14px] text-ink-muted;
   }
   .eti-num {
     font-variant-numeric: tabular-nums;
@@ -116,6 +135,9 @@
   }
   .eti-btn-ghost {
     @apply inline-flex whitespace-nowrap h-9 items-center justify-center gap-2 rounded-[var(--radius-control)] px-3 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas;
+  }
+  .eti-icon-btn {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] border border-border-strong bg-surface text-ink-soft transition-colors hover:bg-canvas hover:text-ink disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-link {
     @apply font-medium text-accent underline-offset-2 hover:underline;

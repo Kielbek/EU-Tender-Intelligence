@@ -38,7 +38,7 @@ export interface ColumnPoint {
                    [style.height.%]="height(p.value)"></div>
               @if (active() === i) {
                 <div role="tooltip"
-                     class="pointer-events-none absolute bottom-full z-10 mb-1 whitespace-nowrap rounded-[10px] border border-border-strong bg-surface px-2.5 py-1.5 text-xs shadow-md">
+                     class="pointer-events-none absolute bottom-full z-10 mb-1 whitespace-nowrap rounded-[var(--radius-control)] border border-border-strong bg-surface px-2.5 py-1.5 text-xs shadow-md">
                   <span class="block font-semibold tabular-nums text-ink">{{ format()(p.value) }}</span>
                   <span class="block text-ink-muted">{{ p.label }}</span>
                 </div>
@@ -47,10 +47,16 @@ export interface ColumnPoint {
           }
         </div>
       </div>
-      <div class="mt-1 flex justify-between pl-10 text-[11px] text-ink-muted" aria-hidden="true">
-        <span>{{ points()[0]?.label }}</span>
-        <span>{{ points()[points().length - 1]?.label }}</span>
+      <div class="mt-2 flex gap-[2px] pl-10 text-[11px] text-ink-muted" aria-hidden="true">
+        @for (p of points(); track p.key; let i = $index; let last = $last) {
+          <span class="relative flex-1">
+            @if (i % labelStep() === 0 || last) {
+              <span class="absolute left-1/2 -translate-x-1/2 whitespace-nowrap">{{ p.label }}</span>
+            }
+          </span>
+        }
       </div>
+      <div class="h-4" aria-hidden="true"></div>
       <figcaption class="sr-only">{{ caption() }}</figcaption>
     </figure>
     <details class="mt-3 text-xs text-ink-muted">
@@ -74,6 +80,8 @@ export class ColumnChartComponent {
   readonly caption = input('');
   readonly format = input<(v: number) => string>((v) => String(v));
   protected readonly active = signal<number | null>(null);
+  /** About six axis labels, like a printed chart. */
+  protected readonly labelStep = computed(() => Math.max(1, Math.ceil(this.points().length / 6)));
 
   /** Clean axis maximum: 1, 2 or 5 × 10^n. */
   private readonly axisMax = computed(() => {

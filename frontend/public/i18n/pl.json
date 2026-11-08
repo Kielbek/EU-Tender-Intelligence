@@ -27,7 +27,10 @@
     "globalSearch": "Szukaj przetargów",
     "globalSearchPlaceholder": "Szukaj w przetargach lub wpisz kod CPV…",
     "matches": "Dopasowane przetargi",
-    "company": "Profil firmy"
+    "company": "Profil firmy",
+    "accountSection": "Konto",
+    "breadcrumbs": "Ścieżka",
+    "dataSource": "Dane o przetargach: TED – Urząd Publikacji UE"
   },
   "language": {
     "label": "Język interfejsu",
@@ -99,7 +102,8 @@
     "name": "Nazwa",
     "previous": "Poprzednia",
     "next": "Następna",
-    "pageOf": "Strona {{page}} z {{pages}}"
+    "pageOf": "Strona {{page}} z {{pages}}",
+    "refresh": "Odśwież"
   },
   "auth": {
     "tagline": "Przetargi publiczne z całej Unii Europejskiej w jednym miejscu.",
@@ -333,7 +337,8 @@
     "disclaimer": "Informacje pochodzą z oficjalnych ogłoszeń i służą pomocniczo. Wiążąca jest treść oryginalnego ogłoszenia.",
     "source": "Źródło: TED – Tenders Electronic Daily",
     "participation": "Warunki udziału",
-    "awardCriteria": "Kryteria oceny ofert"
+    "awardCriteria": "Kryteria oceny ofert",
+    "crumb": "Szczegóły przetargu"
   },
   "watch": {
     "add": "Obserwuj",
@@ -482,7 +487,26 @@
     "bestMatchesHint": "otwarte z dopasowaniem 60+: {{n}}",
     "noProfile": "Uzupełnij profil firmy (branża CPV, kraje, rodzaje zamówień, zakres wartości), a pokażemy otwarte przetargi najlepiej dopasowane do Twojej działalności.",
     "noGoodMatches": "Brak otwartych przetargów z dopasowaniem 60 lub wyższym.",
-    "lowerMatches": "Pokaż słabiej dopasowane"
+    "lowerMatches": "Pokaż słabiej dopasowane",
+    "openTendersDesc": "Postępowania, w których można jeszcze złożyć ofertę.",
+    "newTendersDesc": "Postępowania opublikowane po raz pierwszy w TED.",
+    "vsPreviousWeek": "vs poprzednie 7 dni",
+    "dueSoonDesc": "Otwarte postępowania z terminem składania ofert.",
+    "goodMatches": "Dopasowane do Twojej firmy",
+    "goodMatchesDesc": "Otwarte przetargi z dopasowaniem 60 lub wyższym.",
+    "goodMatchesHint": "rozkład wyników 40–100",
+    "watchedValueDesc": "Szacunkowa wartość aktywnych postępowań zespołu.",
+    "byType": "Rodzaj zamówienia",
+    "byTypeHint": "Otwarte przetargi według rodzaju zamówienia.",
+    "typeUnknown": "Nie podano",
+    "openShort": "otwarte",
+    "otherCountries": "Pozostałe kraje",
+    "byCountryHint": "Gdzie są otwarte postępowania – 5 krajów z największą liczbą.",
+    "bestMatchesDesc": "Otwarte przetargi najlepiej dopasowane do profilu firmy.",
+    "pipeline": "Oferty zespołu",
+    "pipelineHint": "Obserwowane przetargi według etapu, z sumą wartości szacunkowej.",
+    "pipelineEmpty": "Zespół nie obserwuje jeszcze żadnych przetargów.",
+    "topCpvHint": "Najczęstsze działy CPV wśród otwartych przetargów."
   },
   "company": {
     "title": "Profil firmy",

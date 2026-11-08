@@ -1,6 +1,6 @@
 <a
   href="#main"
-  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[10px] focus:bg-surface focus:px-3 focus:py-2 focus:shadow"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[8px] focus:bg-surface focus:px-3 focus:py-2 focus:shadow"
 >
   {{ 'app.skipToContent' | transloco }}
 </a>
@@ -12,84 +12,75 @@
 
   <aside
     id="eti-sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-[248px] flex-col gap-6 border-r border-border bg-surface px-3.5 py-5 transition-transform lg:static lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-[260px] shrink-0 flex-col border-r border-border bg-sidebar transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0 lg:data-[collapsed=true]:hidden"
     [class.-translate-x-full]="!menuOpen()"
     [class.shadow-xl]="menuOpen()"
+    [attr.data-collapsed]="sidebarHidden()"
   >
-    <a routerLink="/" class="flex items-center gap-2.5 px-2.5 py-1" (click)="closeMenu()">
+    <a routerLink="/" class="flex h-[72px] shrink-0 items-center gap-2.5 px-6" (click)="closeMenu()">
       <svg lucideLandmark class="size-[22px] text-accent" aria-hidden="true"></svg>
-      <span class="text-[15px] font-bold tracking-[-0.01em] text-ink">Tender Intelligence</span>
+      <span class="text-[16px] font-bold tracking-[-0.02em] text-ink">Tender Intelligence</span>
     </a>
 
-    <nav class="flex flex-1 flex-col overflow-y-auto" [attr.aria-label]="'nav.main' | transloco">
-      <p class="mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-muted uppercase">{{ 'nav.workspace' | transloco }}</p>
-      <ul class="space-y-0.5">
-        @for (item of workItems; track item.path) {
-          <li>
-            <a
-              [routerLink]="item.path"
-              [queryParams]="item.query"
-              routerLinkActive="!bg-accent-soft !text-accent font-semibold"
-              [routerLinkActiveOptions]="{ paths: item.exact ? 'exact' : 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
-              ariaCurrentWhenActive="page"
-              class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas"
-              (click)="closeMenu()"
-            >
-              @switch (item.icon) {
-                @case ('dashboard') { <svg lucideLayoutDashboard class="size-4" aria-hidden="true"></svg> }
-                @case ('search') { <svg lucideSearch class="size-4" aria-hidden="true"></svg> }
-                @case ('target') { <svg lucideTarget class="size-4" aria-hidden="true"></svg> }
-                @case ('star') { <svg lucideStar class="size-4" aria-hidden="true"></svg> }
-                @case ('bookmark') { <svg lucideBookmark class="size-4" aria-hidden="true"></svg> }
+    <nav class="flex flex-1 flex-col overflow-y-auto px-4 pb-4" [attr.aria-label]="'nav.main' | transloco">
+      @for (section of sections; track section.id; let first = $first) {
+        <div [class.mt-4]="!first" [class.border-t]="!first" [class.border-border]="!first" [class.pt-4]="!first">
+          <button type="button"
+                  class="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] font-bold tracking-[0.04em] text-ink uppercase hover:bg-canvas"
+                  [attr.aria-expanded]="!folded().has(section.id)" [attr.aria-controls]="'nav-' + section.id"
+                  (click)="toggleSection(section.id)">
+            @if (folded().has(section.id)) {
+              <svg lucideChevronRight class="size-3.5 text-ink-muted" aria-hidden="true"></svg>
+            } @else {
+              <svg lucideChevronDown class="size-3.5 text-ink-muted" aria-hidden="true"></svg>
+            }
+            {{ section.key | transloco }}
+          </button>
+          @if (!folded().has(section.id)) {
+            <ul [id]="'nav-' + section.id" class="mt-1 space-y-0.5">
+              @for (item of section.items; track item.path) {
+                <li>
+                  <a
+                    [routerLink]="item.path"
+                    [queryParams]="item.query"
+                    routerLinkActive="!bg-accent-soft !text-accent font-medium"
+                    [routerLinkActiveOptions]="{ paths: item.exact ? 'exact' : 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+                    ariaCurrentWhenActive="page"
+                    class="flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] text-ink-soft hover:bg-canvas hover:text-ink"
+                    (click)="closeMenu()"
+                  >
+                    @switch (item.icon) {
+                      @case ('dashboard') { <svg lucideLayoutDashboard class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('search') { <svg lucideSearch class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('target') { <svg lucideTarget class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('star') { <svg lucideStar class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('bookmark') { <svg lucideBookmark class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('briefcase') { <svg lucideBriefcase class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('building') { <svg lucideBuilding2 class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('user') { <svg lucideUserRound class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('activity') { <svg lucideActivity class="size-[17px]" aria-hidden="true"></svg> }
+                    }
+                    {{ item.key | transloco }}
+                  </a>
+                </li>
               }
-              {{ item.key | transloco }}
-            </a>
-          </li>
-        }
-      </ul>
+            </ul>
+          }
+        </div>
+      }
 
-      <p class="mt-5 mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-muted uppercase">{{ 'nav.organizationSection' | transloco }}</p>
-      <ul class="space-y-0.5">
-        <li>
-          <a routerLink="/organization" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
-            <svg lucideBuilding2 class="size-4" aria-hidden="true"></svg>
-            {{ 'nav.organization' | transloco }}
-          </a>
-        </li>
-        <li>
-          <a routerLink="/company" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
-            <svg lucideBriefcase class="size-4" aria-hidden="true"></svg>
-            {{ 'nav.company' | transloco }}
-          </a>
-        </li>
-        <li>
-          <a routerLink="/account" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
-            <svg lucideUserRound class="size-4" aria-hidden="true"></svg>
-            {{ 'nav.account' | transloco }}
-          </a>
-        </li>
-        <li>
-          <a routerLink="/status" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
-            <svg lucideActivity class="size-4" aria-hidden="true"></svg>
-            {{ 'nav.systemStatus' | transloco }}
-          </a>
-        </li>
-      </ul>
-
-      <p class="mt-5 mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-faint uppercase">{{ 'nav.roadmap' | transloco }}</p>
-      <ul>
-        @for (item of roadmap; track item) {
-          <li class="px-2.5 py-1.5 text-sm text-ink-faint">{{ 'nav.roadmapItems.' + item | transloco }}</li>
-        }
-      </ul>
+      <div class="mt-4 border-t border-border pt-4">
+        <p class="px-2 py-1.5 text-[12px] font-bold tracking-[0.04em] text-ink-faint uppercase">{{ 'nav.roadmap' | transloco }}</p>
+        <ul class="mt-1">
+          @for (item of roadmap; track item) {
+            <li class="px-3 py-1.5 text-[14px] text-ink-faint">{{ 'nav.roadmapItems.' + item | transloco }}</li>
+          }
+        </ul>
+      </div>
     </nav>
 
     @if (org.current(); as current) {
-      <div class="rounded-[10px] border border-border px-3 py-2.5">
+      <div class="m-4 mt-0 rounded-[8px] border border-border bg-surface px-3 py-2.5">
         <p class="truncate text-[13px] font-semibold text-ink">{{ current.name }}</p>
         <p class="text-xs text-ink-muted">{{ 'nav.plan' | transloco: { plan: current.planCode } }}</p>
       </div>
@@ -97,25 +88,25 @@
   </aside>
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-8">
+    <header class="sticky top-0 z-20 flex h-[72px] items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-8">
       <button
         type="button"
-        class="inline-flex size-10 items-center justify-center rounded-[10px] border border-border-strong text-ink-soft hover:bg-canvas lg:hidden"
+        class="eti-icon-btn"
         [attr.aria-label]="(menuOpen() ? 'nav.closeMenu' : 'nav.openMenu') | transloco"
-        [attr.aria-expanded]="menuOpen()"
+        [attr.aria-expanded]="menuOpen() || !sidebarHidden()"
         aria-controls="eti-sidebar"
-        (click)="toggleMenu()"
+        (click)="toggleSidebar()"
       >
         @if (menuOpen()) {
-          <svg lucideX class="size-5" aria-hidden="true"></svg>
+          <svg lucideX class="size-[18px]" aria-hidden="true"></svg>
         } @else {
-          <svg lucideMenu class="size-5" aria-hidden="true"></svg>
+          <svg lucideMenu class="size-[18px]" aria-hidden="true"></svg>
         }
       </button>
 
       <form role="search" class="hidden min-w-0 flex-1 sm:block" (ngSubmit)="search()">
         <label for="global-search" class="sr-only">{{ 'nav.globalSearch' | transloco }}</label>
-        <div class="flex h-[38px] w-full max-w-[420px] items-center gap-2 rounded-[10px] border border-border-strong px-3 text-ink-faint focus-within:border-accent focus-within:ring-4 focus-within:ring-accent-soft">
+        <div class="flex h-10 w-full max-w-[380px] items-center gap-2 rounded-[8px] border border-border-strong bg-surface px-3 text-ink-faint focus-within:border-accent focus-within:ring-4 focus-within:ring-accent-soft">
           <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
           <input id="global-search" name="q" type="search" [(ngModel)]="globalQuery" maxlength="200"
                  class="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
@@ -126,7 +117,7 @@
       <div class="ml-auto flex items-center gap-2.5">
         @if (org.memberships().length > 1) {
           <label class="sr-only" for="org-context">{{ 'nav.currentOrg' | transloco }}</label>
-          <select id="org-context" class="h-[38px] max-w-48 rounded-[10px] border border-border-strong bg-surface px-2 text-sm text-ink-soft"
+          <select id="org-context" class="h-10 max-w-48 rounded-[8px] border border-border-strong bg-surface px-2 text-sm text-ink-soft"
                   [value]="org.currentId()" (change)="org.select($any($event.target).value)">
             @for (m of org.memberships(); track m.id) {
               <option [value]="m.id" [selected]="m.id === org.currentId()">{{ m.name }}</option>
@@ -135,18 +126,39 @@
         }
         <eti-language-switcher />
         @if (auth.user(); as user) {
-          <a routerLink="/account" class="inline-flex size-9 items-center justify-center rounded-full bg-track text-[13px] font-semibold text-ink-soft hover:ring-2 hover:ring-border-strong"
-             [title]="user.fullName" [attr.aria-label]="('nav.account' | transloco) + ': ' + user.fullName">{{ initials() }}</a>
-          <button type="button" class="inline-flex size-9 items-center justify-center rounded-[10px] text-ink-muted hover:bg-canvas hover:text-ink"
-                  [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco" (click)="logout()">
-            <svg lucideLogOut class="size-4" aria-hidden="true"></svg>
+          <button type="button" class="eti-icon-btn" [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco"
+                  (click)="logout()">
+            <svg lucideLogOut class="size-[18px]" aria-hidden="true"></svg>
           </button>
+          <a routerLink="/account" class="inline-flex size-10 items-center justify-center rounded-full bg-ink text-[13px] font-semibold text-white hover:ring-4 hover:ring-border-strong"
+             [title]="user.fullName" [attr.aria-label]="('nav.account' | transloco) + ': ' + user.fullName">{{ initials() }}</a>
         }
       </div>
     </header>
 
-    <main id="main" tabindex="-1" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-7 sm:px-8">
+    <main id="main" tabindex="-1" class="mx-auto w-full max-w-[1440px] flex-1 px-4 pt-6 pb-10 sm:px-8">
+      @if (crumbs().length) {
+        <nav class="mb-2 flex items-center gap-2 text-[13px] text-ink-muted" [attr.aria-label]="'nav.breadcrumbs' | transloco">
+          <a routerLink="/" class="hover:text-accent" [attr.aria-label]="'nav.dashboard' | transloco">
+            <svg lucideHouse class="size-[15px]" aria-hidden="true"></svg>
+          </a>
+          @for (c of crumbs(); track $index; let last = $last) {
+            <span class="text-ink-faint" aria-hidden="true">/</span>
+            @if (c.link && !last) {
+              <a [routerLink]="c.link" class="hover:text-accent">{{ c.key | transloco }}</a>
+            } @else {
+              <span [class.text-ink]="last" [attr.aria-current]="last ? 'page' : null">{{ c.key | transloco }}</span>
+            }
+          }
+        </nav>
+      }
       <router-outlet />
     </main>
+
+    <footer class="mx-auto flex w-full max-w-[1440px] flex-wrap justify-between gap-2 px-4 pb-6 text-[13px] text-ink-muted sm:px-8">
+      <div class="w-full border-t border-border pt-5"></div>
+      <span>© {{ year }} EU Tender Intelligence</span>
+      <span>{{ 'nav.dataSource' | transloco }}</span>
+    </footer>
   </div>
 </div>

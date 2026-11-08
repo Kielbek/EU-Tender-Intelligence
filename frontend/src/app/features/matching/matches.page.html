@@ -11,7 +11,7 @@
 <div class="mt-5 flex flex-wrap items-center gap-2" role="group" [attr.aria-label]="'match.minScore' | transloco">
   <span class="text-[13px] text-ink-muted">{{ 'match.minScore' | transloco }}</span>
   @for (t of thresholds; track t) {
-    <button type="button" class="h-8 rounded-[10px] border px-3 text-[13px] font-medium transition-colors"
+    <button type="button" class="h-8 rounded-[var(--radius-control)] border px-3 text-[13px] font-medium transition-colors"
             [class]="minScore() === t ? 'border-accent bg-accent-soft text-accent' : 'border-border-strong text-ink-soft hover:bg-canvas'"
             [attr.aria-pressed]="minScore() === t" (click)="setMin(t)">
       {{ t }}+

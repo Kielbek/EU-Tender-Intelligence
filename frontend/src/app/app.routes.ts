@@ -41,44 +41,54 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
+        data: { section: 'nav.workspace', crumb: 'nav.dashboard' },
         loadComponent: () => import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
       },
       {
         path: 'search',
+        data: { section: 'nav.workspace', crumb: 'nav.search' },
         loadComponent: () => import('./features/search/search.page').then((m) => m.SearchPage),
       },
       {
         path: 'tenders/:id',
+        data: { section: 'nav.workspace', parent: { key: 'nav.search', link: '/search' }, crumb: 'tender.crumb' },
         loadComponent: () => import('./features/tender/tender-detail.page').then((m) => m.TenderDetailPage),
       },
       {
         path: 'watchlist',
+        data: { section: 'nav.workspace', crumb: 'nav.watchlist' },
         loadComponent: () => import('./features/watchlist/watchlist.page').then((m) => m.WatchlistPage),
       },
       {
         path: 'matches',
+        data: { section: 'nav.workspace', crumb: 'nav.matches' },
         loadComponent: () => import('./features/matching/matches.page').then((m) => m.MatchesPage),
       },
       {
         path: 'company',
+        data: { section: 'nav.organizationSection', crumb: 'nav.company' },
         loadComponent: () => import('./features/company/company-profile.page').then((m) => m.CompanyProfilePage),
       },
       {
         path: 'saved-searches',
+        data: { section: 'nav.workspace', crumb: 'nav.savedSearches' },
         loadComponent: () =>
           import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),
       },
       {
         path: 'status',
+        data: { section: 'nav.accountSection', crumb: 'nav.systemStatus' },
         loadComponent: () =>
           import('./features/system-status/system-status.page').then((m) => m.SystemStatusPage),
       },
       {
         path: 'organization',
+        data: { section: 'nav.organizationSection', crumb: 'nav.organization' },
         loadComponent: () => import('./features/organization/organization.page').then((m) => m.OrganizationPage),
       },
       {
         path: 'account',
+        data: { section: 'nav.accountSection', crumb: 'nav.account' },
         loadComponent: () => import('./features/account/account.page').then((m) => m.AccountPage),
       },
       {

@@ -44,7 +44,20 @@ public class DashboardService {
             long watchedActive, BigDecimal watchedValueEur,
             long watchedWithoutValue, List<TenderSummary> upcomingDeadlines, List<Bucket> topCpvDivisions,
             List<Bucket> byCountry, List<DayCount> noticesPerDay, List<Update> recentUpdates, String updatesScope,
-            Instant lastIngestionAt) {
+            Instant lastIngestionAt,
+            /* open tenders by contract type (WORKS, SUPPLIES, SERVICES, MIXED, UNKNOWN) */
+            List<Bucket> byContractType,
+            /* the team's watch-list by stage, with summed estimated value in EUR */
+            List<Stage> pipeline,
+            /* tenders first published per day, last 14 days (trend = last 7 vs previous 7) */
+            List<DayCount> newPerDay,
+            /* open tenders whose deadline falls on each of the next 7 days */
+            List<DayCount> deadlinesPerDay,
+            /* stored matches of open tenders per score band: 40, 50, 60, 70, 80, 90 */
+            List<Bucket> matchScoreBands) {
+    }
+
+    public record Stage(String status, long count, BigDecimal valueEur) {
     }
 
     public record Bucket(String key, String label, long count) {
@@ -128,9 +141,43 @@ public class DashboardService {
         long good = hasProfile ? matching.countAtLeast(orgId, GOOD_MATCH) : 0;
         List<eu.tenderintel.matching.MatchingService.MatchView> top = hasProfile
                 ? matching.list(orgId, userId, GOOD_MATCH, 0, 5, l).items() : List.of();
+        List<Bucket> byType = jdbc.query("""
+                select coalesce(contract_type, 'UNKNOWN'), count(*) from tenders where status = 'OPEN'
+                group by 1 order by 2 desc
+                """, (rs, i) -> new Bucket(rs.getString(1), null, rs.getLong(2)));
+        List<Stage> pipeline = jdbc.query("""
+                select s.status, count(*), coalesce(sum(t.estimated_value_eur), 0)
+                from saved_tenders s join tenders t on t.id = s.tender_id
+                where s.organization_id = ? group by 1
+                """, (rs, i) -> new Stage(rs.getString(1), rs.getLong(2), rs.getBigDecimal(3)), orgId);
+        List<DayCount> newPerDay = jdbc.query("""
+                select d::date, coalesce(v.n, 0) from generate_series(
+                    (now() at time zone 'Europe/Brussels')::date - 13, (now() at time zone 'Europe/Brussels')::date,
+                    interval '1 day') d
+                left join (select (published_at at time zone 'Europe/Brussels')::date as day, count(*) as n
+                           from tenders where published_at >= now() - interval '15 days' group by 1) v
+                  on v.day = d::date
+                order by 1
+                """, (rs, i) -> new DayCount(rs.getObject(1, LocalDate.class), rs.getLong(2)));
+        List<DayCount> deadlinesPerDay = jdbc.query("""
+                select d::date, coalesce(v.n, 0) from generate_series(
+                    (now() at time zone 'Europe/Brussels')::date, (now() at time zone 'Europe/Brussels')::date + 6,
+                    interval '1 day') d
+                left join (select (submission_deadline at time zone 'Europe/Brussels')::date as day, count(*) as n
+                           from tenders where status = 'OPEN' and submission_deadline > now()
+                             and submission_deadline < now() + interval '8 days' group by 1) v on v.day = d::date
+                order by 1
+                """, (rs, i) -> new DayCount(rs.getObject(1, LocalDate.class), rs.getLong(2)));
+        List<Bucket> bands = !hasProfile ? List.of() : jdbc.query("""
+                select b * 10, coalesce(v.n, 0) from generate_series(4, 9) b
+                left join (select least(m.score / 10, 9) as band, count(*) as n
+                           from tender_matches m join tenders t on t.id = m.tender_id
+                           where m.organization_id = ? and t.status = 'OPEN' group by 1) v on v.band = b
+                order by 1
+                """, (rs, i) -> new Bucket(rs.getString(1), null, rs.getLong(2)), orgId);
         return new Summary(hasProfile, good, top, open, openCountries, dueSoon, newTenders, watchedCount, (BigDecimal) watched.get("v"),
                 ((Number) watched.get("no_value")).longValue(), upcoming, cpv, countries, perDay, updates, scope,
-                last == null ? null : last.toInstant());
+                last == null ? null : last.toInstant(), byType, pipeline, newPerDay, deadlinesPerDay, bands);
     }
 
     private long count(String sql) {

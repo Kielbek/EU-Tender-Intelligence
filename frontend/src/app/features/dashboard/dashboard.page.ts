@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiError, toApiError } from '../../core/api/api-error';
@@ -10,17 +11,26 @@ import { FORMAT_PIPES } from '../../core/format/format.pipes';
 import { LanguageService } from '../../core/i18n/language.service';
 import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
-import { BarItem, BarListComponent } from '../../shared/ui/bar-list.component';
+import { CardHeaderComponent } from '../../shared/ui/card-header.component';
 import { ColumnChartComponent, ColumnPoint } from '../../shared/ui/column-chart.component';
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
+import { DonutChartComponent, DonutSlice } from '../../shared/ui/donut-chart.component';
 import { MatchScoreComponent } from '../../shared/ui/match-score.component';
+import { ProgressListComponent, ProgressRow } from '../../shared/ui/progress-list.component';
+import { Segment, SegmentedBarComponent } from '../../shared/ui/segmented-bar.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
-import { StatTileComponent } from '../../shared/ui/stat-tile.component';
+import { MiniBar, StatTileComponent } from '../../shared/ui/stat-tile.component';
+
+/** Categorical series in fixed order (validated palette, see styles.css). */
+const SERIES = [1, 2, 3, 4, 5, 6].map((i) => `var(--color-series-${i})`);
+const STAGES = ['WATCHING', 'PREPARING', 'SUBMITTED', 'WON', 'LOST', 'DROPPED'] as const;
+const CONTRACT_TYPES = ['WORKS', 'SERVICES', 'SUPPLIES', 'MIXED', 'UNKNOWN'] as const;
 
 @Component({
   selector: 'eti-dashboard-page',
-  imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, BarListComponent, ColumnChartComponent,
-    DeadlineComponent, MatchScoreComponent, SkeletonComponent, StatTileComponent],
+  imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, CardHeaderComponent,
+    ColumnChartComponent, DeadlineComponent, DonutChartComponent, MatchScoreComponent, ProgressListComponent,
+    SegmentedBarComponent, SkeletonComponent, StatTileComponent],
   templateUrl: './dashboard.page.html',
 })
 export class DashboardPage {
@@ -31,6 +41,7 @@ export class DashboardPage {
   protected readonly language = inject(LanguageService);
   protected readonly data = signal<DashboardSummary | null>(null);
   protected readonly error = signal<ApiError | null>(null);
+  private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
 
   constructor() {
     effect(() => {
@@ -59,15 +70,90 @@ export class DashboardPage {
     return (v: number) => compactNumber(v, lang);
   });
 
-  protected readonly perDay = computed<ColumnPoint[]>(() => {
-    const lang = this.language.current();
-    const fmt = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', timeZone: 'UTC' });
-    return (this.data()?.noticesPerDay ?? []).map((d) => ({
-      key: d.day,
-      label: fmt.format(new Date(d.day + 'T00:00:00Z')),
-      value: d.count,
-    }));
+  private dayLabel(day: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }): string {
+    return new Intl.DateTimeFormat(this.language.current(), { ...opts, timeZone: 'UTC' }).format(
+      new Date(day + 'T00:00:00Z'),
+    );
+  }
+
+  protected readonly perDay = computed<ColumnPoint[]>(() =>
+    (this.data()?.noticesPerDay ?? []).map((d) => ({ key: d.day, label: this.dayLabel(d.day), value: d.count })),
+  );
+
+  // --- KPI tiles ------------------------------------------------------------------------------------------------
+
+  protected readonly newBars = computed<MiniBar[]>(() =>
+    (this.data()?.newPerDay ?? []).slice(-7).map((d) => ({ label: this.dayLabel(d.day, { weekday: 'short', day: 'numeric' }), value: d.count })),
+  );
+  /** New tenders in the last 7 days vs the 7 days before; null when there is nothing to compare with. */
+  protected readonly newTrend = computed(() => {
+    const days = this.data()?.newPerDay ?? [];
+    if (days.length < 14) {
+      return null;
+    }
+    const last = days.slice(-7).reduce((a, d) => a + d.count, 0);
+    const prev = days.slice(-14, -7).reduce((a, d) => a + d.count, 0);
+    return prev === 0 ? null : ((last - prev) / prev) * 100;
   });
+  protected readonly deadlineBars = computed<MiniBar[]>(() =>
+    (this.data()?.deadlinesPerDay ?? []).map((d) => ({ label: this.dayLabel(d.day, { weekday: 'short', day: 'numeric' }), value: d.count })),
+  );
+  protected readonly countryMiniBars = computed<MiniBar[]>(() => {
+    const lang = this.language.current();
+    return (this.data()?.byCountry ?? []).slice(0, 7).map((b) => ({ label: countryName(b.key, lang), value: b.count }));
+  });
+  protected readonly bandBars = computed<MiniBar[]>(() =>
+    (this.data()?.matchScoreBands ?? []).map((b) => {
+      const from = Number(b.key);
+      return { label: from === 90 ? '90–100' : `${from}–${from + 9}`, value: b.count };
+    }),
+  );
+
+  // --- part-to-whole cards --------------------------------------------------------------------------------------
+
+  protected readonly typeSlices = computed<DonutSlice[]>(() => {
+    this.translations();
+    const buckets = this.data()?.byContractType ?? [];
+    return CONTRACT_TYPES.map((t, i) => ({
+      key: t,
+      label: this.transloco.translate(t === 'UNKNOWN' ? 'dashboard.typeUnknown' : `tender.contractType.${t}`),
+      value: buckets.find((b) => b.key === t)?.count ?? 0,
+      color: SERIES[i],
+    })).filter((s) => s.value > 0);
+  });
+  protected readonly typeTotal = computed(() => this.typeSlices().reduce((a, s) => a + s.value, 0));
+
+  protected readonly countrySegments = computed<Segment[]>(() => {
+    this.translations();
+    const lang = this.language.current();
+    const list = this.data()?.byCountry ?? [];
+    const open = this.data()?.openTenders ?? 0;
+    const top = list.slice(0, 5).map((b, i) => ({ key: b.key, label: countryName(b.key, lang), value: b.count, color: SERIES[i] }));
+    const rest = open - top.reduce((a, s) => a + s.value, 0);
+    return rest > 0
+      ? [...top, { key: 'other', label: this.transloco.translate('dashboard.otherCountries'), value: rest, color: 'var(--color-ink-faint)' }]
+      : top;
+  });
+
+  protected readonly pipelineRows = computed<ProgressRow[]>(() => {
+    this.translations();
+    const lang = this.language.current();
+    const stages = this.data()?.pipeline ?? [];
+    const total = stages.reduce((a, s) => a + s.count, 0) || 1;
+    return STAGES.map((st, i) => {
+      const s = stages.find((x) => x.status === st);
+      const count = s?.count ?? 0;
+      return {
+        key: st,
+        label: this.transloco.translate(`watch.status.${st}`),
+        valueText: integer(count, lang),
+        hint: s && s.valueEur > 0 ? money(s.valueEur, 'EUR', lang) : undefined,
+        percent: (count / total) * 100,
+        color: SERIES[i],
+      };
+    });
+  });
+  protected readonly pipelineTotal = computed(() => (this.data()?.pipeline ?? []).reduce((a, s) => a + s.count, 0));
 
   protected readonly cpvItems = computed(() => {
     const list = (this.data()?.topCpvDivisions ?? []).slice(0, 6);
@@ -88,19 +174,7 @@ export class DashboardPage {
     return { status: 'OPEN', deadlineFrom: from, deadlineTo: to, sort: 'DEADLINE' };
   });
 
-  protected readonly countryBars = computed<BarItem[]>(() => {
-    const lang = this.language.current();
-    return (this.data()?.byCountry ?? []).slice(0, 8).map((b) => ({ key: b.key, label: countryName(b.key, lang), value: b.count }));
-  });
-
   protected watchedValue(d: DashboardSummary): string {
     return money(d.watchedValueEur, 'EUR', this.language.current());
-  }
-
-  protected watchedHint(d: DashboardSummary): string {
-    const base = this.transloco.translate('dashboard.watchedCount', { n: d.watchedActive });
-    return d.watchedWithoutValue
-      ? `${base} · ${this.transloco.translate('dashboard.watchedValueHint', { n: d.watchedWithoutValue })}`
-      : base;
   }
 }

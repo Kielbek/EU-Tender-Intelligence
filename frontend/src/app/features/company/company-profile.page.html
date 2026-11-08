@@ -71,7 +71,7 @@
               <legend class="eti-label">{{ 'company.contractTypes' | transloco }}</legend>
               <div class="mt-1.5 flex flex-wrap gap-2">
                 @for (t of contractTypeOptions; track t) {
-                  <label class="inline-flex h-9 items-center gap-2 rounded-[10px] border border-border-strong px-3 text-sm text-ink-soft has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:text-accent">
+                  <label class="inline-flex h-9 items-center gap-2 rounded-[var(--radius-control)] border border-border-strong px-3 text-sm text-ink-soft has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:text-accent">
                     <input type="checkbox" class="size-4 accent-accent" [checked]="contractTypes().includes(t)"
                            [disabled]="!isAdmin()" (change)="toggleType(t, $any($event.target).checked)" />
                     {{ 'tender.contractType.' + t | transloco }}

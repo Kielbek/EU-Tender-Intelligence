@@ -27,7 +27,10 @@
     "globalSearch": "Search tenders",
     "globalSearchPlaceholder": "Search tenders or type a CPV code…",
     "matches": "Matched tenders",
-    "company": "Company profile"
+    "company": "Company profile",
+    "accountSection": "Account",
+    "breadcrumbs": "Breadcrumb",
+    "dataSource": "Tender data: TED – Publications Office of the EU"
   },
   "language": {
     "label": "Interface language",
@@ -99,7 +102,8 @@
     "name": "Name",
     "previous": "Previous",
     "next": "Next",
-    "pageOf": "Page {{page}} of {{pages}}"
+    "pageOf": "Page {{page}} of {{pages}}",
+    "refresh": "Refresh"
   },
   "auth": {
     "tagline": "Public tenders from across the European Union in one place.",
@@ -333,7 +337,8 @@
     "disclaimer": "Information comes from official notices and is for guidance only. The original notice is binding.",
     "source": "Source: TED – Tenders Electronic Daily",
     "participation": "Conditions for participation",
-    "awardCriteria": "Award criteria"
+    "awardCriteria": "Award criteria",
+    "crumb": "Tender details"
   },
   "watch": {
     "add": "Watch",
@@ -482,7 +487,26 @@
     "bestMatchesHint": "open with a fit of 60+: {{n}}",
     "noProfile": "Complete your company profile (CPV sectors, countries, contract types, value range) and we will show the open tenders that fit your business best.",
     "noGoodMatches": "No open tenders with a fit of 60 or higher.",
-    "lowerMatches": "Show weaker matches"
+    "lowerMatches": "Show weaker matches",
+    "openTendersDesc": "Procedures still accepting tenders.",
+    "newTendersDesc": "Procedures first published on TED.",
+    "vsPreviousWeek": "vs previous 7 days",
+    "dueSoonDesc": "Open procedures with a tender deadline.",
+    "goodMatches": "Matching your company",
+    "goodMatchesDesc": "Open tenders with a fit of 60 or higher.",
+    "goodMatchesHint": "score distribution 40–100",
+    "watchedValueDesc": "Estimated value of the team’s active procedures.",
+    "byType": "Contract type",
+    "byTypeHint": "Open tenders by contract type.",
+    "typeUnknown": "Not stated",
+    "openShort": "open",
+    "otherCountries": "Other countries",
+    "byCountryHint": "Where the open procedures are – the 5 countries with the most.",
+    "bestMatchesDesc": "Open tenders that fit your company profile best.",
+    "pipeline": "Team bids",
+    "pipelineHint": "Watched tenders by stage, with the summed estimated value.",
+    "pipelineEmpty": "Your team is not watching any tenders yet.",
+    "topCpvHint": "The most common CPV divisions among open tenders."
   },
   "company": {
     "title": "Company profile",
