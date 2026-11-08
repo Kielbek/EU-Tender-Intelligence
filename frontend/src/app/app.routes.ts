@@ -38,7 +38,28 @@ export const routes: Routes = [
     component: ShellComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'status' },
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
+      },
+      {
+        path: 'search',
+        loadComponent: () => import('./features/search/search.page').then((m) => m.SearchPage),
+      },
+      {
+        path: 'tenders/:id',
+        loadComponent: () => import('./features/tender/tender-detail.page').then((m) => m.TenderDetailPage),
+      },
+      {
+        path: 'watchlist',
+        loadComponent: () => import('./features/watchlist/watchlist.page').then((m) => m.WatchlistPage),
+      },
+      {
+        path: 'saved-searches',
+        loadComponent: () =>
+          import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),
+      },
       {
         path: 'status',
         loadComponent: () =>

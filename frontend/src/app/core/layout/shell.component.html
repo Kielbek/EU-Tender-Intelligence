@@ -22,40 +22,49 @@
 
     <nav class="flex-1 overflow-y-auto px-3 py-4" [attr.aria-label]="'nav.main' | transloco">
       <ul class="space-y-1">
+        @for (item of workItems; track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              [queryParams]="item.query"
+              routerLinkActive="bg-white/10 text-white"
+              [routerLinkActiveOptions]="{ paths: item.exact ? 'exact' : 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+              ariaCurrentWhenActive="page"
+              class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
+              (click)="closeMenu()"
+            >
+              @switch (item.icon) {
+                @case ('dashboard') { <svg lucideLayoutDashboard class="size-4" aria-hidden="true"></svg> }
+                @case ('search') { <svg lucideSearch class="size-4" aria-hidden="true"></svg> }
+                @case ('star') { <svg lucideStar class="size-4" aria-hidden="true"></svg> }
+                @case ('bookmark') { <svg lucideBookmark class="size-4" aria-hidden="true"></svg> }
+              }
+              {{ item.key | transloco }}
+            </a>
+          </li>
+        }
+      </ul>
+
+      <ul class="mt-6 space-y-1 border-t border-white/10 pt-4">
         <li>
-          <a
-            routerLink="/status"
-            routerLinkActive="bg-white/10 text-white"
-            ariaCurrentWhenActive="page"
-            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
-            (click)="closeMenu()"
-          >
-            <svg lucideActivity class="size-4" aria-hidden="true"></svg>
-            {{ 'nav.systemStatus' | transloco }}
-          </a>
-        </li>
-        <li>
-          <a
-            routerLink="/organization"
-            routerLinkActive="bg-white/10 text-white"
-            ariaCurrentWhenActive="page"
-            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
-            (click)="closeMenu()"
-          >
+          <a routerLink="/organization" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
             <svg lucideBuilding2 class="size-4" aria-hidden="true"></svg>
             {{ 'nav.organization' | transloco }}
           </a>
         </li>
         <li>
-          <a
-            routerLink="/account"
-            routerLinkActive="bg-white/10 text-white"
-            ariaCurrentWhenActive="page"
-            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
-            (click)="closeMenu()"
-          >
+          <a routerLink="/account" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
             <svg lucideUserRound class="size-4" aria-hidden="true"></svg>
             {{ 'nav.account' | transloco }}
+          </a>
+        </li>
+        <li>
+          <a routerLink="/status" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
+            <svg lucideActivity class="size-4" aria-hidden="true"></svg>
+            {{ 'nav.systemStatus' | transloco }}
           </a>
         </li>
       </ul>
@@ -88,6 +97,15 @@
         }
       </button>
       <div class="ml-auto flex items-center gap-3">
+        @if (org.memberships().length > 1) {
+          <label class="sr-only" for="org-context">{{ 'nav.currentOrg' | transloco }}</label>
+          <select id="org-context" class="h-9 max-w-48 rounded-md border border-border bg-surface px-2 text-sm"
+                  [value]="org.currentId()" (change)="org.select($any($event.target).value)">
+            @for (m of org.memberships(); track m.id) {
+              <option [value]="m.id" [selected]="m.id === org.currentId()">{{ m.name }}</option>
+            }
+          </select>
+        }
         <eti-language-switcher />
         @if (auth.user(); as user) {
           <span class="hidden max-w-48 truncate text-sm text-ink-muted sm:inline" [title]="user.email">{{ user.fullName }}</span>

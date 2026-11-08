@@ -75,10 +75,10 @@ public class WatchlistService {
                 insert into saved_tenders (id, organization_id, tender_id, created_by, status, notes)
                 values (?, ?, ?, ?, coalesce(?, 'WATCHING'), ?)
                 on conflict (organization_id, tender_id) do update set
-                    status = coalesce(excluded.status, saved_tenders.status),
+                    status = coalesce(cast(? as text), saved_tenders.status),
                     notes = case when ? then excluded.notes else saved_tenders.notes end,
                     updated_at = now()
-                """, Ids.newId(), orgId, tenderId, userId, req.status(), emptyToNull(req.notes()),
+                """, Ids.newId(), orgId, tenderId, userId, req.status(), emptyToNull(req.notes()), req.status(),
                 req.notes() != null);
         return get(orgId, userId, tenderId, lang);
     }

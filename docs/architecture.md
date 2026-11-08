@@ -23,7 +23,7 @@ Oryginalna specyfikacja proponowała FastAPI + Next.js. Na wyraźne życzenie w�
 | Next.js / React | **Angular 22** (standalone components, signals, SSR dla stron SEO) | |
 | Tailwind + shadcn/ui | Tailwind CSS 4 + Angular CDK + własna biblioteka komponentów w stylu shadcn | Spójny design, dostępność z CDK (focus trap, a11y) |
 | Lucide Icons | `lucide-angular` | |
-| Recharts | ECharts (`ngx-echarts`) | Wydajne wykresy, dobre wsparcie a11y/tematu |
+| Recharts | Własne lekkie wykresy HTML (słupki/kolumny) | Zero zależności (~0 kB vs ~1 MB ECharts), tooltip z klawiatury, widok tabeli, kolory walidowane pod kątem kontrastu i CVD |
 | i18n | **Transloco** (przełączanie języka w runtime, lazy-loaded słowniki) | Angular i18n wymaga osobnego buildu per język |
 | Stripe | `stripe-java` + weryfikowane webhooki | |
 | S3 | AWS SDK v2 (S3-compatible: MinIO lokalnie, Hetzner Object Storage / AWS S3 produkcyjnie) | |

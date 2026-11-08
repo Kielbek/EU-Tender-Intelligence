@@ -70,6 +70,11 @@ class WorkspaceIntegrationTest {
         mvc.perform(put(base + T1).with(alice.bearer()).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"SUBMITTED\"}"))
                 .andExpect(jsonPath("$.notes").value("Referencje z 2024 r."));
+        // Notes-only update keeps the stage.
+        mvc.perform(put(base + T1).with(alice.bearer()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"notes\":\"Wadium 50 000 PLN\"}"))
+                .andExpect(jsonPath("$.status").value("SUBMITTED"))
+                .andExpect(jsonPath("$.notes").value("Wadium 50 000 PLN"));
         mvc.perform(put(base + T1).with(alice.bearer()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"status\":\"BOGUS\"}")).andExpect(status().isBadRequest());
         mvc.perform(put(base + "00000000-0000-7000-8000-0000000fffff").with(alice.bearer())

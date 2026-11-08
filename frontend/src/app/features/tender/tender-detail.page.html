@@ -1,0 +1,278 @@
+<button type="button" class="eti-link inline-flex items-center gap-1 text-sm" (click)="back()">
+  <svg lucideArrowLeft class="size-4" aria-hidden="true"></svg> {{ 'tender.back' | transloco }}
+</button>
+
+@if (error()) {
+  <div class="mt-4"><eti-api-error [error]="error()" /></div>
+} @else if (!tender()) {
+  <div class="mt-4 space-y-3" aria-busy="true">
+    <p class="sr-only">{{ 'common.loading' | transloco }}</p>
+    <eti-skeleton size="h-7 w-3/4" />
+    <eti-skeleton size="h-4 w-1/2" />
+    <div class="eti-card space-y-2 p-5"><eti-skeleton size="h-4 w-full" /><eti-skeleton size="h-4 w-5/6" /></div>
+  </div>
+} @else if (tender(); as t) {
+  @let lang = language.current();
+  <header class="mt-4">
+    <div class="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+      <eti-tender-status [status]="t.status" />
+      <span>{{ t.countryCode | country: lang }}@if (t.city) {, {{ t.city }}}</span>
+      @if (t.referenceNumber) {
+        <span aria-hidden="true">·</span><span>{{ t.referenceNumber }}</span>
+      }
+    </div>
+    <h1 class="mt-2 break-words text-xl font-semibold leading-snug tracking-tight sm:text-2xl" [attr.lang]="t.titleLang">{{ t.title }}</h1>
+    @if (t.authority) {
+      <p class="mt-1 text-ink-muted">{{ t.authority.name }}</p>
+    }
+  </header>
+
+  <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="min-w-0 space-y-6">
+      <section class="eti-card p-5" aria-labelledby="facts-heading">
+        <h2 id="facts-heading" class="sr-only">{{ 'tender.value' | transloco }}</h2>
+        <dl class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.deadline' | transloco }}</dt>
+            <dd class="mt-0.5 font-medium"><eti-deadline [iso]="t.submissionDeadline" [locale]="lang" /></dd>
+            @if (t.submissionDeadline && tz(t.submissionDeadlineTz)) {
+              <dd class="text-xs text-ink-muted">{{ 'tender.deadlineTz' | transloco: { tz: tz(t.submissionDeadlineTz) } }}</dd>
+            }
+          </div>
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.value' | transloco }}</dt>
+            <dd class="mt-0.5 font-medium tabular-nums">
+              @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
+                {{ t.estimatedValue | money: t.currency : lang }}
+              } @else {
+                <span class="font-normal text-ink-muted">{{ 'tender.noValue' | transloco }}</span>
+              }
+            </dd>
+            @if (t.estimatedValueEur && t.currency !== 'EUR') {
+              <dd class="text-xs text-ink-muted">{{ 'tender.valueEur' | transloco: { value: (t.estimatedValueEur | money: 'EUR' : lang) } }}</dd>
+            }
+          </div>
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.published' | transloco }}</dt>
+            <dd class="mt-0.5">{{ t.publishedAt | userDate: lang }}</dd>
+          </div>
+          @if (t.openingAt) {
+            <div>
+              <dt class="text-xs text-ink-muted">{{ 'tender.opening' | transloco }}</dt>
+              <dd class="mt-0.5">{{ t.openingAt | userDateTime: lang }}</dd>
+            </div>
+          }
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.procedure' | transloco }}</dt>
+            <dd class="mt-0.5">{{ t.procedureType ? ('tender.procedureType.' + t.procedureType | transloco) : '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.contractTypeLabel' | transloco }}</dt>
+            <dd class="mt-0.5">{{ t.contractType ? ('tender.contractType.' + t.contractType | transloco) : '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-ink-muted">{{ 'tender.location' | transloco }}</dt>
+            <dd class="mt-0.5">
+              {{ t.countryCode | country: lang }}@if (t.city) {, {{ t.city }}}
+              @if (t.nutsCode) { <span class="text-xs text-ink-muted">(NUTS {{ t.nutsCode }})</span> }
+            </dd>
+          </div>
+          @if (t.noticeLanguage) {
+            <div>
+              <dt class="text-xs text-ink-muted">{{ 'tender.language' | transloco }}</dt>
+              <dd class="mt-0.5">{{ t.noticeLanguage | langName: lang }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      <section class="eti-card p-5" aria-labelledby="desc-heading">
+        <h2 id="desc-heading" class="text-base font-semibold">{{ 'tender.description' | transloco }}</h2>
+        @if (t.description) {
+          <p class="mt-2 whitespace-pre-line text-sm leading-relaxed" [attr.lang]="t.titleLang">{{ t.description }}</p>
+        } @else {
+          <p class="mt-2 text-sm text-ink-muted">{{ 'tender.noDescription' | transloco }}</p>
+        }
+        <p class="mt-4 rounded-md bg-canvas px-3 py-2 text-xs text-ink-muted">{{ 'tender.aiPending' | transloco }}</p>
+      </section>
+
+      <section class="eti-card p-5" aria-labelledby="cpv-heading">
+        <h2 id="cpv-heading" class="text-base font-semibold">{{ 'tender.cpv' | transloco }}</h2>
+        <ul class="mt-2 space-y-1 text-sm">
+          @for (c of cpvList(); track c.code) {
+            <li>
+              <a [routerLink]="['/search']" [queryParams]="{ cpv: c.code, status: 'OPEN' }" class="font-mono text-accent hover:underline">{{ c.code }}</a>
+              <span class="ml-2">{{ c.label }}</span>
+              @if (c.main) { <span class="ml-1 text-xs text-ink-muted">({{ 'tender.mainCpv' | transloco }})</span> }
+            </li>
+          }
+        </ul>
+      </section>
+
+      @if (t.lots.length) {
+        <section class="eti-card" aria-labelledby="lots-heading">
+          <h2 id="lots-heading" class="px-5 pt-5 text-base font-semibold">{{ 'tender.lots' | transloco }} ({{ t.lots.length }})</h2>
+          <div class="mt-3 max-h-96 overflow-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="sticky top-0 border-y border-border bg-surface text-xs text-ink-muted">
+                <tr>
+                  <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.lot' | transloco }}</th>
+                  <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'tender.value' | transloco }}</th>
+                  <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.deadline' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (lot of t.lots; track lot.lotNumber) {
+                  <tr>
+                    <th scope="row" class="px-5 py-2 font-normal">
+                      <span class="font-mono text-xs text-ink-muted">{{ lot.lotNumber }}</span>
+                      <span class="block" [attr.lang]="t.titleLang">{{ lot.title }}</span>
+                    </th>
+                    <td class="px-5 py-2 text-right tabular-nums">{{ lot.estimatedValue | money: lot.currency : lang }}</td>
+                    <td class="px-5 py-2 text-xs"><eti-deadline [iso]="lot.submissionDeadline" [locale]="lang" [showDays]="false" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (t.results.length) {
+        <section class="eti-card" aria-labelledby="results-heading">
+          <h2 id="results-heading" class="px-5 pt-5 text-base font-semibold">{{ 'tender.results' | transloco }}</h2>
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="border-y border-border text-xs text-ink-muted">
+                <tr>
+                  <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.winner' | transloco }}</th>
+                  <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'tender.awardedValue' | transloco }}</th>
+                  <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'tender.tendersReceived' | transloco }}</th>
+                  <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.awardDate' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (r of t.results; track $index) {
+                  <tr>
+                    <th scope="row" class="px-5 py-2 font-normal">
+                      {{ r.winnerName ?? '—' }}
+                      @if (r.winnerCountry) { <span class="text-xs text-ink-muted">({{ r.winnerCountry | country: lang }})</span> }
+                    </th>
+                    <td class="px-5 py-2 text-right tabular-nums">
+                      @if (r.awardedValue !== null && r.awardedValue !== undefined) {
+                        {{ r.awardedValue | money: r.currency : lang }}
+                      } @else {
+                        <span class="text-xs text-ink-muted">{{ 'tender.noAwardValue' | transloco }}</span>
+                      }
+                    </td>
+                    <td class="px-5 py-2 text-right tabular-nums">{{ r.tendersReceived ?? '—' }}</td>
+                    <td class="px-5 py-2">{{ r.awardDate ? (r.awardDate | userDate: lang) : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="eti-card p-5" aria-labelledby="history-heading">
+        <h2 id="history-heading" class="text-base font-semibold">{{ 'tender.history' | transloco }}</h2>
+        @if (versions().length <= 1) {
+          <p class="mt-2 text-sm text-ink-muted">{{ 'tender.historyEmpty' | transloco }}</p>
+        }
+        <ol class="mt-3 space-y-4 border-l border-border pl-4">
+          @for (v of versions(); track v.versionNo) {
+            <li class="relative">
+              <span class="absolute -left-[21px] top-1.5 size-2.5 rounded-full border-2 border-surface bg-chart" aria-hidden="true"></span>
+              <p class="text-sm font-medium">{{ 'tender.changeKind.' + v.changeKind | transloco }}</p>
+              <p class="text-xs text-ink-muted"><time [attr.datetime]="v.publishedAt">{{ v.publishedAt | userDate: lang }}</time></p>
+              @if (v.diff.length) {
+                <ul class="mt-1 space-y-0.5 text-sm">
+                  @for (d of v.diff; track d.field) {
+                    <li>
+                      <span class="text-ink-muted">{{ 'tender.field.' + d.field | transloco }}:</span>
+                      @if (d.field === 'description') {
+                        {{ 'tender.changed' | transloco }}
+                      } @else {
+                        <del class="text-ink-muted">{{ diffValue(d, 'old') }}</del> → <ins class="no-underline font-medium">{{ diffValue(d, 'new') }}</ins>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ol>
+      </section>
+    </div>
+
+    <aside class="min-w-0 space-y-6">
+      @if (org.currentId()) {
+        <section class="eti-card p-5" aria-labelledby="team-heading">
+          <h2 id="team-heading" class="text-base font-semibold">{{ saved() ? ('watch.watched' | transloco) : ('watch.add' | transloco) }}</h2>
+          <eti-api-error [error]="actionError()" />
+          @if (saved(); as s) {
+            <div class="mt-3 space-y-3">
+              <div>
+                <label class="eti-label" for="stage">{{ 'watch.stage' | transloco }}</label>
+                <select id="stage" class="eti-input" [disabled]="busy()" [value]="s.status" (change)="setStage($any($event.target).value)">
+                  @for (st of watchStatuses; track st) {
+                    <option [value]="st" [selected]="st === s.status">{{ 'watch.status.' + st | transloco }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="eti-label" for="notes">{{ 'watch.notes' | transloco }}</label>
+                <textarea id="notes" rows="4" maxlength="5000" class="eti-input h-auto py-2" [ngModel]="notes()" (ngModelChange)="notes.set($event)"
+                          aria-describedby="notes-hint"></textarea>
+                <p id="notes-hint" class="eti-hint">{{ 'watch.notesHint' | transloco }}</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" class="eti-btn-primary h-9" [disabled]="busy()" (click)="saveNotes()">{{ 'watch.saveNotes' | transloco }}</button>
+                @if (notesSaved()) { <span role="status" class="text-sm text-success">{{ 'common.saved' | transloco }}</span> }
+              </div>
+              @if (s.createdByName) {
+                <p class="text-xs text-ink-muted">{{ 'watch.addedBy' | transloco: { name: s.createdByName } }}</p>
+              }
+              <button type="button" class="eti-btn-danger h-9 w-full" [disabled]="busy()" (click)="unwatch()">{{ 'watch.remove' | transloco }}</button>
+            </div>
+          } @else {
+            <button type="button" class="eti-btn-primary mt-3 w-full" [disabled]="busy()" (click)="watch()">{{ 'watch.add' | transloco }}</button>
+          }
+        </section>
+      }
+
+      <section class="eti-card p-5" aria-labelledby="docs-heading">
+        <h2 id="docs-heading" class="text-base font-semibold">{{ 'tender.documents' | transloco }}</h2>
+        @if (t.documentsUrl) {
+          <a [href]="t.documentsUrl" target="_blank" rel="noopener noreferrer nofollow" class="eti-link mt-2 inline-flex items-center gap-1 text-sm">
+            {{ 'tender.documentsLink' | transloco }} <svg lucideExternalLink class="size-3.5" aria-hidden="true"></svg>
+          </a>
+          <p class="mt-2 text-xs text-ink-muted">{{ 'tender.documentsNote' | transloco }}</p>
+        } @else {
+          <p class="mt-2 text-sm text-ink-muted">{{ 'tender.noDocuments' | transloco }}</p>
+        }
+        @if (t.originalUrl) {
+          <a [href]="t.originalUrl" target="_blank" rel="noopener noreferrer" class="eti-btn-secondary mt-4 h-9 w-full">
+            {{ 'tender.original' | transloco }} <svg lucideExternalLink class="size-3.5" aria-hidden="true"></svg>
+          </a>
+        }
+      </section>
+
+      @if (t.authority) {
+        <section class="eti-card p-5" aria-labelledby="authority-heading">
+          <h2 id="authority-heading" class="text-base font-semibold">{{ 'tender.authority' | transloco }}</h2>
+          <p class="mt-2 text-sm">{{ t.authority.name }}</p>
+          @if (t.authority.city) { <p class="text-sm text-ink-muted">{{ t.authority.city }}, {{ t.authority.countryCode | country: lang }}</p> }
+          @if (t.authority.nationalId) { <p class="mt-1 font-mono text-xs text-ink-muted">{{ t.authority.nationalId }}</p> }
+          @if (t.authority.website) {
+            <a [href]="t.authority.website" target="_blank" rel="noopener noreferrer nofollow" class="eti-link mt-1 inline-block text-sm break-all">{{ t.authority.website }}</a>
+          }
+          <a [routerLink]="['/search']" [queryParams]="{ authority: t.authority.name }" class="eti-link mt-3 block text-xs">{{ 'dashboard.seeAll' | transloco }}</a>
+        </section>
+      }
+
+      <p class="text-xs leading-relaxed text-ink-muted">{{ 'tender.disclaimer' | transloco }} {{ 'tender.source' | transloco }}</p>
+    </aside>
+  </div>
+}

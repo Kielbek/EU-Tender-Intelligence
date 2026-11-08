@@ -13,8 +13,9 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | 1 | Architektura, dokumentacja, Docker, PostgreSQL, szkielet backendu i frontendu, CI | ✅ |
 | 2 | Modele danych, migracje, uwierzytelnianie, RBAC, organizacje, audyt, rate limiting, słowniki (CPV, EBC), API przetargów | ✅ |
 | 3 | Integracja TED: pobieranie, normalizacja eForms, deduplikacja, wersje i historia zmian, harmonogram | ✅ |
-| 4 | Frontend: dashboard, wyszukiwarka, szczegóły przetargu | ⏳ następny |
-| 5–8 | AI, powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
+| 4 | Dashboard, wyszukiwarka z filtrami i CPV, szczegóły przetargu z historią zmian, obserwowane (zespół), zapisane wyszukiwania, eksport CSV/XLSX | ✅ |
+| 5 | Profil firmy, dopasowanie, dokumenty, AI, tłumaczenia | ⏳ następny |
+| 6–8 | Powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
 
 Co działa teraz:
 
@@ -27,7 +28,15 @@ Co działa teraz:
   ręczny backfill z panelu admina; zmiany, anulowania i wyniki (zwycięzcy, wartości, liczba ofert) z pełną historią zmian.
   Test na żywo: ~18,8 tys. ogłoszeń z 5 dni, 0 błędów – szczegóły w [docs/ted-integration.md](docs/ted-integration.md).
 * API przetargów (filtry, CPV, wartość w EUR, pełnotekstowe bez polskich znaków, sortowanie, paginacja, historia zmian).
-* Frontend: logowanie, rejestracja, linki z e-maili, konto, organizacja i zespół, status systemu (PL/EN).
+* **Dashboard** z prawdziwymi danymi: otwarte i nowe przetargi, obserwowane i ich wartość, najbliższe terminy, ostatnie
+  zmiany, wykres ogłoszeń dziennie, branże (CPV) i kraje – każdy wykres także jako tabela.
+* **Wyszukiwarka**: pełny tekst, kraj, CPV (autouzupełnianie z oficjalnego słownika), status, rodzaj, tryb, wartość w EUR,
+  waluta, daty publikacji i terminu, zamawiający, miejscowość, region NUTS, język; sortowanie, paginacja; filtry w URL
+  (link do wyników można wysłać), zapisane wyszukiwania, eksport CSV/XLSX (do 5 000 wierszy).
+* **Szczegóły przetargu**: termin w strefie użytkownika + strefa z ogłoszenia, wartość z przeliczeniem na EUR, CPV z nazwami,
+  części, wyniki (zwycięzcy, liczba ofert), link do dokumentów i oryginału, pełna historia zmian.
+* **Obserwowane** – wspólna lista organizacji z etapami (obserwowany → przygotowujemy → złożona → wygrany/przegrany) i notatkami zespołu.
+* Frontend: logowanie, rejestracja, linki z e-maili, konto, organizacja i zespół, status systemu (PL/EN), widok mobilny.
 * E-maile przez kolejkę (outbox) i SMTP; lokalnie Mailpit (http://localhost:8025).
 
 Integracje, których jeszcze nie ma, są oznaczone w `GET /api/v1/system/status` jako `NOT_IMPLEMENTED`.

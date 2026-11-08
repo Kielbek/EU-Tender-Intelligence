@@ -18,6 +18,8 @@ const KNOWN_CODES = new Set([
   'not_found',
   'unsupported_locale',
   'invalid_timezone',
+  'invalid_filters',
+  'duplicate_name',
 ]);
 
 export function errorKey(error: ApiError): string {

@@ -2,7 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideActivity,
+  LucideBookmark,
   LucideBuilding2,
+  LucideLayoutDashboard,
+  LucideSearch,
+  LucideStar,
   LucideLandmark,
   LucideLogOut,
   LucideMenu,
@@ -11,6 +15,7 @@ import {
 } from '@lucide/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../auth/auth.service';
+import { OrgContextService } from '../org/org-context.service';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 
 /**
@@ -26,7 +31,11 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
     TranslocoPipe,
     LanguageSwitcherComponent,
     LucideActivity,
+    LucideBookmark,
     LucideBuilding2,
+    LucideLayoutDashboard,
+    LucideSearch,
+    LucideStar,
     LucideLandmark,
     LucideLogOut,
     LucideMenu,
@@ -37,9 +46,17 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
 })
 export class ShellComponent {
   protected readonly auth = inject(AuthService);
+  protected readonly org = inject(OrgContextService);
   private readonly router = inject(Router);
   protected readonly menuOpen = signal(false);
-  protected readonly roadmap = ['dashboard', 'search', 'company', 'ai', 'alerts'] as const;
+  protected readonly roadmap = ['company', 'ai', 'alerts'] as const;
+
+  protected readonly workItems = [
+    { path: '/', icon: 'dashboard', key: 'nav.dashboard', exact: true, query: null },
+    { path: '/search', icon: 'search', key: 'nav.search', exact: false, query: { status: 'OPEN' } },
+    { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
+    { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
+  ] as const;
 
   protected toggleMenu(): void {
     this.menuOpen.update((open) => !open);

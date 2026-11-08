@@ -14,6 +14,8 @@
 
   --color-accent: #2563eb;
   --color-accent-soft: #e8effd;
+  /* Single-series chart marks; validated (dataviz validator) against both surfaces. */
+  --color-chart: #2563eb;
 
   --color-canvas: #f6f7f9;
   --color-surface: #ffffff;
@@ -39,6 +41,7 @@
       --color-ink-muted: #9aa5b8;
       --color-accent: #6b9bff;
       --color-accent-soft: #1a2a4d;
+      --color-chart: #5b8def;
       --color-success: #4ade80;
       --color-success-soft: #12301f;
       --color-warning: #facc15;

@@ -33,6 +33,11 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po kodzie/nazwie, drzewo |
 | GET | `/api/v1/tenders` | zalogowany | filtry: `q, country[], cpv[], status[], contractType[], procedureType[], authority, city, nuts, currency, language, valueMinEur, valueMaxEur, publishedFrom/To, deadlineFrom/To, sort, direction, page, size≤100` |
 | GET | `/api/v1/tenders/{id}`, `/{id}/versions` | zalogowany | szczegóły, źródła, historia zmian |
+| GET | `/api/v1/tenders?…&lang=` | zalogowany | + `mainCpvLabel` w języku `lang` |
+| GET | `/api/v1/tenders/export?…&format=csv\|xlsx&lang=` | zalogowany (30/h) | maks. 5 000 wierszy; nagłówki `X-Total-Count`, `X-Export-Limit`; audyt `DATA_EXPORTED` |
+| GET | `/api/v1/organizations/{id}/dashboard?lang=` | członek | agregaty z bazy (szczegóły w kodzie `DashboardService`) |
+| GET/PUT/DELETE | `/api/v1/organizations/{id}/saved-tenders[/{tenderId}]` | członek | lista wspólna dla organizacji; PUT `{status?, notes?}` – idempotentne |
+| GET/POST/PUT/PATCH/DELETE | `/api/v1/organizations/{id}/saved-searches[/{sid}]`, `POST …/{sid}/run` | członek (tylko własne) | filtry walidowane jak w wyszukiwarce |
 | GET/POST | `/api/v1/admin/users`, `/users/{id}/lock`, `/unlock`, `/audit-logs`, `/data-sources`, `/ingestion-jobs`, `/email-outbox`, `/reference/cpv/import`, `/reference/exchange-rates/import` | `PLATFORM_ADMIN` | |
 | POST | `/api/v1/admin/ted/ingest?from=YYYY-MM-DD&to=YYYY-MM-DD` | `PLATFORM_ADMIN` | import TED z okna dat (≤ 31 dni), 202 + `jobId`; 409 `job_already_running` |
 | POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania TED dla tego samego okna |
@@ -40,7 +45,7 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
 `too_many_attempts`, `rate_limited` (+ `Retry-After`), `email_not_verified`, `account_disabled`, `invalid_token`, `invalid_session`,
 `weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `job_already_running`,
-`invalid_window`, `window_too_large`, `not_retryable`, `internal_error`.
+`invalid_window`, `window_too_large`, `not_retryable`, `invalid_filters`, `duplicate_name`, `too_many_saved_searches`, `internal_error`.
 
 Wartości `changeKind` w historii zmian: `PRIOR_INFORMATION`, `COMPETITION`, `CHANGE`, `CANCELLATION`, `AWARD`, `MODIFICATION`, `OTHER`.
 Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call`, `neg-wo-call`, `comp-dial`, `innovation`, `oth-single`, `oth-mult`.
@@ -50,9 +55,8 @@ Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call
 | Obszar | Endpointy |
 |---|---|
 | Użytkownik (RODO) | `DELETE /me`, `GET /me/export` |
-| Przetargi | `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language`, `POST /tenders/export` (CSV/XLSX, limit planu) |
-| Zapisane | `GET/POST/DELETE /saved-searches`, `GET/POST/PATCH/DELETE /saved-tenders` |
-| Dashboard | `GET /dashboard/summary`, `GET /dashboard/top-matches` |
+| Przetargi | `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language` |
+| Dashboard | `GET /dashboard/top-matches` (dopasowania – Etap 5) |
 | Firma | `GET/PUT /company-profile`, CRUD `/company-profile/certifications`, `/references`, `/documents` |
 | Dopasowanie | `GET /matches`, `GET /tenders/{id}/match` |
 | AI | `POST /tenders/{id}/analyses`, `GET /analyses/{id}`, `POST /translations`, `POST /assistant/messages` (SSE) |

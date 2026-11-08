@@ -1,6 +1,6 @@
 # Model bazy danych – PostgreSQL 16 + pgvector
 
-> Status (Etap 3): **zaimplementowane** migracje `V1`–`V7` – rozszerzenia, kraje, tożsamość, organizacje, zaproszenia,
+> Status (Etap 4): **zaimplementowane** migracje `V1`–`V8` (V8: `saved_tenders` – lista obserwowanych wspólna dla organizacji z etapem pracy i notatkami; `saved_searches` – prywatne wyszukiwania użytkownika) – rozszerzenia, kraje, tożsamość, organizacje, zaproszenia,
 > audyt, outbox e-maili, waluty, kursy EBC, CPV, pełny schemat przetargów i ingestion, rejestr źródeł danych.
 > Tabele prywatne firm (3.5), powiadomienia (3.6) i płatności (3.7) powstaną w etapach 5–6.
 >
