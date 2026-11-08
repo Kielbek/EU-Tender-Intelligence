@@ -19,6 +19,8 @@ public class Organization {
     private String countryCode;
     private String vatId;
     private String billingEmail;
+    /** Owned by billing (Stripe webhooks / platform admin) – never written through this entity. */
+    @Column(insertable = false, updatable = false)
     private String planCode = "FREE";
     private String status = "ACTIVE";
     @Column(insertable = false, updatable = false)

@@ -36,4 +36,19 @@ public class EmailOutbox {
                 values (?, ?, ?, ?, ?, ?)
                 """, Ids.newId(), to, template.name(), locale, subject, body);
     }
+
+    /**
+     * A message composed by the caller (e.g. a notification digest). {@code listUnsubscribe} – URL for one-click
+     * unsubscribe (RFC 8058), sent as {@code List-Unsubscribe} headers; {@code footerKey} replaces the default footer.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void enqueueComposed(String to, EmailTemplate template, String locale, String subject, String body,
+            String footerKey, String listUnsubscribe) {
+        Locale loc = Locale.forLanguageTag(locale);
+        String full = body + "\n\n--\n" + messages.getMessage(footerKey == null ? "mail.footer" : footerKey, null, loc);
+        jdbc.update("""
+                insert into email_outbox (id, to_address, template, locale, subject, body_text, list_unsubscribe)
+                values (?, ?, ?, ?, ?, ?, ?)
+                """, Ids.newId(), to, template.name(), locale, subject, full, listUnsubscribe);
+    }
 }

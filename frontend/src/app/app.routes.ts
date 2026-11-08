@@ -49,6 +49,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/legal/legal.page').then((m) => m.LegalPage),
   },
   {
+    path: 'unsubscribe',
+    loadComponent: () => import('./features/notifications/unsubscribe.page').then((m) => m.UnsubscribePage),
+  },
+  {
     path: '',
     component: ShellComponent,
     canActivate: [authGuard],
@@ -90,6 +94,16 @@ export const routes: Routes = [
         data: { section: 'nav.workspace', crumb: 'nav.savedSearches' },
         loadComponent: () =>
           import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),
+      },
+      {
+        path: 'notifications',
+        data: { section: 'nav.workspace', crumb: 'nav.notifications' },
+        loadComponent: () => import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
+      },
+      {
+        path: 'billing',
+        data: { section: 'nav.organizationSection', crumb: 'nav.billing' },
+        loadComponent: () => import('./features/billing/billing.page').then((m) => m.BillingPage),
       },
       {
         path: 'status',

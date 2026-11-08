@@ -123,7 +123,8 @@ class WorkspaceIntegrationTest {
                 .value("Roboty budowlane – Niemcy"));
         mvc.perform(post(base + "/" + id + "/run").with(bob.bearer())).andExpect(jsonPath("$.lastRunAt").exists());
 
-        // A colleague in the same organization does not see Bob's personal searches.
+        // A colleague in the same organization does not see Bob's personal searches (teams need a paid plan).
+        jdbc.update("update organizations set plan_code = 'STARTER' where id = ?::uuid", org);
         String token = invite(bob, org, "colleague-" + System.nanoTime() + "@ws.test");
         Session colleague = api.login(lastInvitee, TestApi.PASSWORD);
         mvc.perform(post("/api/v1/invitations/accept").with(colleague.bearer()).contentType(MediaType.APPLICATION_JSON)
@@ -192,7 +193,9 @@ class WorkspaceIntegrationTest {
                         'PL', '2026-11-06T08:00:00Z', 'OPEN')
                 """);
         Session erin = api.registerVerifyLogin("erin-" + System.nanoTime() + "@ws.test");
-        MockHttpServletResponse csv = mvc.perform(get("/api/v1/tenders/export").param("country", "PL")
+        String org = org(erin);
+        MockHttpServletResponse csv = mvc.perform(get("/api/v1/tenders/export").param("orgId", org)
+                .param("country", "PL")
                 .param("format", "csv").param("lang", "pl").with(erin.bearer())).andReturn().getResponse();
         assertThat(csv.getStatus()).isEqualTo(200);
         assertThat(csv.getHeader("Content-Disposition")).contains("attachment").contains(".csv");
@@ -202,7 +205,8 @@ class WorkspaceIntegrationTest {
         assertThat(text).contains("\"'=HYPERLINK(\"\"http://evil\"\",\"\"x\"\"), \"\"quoted\"\"\"");
         assertThat(text.lines().count()).isEqualTo(4);
 
-        MockHttpServletResponse xlsx = mvc.perform(get("/api/v1/tenders/export").param("country", "DE")
+        MockHttpServletResponse xlsx = mvc.perform(get("/api/v1/tenders/export").param("orgId", org)
+                .param("country", "DE")
                 .param("format", "xlsx").with(erin.bearer())).andReturn().getResponse();
         assertThat(xlsx.getContentType()).contains("spreadsheetml");
         try (ReadableWorkbook wb = new ReadableWorkbook(new ByteArrayInputStream(xlsx.getContentAsByteArray()))) {
@@ -212,7 +216,7 @@ class WorkspaceIntegrationTest {
             assertThat(rows.get(1).getCellText(0)).isEqualTo("Neubau einer Grundschule");
             assertThat(rows.get(1).getCellAsNumber(8)).hasValueSatisfying(v -> assertThat(v).isEqualByComparingTo("2500000"));
         }
-        mvc.perform(get("/api/v1/tenders/export").param("format", "pdf").with(erin.bearer()))
+        mvc.perform(get("/api/v1/tenders/export").param("orgId", org).param("format", "pdf").with(erin.bearer()))
                 .andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("select count(*) from audit_logs where action = 'DATA_EXPORTED' "
                 + "and actor_user_id = ?::uuid", Integer.class, erin.userId())).isEqualTo(2);

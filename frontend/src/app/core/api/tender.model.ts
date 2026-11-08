@@ -134,7 +134,12 @@ export interface SavedSearch {
   createdAt: string;
   updatedAt: string;
   lastRunAt?: string;
+  alertEnabled: boolean;
+  /** E-mail cadence of the alert; OFF = in-app only. */
+  alertFrequency: AlertFrequency;
 }
+
+export type AlertFrequency = 'INSTANT' | 'DAILY' | 'WEEKLY' | 'OFF';
 
 export interface Bucket {
   key: string;

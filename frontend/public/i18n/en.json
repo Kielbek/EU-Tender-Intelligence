@@ -30,7 +30,9 @@
     "company": "Company profile",
     "accountSection": "Account",
     "breadcrumbs": "Breadcrumb",
-    "dataSource": "Tender data: TED (Publications Office of the EU) and BZP (Polish Public Procurement Office)"
+    "dataSource": "Tender data: TED (Publications Office of the EU) and BZP (Polish Public Procurement Office)",
+    "notifications": "Notifications",
+    "billing": "Plan and billing"
   },
   "language": {
     "label": "Interface language",
@@ -266,7 +268,19 @@
     "invalid_archive": "The ZIP archive could not be read.",
     "ai_quota_exceeded": "Your plan’s monthly AI analysis limit has been used.",
     "ai_not_configured": "AI analysis is not configured on this server yet.",
-    "no_documents_link": "The notice has no documents link."
+    "no_documents_link": "The notice has no documents link.",
+    "seat_limit_reached": "The plan’s user limit ({{limit}}) is reached. Change the plan to invite more people.",
+    "saved_search_limit_reached": "The plan’s saved search limit ({{limit}}) is reached.",
+    "export_limit_reached": "The plan’s monthly export limit ({{limit}}) is used up.",
+    "instant_alerts_unavailable": "Instant e-mails are available from the Starter plan.",
+    "billing_not_configured": "Online payments are not set up yet.",
+    "billing_provider_error": "The payment provider did not accept the request. Try again in a moment.",
+    "subscription_exists": "The organization already has a subscription – change the plan in “Manage billing”.",
+    "manual_plan": "The plan comes from an individual contract – contact us.",
+    "no_billing_account": "The organization has no billing account yet – choose a plan first.",
+    "cancel_subscription_first": "Cancel the organization’s subscription first (Plan and billing → Manage billing), then delete the account.",
+    "price_not_configured": "This plan is not available for the chosen billing period.",
+    "invalid_plan": "This plan cannot be bought online."
   },
   "charts": {
     "showTable": "Show as table"
@@ -482,7 +496,9 @@
     "never": "never",
     "deleteConfirm": "Delete the search “{{name}}”?",
     "noFilters": "No filters",
-    "alertsNote": "E-mail alerts about new results of saved searches come in Stage 6."
+    "alertsNote": "Turn on an alert and new tenders matching the search appear in notifications and in e-mails at the chosen frequency.",
+    "alert": "Alert on new tenders",
+    "alertFrequency": "Alert e-mail frequency"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -823,6 +839,178 @@
       "matches": "See matched tenders",
       "dashboard": "Go to the dashboard",
       "more": "Add references, certifications and resources in the company profile to improve matching."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "New matches, changes to watched tenders, deadlines and search alerts in {{org}}.",
+    "bell": "Notifications",
+    "bellUnread": "Notifications, unread: {{n}}",
+    "tabs": {
+      "inbox": "Notifications",
+      "settings": "Settings"
+    },
+    "filter": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "unreadDot": "Unread",
+    "loadMore": "Show older",
+    "emptyTitle": "No notifications",
+    "emptyUnread": "All caught up.",
+    "emptyHint": "Notifications appear when a tender matching your company profile is published, a watched tender changes or its deadline approaches, or a saved search finds new results. New data is checked every few minutes.",
+    "emptyProfile": "Complete the company profile",
+    "emptyWatch": "Watch tenders",
+    "emptySearches": "Turn on search alerts",
+    "type": {
+      "NEW_MATCH": "New match",
+      "WATCHED_CHANGED": "Watched tender changed",
+      "DEADLINE_APPROACHING": "Deadline approaching",
+      "SAVED_SEARCH": "Search alert"
+    },
+    "item": {
+      "match": "{{score}}% match with your company profile",
+      "deadline": "Submission deadline: {{date}}",
+      "search": "New tenders: {{count}} for the search “{{name}}”",
+      "cancelled": "Procedure cancelled",
+      "awarded": "Award published",
+      "submissionDeadline": "Submission deadline: {{old}} → {{new}}",
+      "status": "Status: {{old}} → {{new}}",
+      "estimatedValue": "Estimated value: {{old}} → {{new}}",
+      "documentsUrl": "Documents link changed",
+      "changed": "Notice updated",
+      "none": "none"
+    },
+    "settings": {
+      "intro": "These settings apply to you in {{org}}. In-app notifications are under the bell; e-mails go to {{email}}.",
+      "inApp": "In the app",
+      "email": "E-mail",
+      "minScore": "Minimum match",
+      "save": "Save settings",
+      "saved": "Notification settings saved.",
+      "unverified": "Your e-mail address is not confirmed – notification e-mails are not sent until it is.",
+      "searchAlerts": "Alerts on new results are set for each saved search separately.",
+      "searchAlertsLink": "Go to saved searches",
+      "digestNote": "Daily digests are sent at 7:00, weekly digests on Mondays at 7:00 (your time zone).",
+      "desc": {
+        "NEW_MATCH": "An open tender matching your company profile at least at the chosen level is published.",
+        "WATCHED_CHANGED": "The deadline, value, documents or status of a watched tender changed, it was cancelled or the award was published.",
+        "DEADLINE_APPROACHING": "3 days are left until the submission deadline of a watched tender."
+      }
+    },
+    "frequency": {
+      "INSTANT": "Instantly",
+      "DAILY": "Daily (digest)",
+      "WEEKLY": "Weekly (digest)",
+      "OFF": "No e-mails"
+    },
+    "instantPaid": "Instant e-mails are available from the Starter plan.",
+    "unsubscribe": {
+      "title": "Unsubscribe from e-mails",
+      "intro": "This turns off all notification e-mails (matches, changes, deadlines, search alerts) from this organization. In-app notifications stay.",
+      "confirm": "Unsubscribe me",
+      "done": "Done. You will no longer receive notification e-mails from {{org}}.",
+      "doneNoOrg": "Done. You will no longer receive these e-mails.",
+      "settings": "You can change this any time in the notification settings.",
+      "missing": "The unsubscribe link is incomplete. Open it again from the e-mail."
+    }
+  },
+  "billing": {
+    "title": "Plan and billing",
+    "subtitle": "Plan of {{org}}, usage of limits and invoices.",
+    "seePlans": "See plans",
+    "current": "Current plan",
+    "plan": {
+      "FREE": "Free",
+      "STARTER": "Starter",
+      "PRO": "Pro",
+      "BUSINESS": "Business",
+      "ENTERPRISE": "Enterprise"
+    },
+    "planDesc": {
+      "FREE": "To get started: search, matching and e-mail digests.",
+      "STARTER": "For a small company bidding regularly.",
+      "PRO": "For a bid team.",
+      "BUSINESS": "For larger teams and several industries.",
+      "ENTERPRISE": "Individual contract and limits."
+    },
+    "status": {
+      "active": "Active",
+      "trialing": "Trial",
+      "past_due": "Payment overdue",
+      "canceled": "Cancelled",
+      "incomplete": "Awaiting payment",
+      "incomplete_expired": "Expired",
+      "unpaid": "Unpaid",
+      "paused": "Paused"
+    },
+    "renews": "Renews on {{date}}",
+    "endsOn": "The subscription ends on {{date}} – then the Free plan.",
+    "trialEnds": "Trial until {{date}}",
+    "pastDue": "The last payment failed. Stripe is retrying – update the card to keep the plan.",
+    "manual": "The plan comes from an individual contract – contact us to change it.",
+    "manage": "Manage billing",
+    "manageHint": "Change plan or card, cancel, invoices – in Stripe’s secure portal.",
+    "adminOnly": "The organization’s administrator manages the plan and billing.",
+    "notConfigured": "Online payments are not set up yet. The plan limits are below; prices appear once Stripe is configured.",
+    "usage": "Usage",
+    "usageMonth": "Monthly limits reset on the 1st day of the month (UTC).",
+    "meter": {
+      "seats": "Users (incl. invitations)",
+      "savedSearches": "Your saved searches",
+      "aiAnalyses": "AI analyses this month",
+      "exports": "Exports this month"
+    },
+    "unlimited": "unlimited",
+    "of": "{{used}} of {{limit}}",
+    "plans": "Plans",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "netPlusVat": "net + VAT",
+    "gross": "incl. VAT",
+    "free": "Free of charge",
+    "contact": "Custom price",
+    "noPrice": "This billing period is not available.",
+    "feature": {
+      "seats": "Users: {{n}}",
+      "seatsUnlimited": "Users: unlimited",
+      "savedSearches": "Saved searches: {{n}} per person",
+      "ai": "AI analyses: {{n}} / month",
+      "exports": "CSV/XLSX exports: {{n}} / month",
+      "exportsUnlimited": "CSV/XLSX exports: unlimited",
+      "instant": "Instant e-mails",
+      "digest": "E-mails in daily/weekly digests"
+    },
+    "choose": "Choose {{plan}}",
+    "change": "Change plan",
+    "yourPlan": "Your plan",
+    "redirecting": "Redirecting to Stripe…",
+    "secure": "Payments are handled by Stripe. We never store card details. Stripe issues a VAT invoice after every payment.",
+    "checkoutSuccess": "Thank you! Waiting for Stripe to confirm the payment…",
+    "activated": "The {{plan}} plan is active.",
+    "stillPending": "The payment is still being processed. Refresh in a moment – the plan switches on once Stripe confirms it.",
+    "checkoutCancelled": "Payment cancelled – nothing was charged.",
+    "invoices": "Invoices",
+    "noInvoices": "No invoices.",
+    "invoice": {
+      "date": "Date",
+      "number": "Number",
+      "amount": "Amount",
+      "tax": "VAT",
+      "status": "Status",
+      "open": "Invoice",
+      "pdf": "PDF"
+    },
+    "invoiceStatus": {
+      "draft": "Draft",
+      "open": "Due",
+      "paid": "Paid",
+      "void": "Void",
+      "uncollectible": "Uncollectible"
     }
   }
 }

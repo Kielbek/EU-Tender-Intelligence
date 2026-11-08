@@ -90,6 +90,12 @@ class WorkspaceController {
         return searches.update(orgId, CurrentUser.id(), id, req.name(), req.filters());
     }
 
+    @PutMapping("/saved-searches/{id}/alert")
+    SavedSearchView setAlert(@PathVariable UUID orgId, @PathVariable UUID id,
+            @Valid @RequestBody WorkspaceDtos.SavedSearchAlertRequest req) {
+        return searches.setAlert(orgId, CurrentUser.id(), id, req.enabled(), req.frequency());
+    }
+
     @PostMapping("/saved-searches/{id}/run")
     SavedSearchView markRun(@PathVariable UUID orgId, @PathVariable UUID id) {
         return searches.markRun(orgId, CurrentUser.id(), id);

@@ -120,9 +120,22 @@ app:
     max-upload-mb: ${AI_MAX_UPLOAD_MB:25}
     workers: ${AI_WORKERS:2}
     refusal-fallback: ${AI_REFUSAL_FALLBACK:true}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+    api-base: ${STRIPE_API_BASE:}
+    automatic-tax: ${STRIPE_AUTOMATIC_TAX:true}
+    price-starter-monthly: ${STRIPE_PRICE_STARTER_MONTHLY:}
+    price-starter-yearly: ${STRIPE_PRICE_STARTER_YEARLY:}
+    price-pro-monthly: ${STRIPE_PRICE_PRO_MONTHLY:}
+    price-pro-yearly: ${STRIPE_PRICE_PRO_YEARLY:}
+    price-business-monthly: ${STRIPE_PRICE_BUSINESS_MONTHLY:}
+    price-business-yearly: ${STRIPE_PRICE_BUSINESS_YEARLY:}
+  notifications:
+    enabled: ${NOTIFICATIONS_ENABLED:true}
+    scan-interval: ${NOTIFICATIONS_SCAN_INTERVAL:PT5M}
+    digest-hour: ${NOTIFICATIONS_DIGEST_HOUR:7}
   integrations:
-    stripe-secret-key: ${STRIPE_SECRET_KEY:}
-    stripe-webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
     smtp-host: ${SMTP_HOST:}
     s3-endpoint: ${S3_ENDPOINT:}
     s3-access-key: ${S3_ACCESS_KEY:}

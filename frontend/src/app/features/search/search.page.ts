@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LucideDownload, LucideSearch, LucideSlidersHorizontal } from '@lucide/angular';
-import { ApiError, toApiError } from '../../core/api/api-error';
+import { ApiError, toApiError, toApiErrorFromBlob } from '../../core/api/api-error';
 import { EU_LANGUAGES, ReferenceService } from '../../core/api/reference.service';
 import { Page, TenderSummary } from '../../core/api/tender.model';
 import { TenderService, WorkspaceService } from '../../core/api/tender.service';
@@ -163,9 +163,14 @@ export class SearchPage {
   }
 
   protected export(format: 'csv' | 'xlsx'): void {
+    const orgId = this.org.currentId();
+    if (!orgId) {
+      return;
+    }
     this.exportBusy.set(true);
     this.exportNote.set(null);
-    this.tenders.export(apiFilters(this.form), format, this.language.current()).subscribe({
+    this.error.set(null);
+    this.tenders.export(orgId, apiFilters(this.form), format, this.language.current()).subscribe({
       next: (res) => {
         const total = Number(res.headers.get('X-Total-Count') ?? 0);
         const limit = Number(res.headers.get('X-Export-Limit') ?? 0);
@@ -182,8 +187,10 @@ export class SearchPage {
         this.exportBusy.set(false);
       },
       error: (err: unknown) => {
-        this.error.set(toApiError(err));
-        this.exportBusy.set(false);
+        void toApiErrorFromBlob(err).then((e) => {
+          this.error.set(e);
+          this.exportBusy.set(false);
+        });
       },
     });
   }

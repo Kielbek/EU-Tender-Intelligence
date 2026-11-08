@@ -50,7 +50,7 @@ public class SystemStatusService {
                         all(i.s3Endpoint(), i.s3AccessKey(), i.s3SecretKey(), i.s3Bucket()), 5),
                 integration("CLAUDE_API", true, props.ai().configured(), 5),
                 integration("EMAIL_SMTP", true, all(i.smtpHost()), 2),
-                integration("STRIPE", false, all(i.stripeSecretKey(), i.stripeWebhookSecret()), 6));
+                integration("STRIPE", true, props.stripe().configured(), 6));
     }
 
     static IntegrationStatus integration(String code, boolean implemented, boolean configured, int stage) {

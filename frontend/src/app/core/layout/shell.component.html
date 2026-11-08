@@ -55,12 +55,17 @@
                       @case ('target') { <svg lucideTarget class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('star') { <svg lucideStar class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('bookmark') { <svg lucideBookmark class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('bell') { <svg lucideBell class="size-[17px]" aria-hidden="true"></svg> }
+                      @case ('card') { <svg lucideCreditCard class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('briefcase') { <svg lucideBriefcase class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('building') { <svg lucideBuilding2 class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('user') { <svg lucideUserRound class="size-[17px]" aria-hidden="true"></svg> }
                       @case ('activity') { <svg lucideActivity class="size-[17px]" aria-hidden="true"></svg> }
                     }
                     {{ item.key | transloco }}
+                    @if (item.icon === 'bell' && unread.count() > 0) {
+                      <span class="eti-num ml-auto rounded-full bg-accent px-1.5 text-[11px] font-semibold leading-[18px] text-white">{{ unread.count() > 99 ? '99+' : unread.count() }}</span>
+                    }
                   </a>
                 </li>
               }
@@ -121,6 +126,14 @@
         }
         <eti-language-switcher />
         @if (auth.user(); as user) {
+          <a routerLink="/notifications" class="eti-icon-btn relative"
+             [attr.aria-label]="unread.count() ? ('notifications.bellUnread' | transloco: { n: unread.count() }) : ('notifications.bell' | transloco)"
+             [title]="'notifications.bell' | transloco">
+            <svg lucideBell class="size-[18px]" aria-hidden="true"></svg>
+            @if (unread.count() > 0) {
+              <span class="eti-num absolute -top-0.5 -right-0.5 min-w-[18px] rounded-full bg-accent px-1 text-center text-[10px] font-bold leading-[18px] text-white ring-2 ring-surface" aria-hidden="true">{{ unread.count() > 99 ? '99+' : unread.count() }}</span>
+            }
+          </a>
           <button type="button" class="eti-icon-btn" [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco"
                   (click)="logout()">
             <svg lucideLogOut class="size-[18px]" aria-hidden="true"></svg>

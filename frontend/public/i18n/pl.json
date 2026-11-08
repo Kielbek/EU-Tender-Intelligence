@@ -30,7 +30,9 @@
     "company": "Profil firmy",
     "accountSection": "Konto",
     "breadcrumbs": "Ścieżka",
-    "dataSource": "Dane o przetargach: TED (Urząd Publikacji UE) i BZP (Urząd Zamówień Publicznych)"
+    "dataSource": "Dane o przetargach: TED (Urząd Publikacji UE) i BZP (Urząd Zamówień Publicznych)",
+    "notifications": "Powiadomienia",
+    "billing": "Plan i płatności"
   },
   "language": {
     "label": "Język interfejsu",
@@ -266,7 +268,19 @@
     "invalid_archive": "Nie udało się odczytać archiwum ZIP.",
     "ai_quota_exceeded": "Wykorzystano miesięczny limit analiz AI w Twoim planie.",
     "ai_not_configured": "Analiza AI nie jest jeszcze skonfigurowana na tym serwerze.",
-    "no_documents_link": "Ogłoszenie nie zawiera linku do dokumentów."
+    "no_documents_link": "Ogłoszenie nie zawiera linku do dokumentów.",
+    "seat_limit_reached": "Osiągnięto limit użytkowników w planie ({{limit}}). Zmień plan, aby zaprosić kolejne osoby.",
+    "saved_search_limit_reached": "Osiągnięto limit zapisanych wyszukiwań w planie ({{limit}}).",
+    "export_limit_reached": "Wykorzystano miesięczny limit eksportów w planie ({{limit}}).",
+    "instant_alerts_unavailable": "E-maile natychmiastowe są dostępne od planu Starter.",
+    "billing_not_configured": "Płatności online nie są jeszcze uruchomione.",
+    "billing_provider_error": "Operator płatności nie przyjął żądania. Spróbuj ponownie za chwilę.",
+    "subscription_exists": "Organizacja ma już subskrypcję – plan zmienisz w „Zarządzaj płatnościami”.",
+    "manual_plan": "Plan wynika z indywidualnej umowy – skontaktuj się z nami.",
+    "no_billing_account": "Organizacja nie ma jeszcze konta rozliczeniowego – najpierw wybierz plan.",
+    "cancel_subscription_first": "Najpierw anuluj subskrypcję organizacji (Plan i płatności → Zarządzaj płatnościami), potem usuń konto.",
+    "price_not_configured": "Ten plan nie jest dostępny w wybranym okresie rozliczeniowym.",
+    "invalid_plan": "Tego planu nie można kupić online."
   },
   "charts": {
     "showTable": "Pokaż jako tabelę"
@@ -482,7 +496,9 @@
     "never": "nigdy",
     "deleteConfirm": "Usunąć wyszukiwanie „{{name}}”?",
     "noFilters": "Bez filtrów",
-    "alertsNote": "Powiadomienia e-mail o nowych wynikach zapisanych wyszukiwań pojawią się w Etapie 6."
+    "alertsNote": "Włącz alert, a nowe przetargi pasujące do wyszukiwania pojawią się w powiadomieniach i w e-mailu z wybraną częstotliwością.",
+    "alert": "Alert o nowych przetargach",
+    "alertFrequency": "Częstotliwość e-maili alertu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -823,6 +839,178 @@
       "matches": "Zobacz dopasowane przetargi",
       "dashboard": "Przejdź do dashboardu",
       "more": "Referencje, certyfikaty i zasoby dodasz w profilu firmy – podniosą trafność dopasowania."
+    }
+  },
+  "notifications": {
+    "title": "Powiadomienia",
+    "subtitle": "Nowe dopasowania, zmiany w obserwowanych przetargach, terminy i alerty wyszukiwań w organizacji {{org}}.",
+    "bell": "Powiadomienia",
+    "bellUnread": "Powiadomienia, nieprzeczytane: {{n}}",
+    "tabs": {
+      "inbox": "Powiadomienia",
+      "settings": "Ustawienia"
+    },
+    "filter": {
+      "all": "Wszystkie",
+      "unread": "Nieprzeczytane"
+    },
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "markRead": "Oznacz jako przeczytane",
+    "unreadDot": "Nieprzeczytane",
+    "loadMore": "Pokaż starsze",
+    "emptyTitle": "Brak powiadomień",
+    "emptyUnread": "Wszystko przeczytane.",
+    "emptyHint": "Powiadomienia pojawiają się, gdy opublikowany zostanie przetarg dopasowany do profilu firmy, zmieni się obserwowany przetarg, zbliży się jego termin albo zapisane wyszukiwanie znajdzie nowe wyniki. Sprawdzamy nowe dane co kilka minut.",
+    "emptyProfile": "Uzupełnij profil firmy",
+    "emptyWatch": "Obserwuj przetargi",
+    "emptySearches": "Włącz alerty wyszukiwań",
+    "type": {
+      "NEW_MATCH": "Nowe dopasowanie",
+      "WATCHED_CHANGED": "Zmiana w obserwowanym",
+      "DEADLINE_APPROACHING": "Zbliża się termin",
+      "SAVED_SEARCH": "Alert wyszukiwania"
+    },
+    "item": {
+      "match": "Dopasowanie {{score}}% do profilu firmy",
+      "deadline": "Termin składania ofert: {{date}}",
+      "search": "Nowe przetargi: {{count}} w wyszukiwaniu „{{name}}”",
+      "cancelled": "Postępowanie unieważnione",
+      "awarded": "Opublikowano wynik postępowania",
+      "submissionDeadline": "Termin składania ofert: {{old}} → {{new}}",
+      "status": "Status: {{old}} → {{new}}",
+      "estimatedValue": "Wartość szacunkowa: {{old}} → {{new}}",
+      "documentsUrl": "Zmieniono adres dokumentacji",
+      "changed": "Zaktualizowano ogłoszenie",
+      "none": "brak"
+    },
+    "settings": {
+      "intro": "Ustawienia dotyczą Ciebie w organizacji {{org}}. Powiadomienia w aplikacji widzisz pod dzwonkiem; e-maile wysyłamy na {{email}}.",
+      "inApp": "W aplikacji",
+      "email": "E-mail",
+      "minScore": "Minimalne dopasowanie",
+      "save": "Zapisz ustawienia",
+      "saved": "Zapisano ustawienia powiadomień.",
+      "unverified": "Twój adres e-mail nie jest potwierdzony – do czasu potwierdzenia nie wysyłamy e-maili z powiadomieniami.",
+      "searchAlerts": "Alerty o nowych wynikach ustawiasz osobno dla każdego zapisanego wyszukiwania.",
+      "searchAlertsLink": "Przejdź do zapisanych wyszukiwań",
+      "digestNote": "Podsumowanie dzienne wysyłamy o 7:00, tygodniowe w poniedziałki o 7:00 (Twoja strefa czasowa).",
+      "desc": {
+        "NEW_MATCH": "Opublikowano otwarty przetarg dopasowany do profilu firmy co najmniej w wybranym stopniu.",
+        "WATCHED_CHANGED": "Zmienił się termin, wartość, dokumentacja lub status obserwowanego przetargu, unieważniono go albo opublikowano wynik.",
+        "DEADLINE_APPROACHING": "Do terminu składania ofert w obserwowanym przetargu zostały 3 dni."
+      }
+    },
+    "frequency": {
+      "INSTANT": "Natychmiast",
+      "DAILY": "Codziennie (podsumowanie)",
+      "WEEKLY": "Co tydzień (podsumowanie)",
+      "OFF": "Bez e-maili"
+    },
+    "instantPaid": "E-maile natychmiastowe są dostępne od planu Starter.",
+    "unsubscribe": {
+      "title": "Wypisanie z e-maili",
+      "intro": "Wyłączysz wszystkie e-maile z powiadomieniami (dopasowania, zmiany, terminy, alerty wyszukiwań) z tej organizacji. Powiadomienia w aplikacji zostaną.",
+      "confirm": "Wypisz mnie",
+      "done": "Gotowe. Nie będziesz już otrzymywać e-maili z powiadomieniami z organizacji {{org}}.",
+      "doneNoOrg": "Gotowe. Nie będziesz już otrzymywać tych e-maili.",
+      "settings": "Zmienisz to w każdej chwili w ustawieniach powiadomień.",
+      "missing": "Link do wypisania jest niepełny. Otwórz go ponownie z wiadomości e-mail."
+    }
+  },
+  "billing": {
+    "title": "Plan i płatności",
+    "subtitle": "Plan organizacji {{org}}, wykorzystanie limitów i faktury.",
+    "seePlans": "Zobacz plany",
+    "current": "Obecny plan",
+    "plan": {
+      "FREE": "Free",
+      "STARTER": "Starter",
+      "PRO": "Pro",
+      "BUSINESS": "Business",
+      "ENTERPRISE": "Enterprise"
+    },
+    "planDesc": {
+      "FREE": "Na start: wyszukiwarka, dopasowania i podsumowania e-mail.",
+      "STARTER": "Dla małej firmy, która regularnie startuje w przetargach.",
+      "PRO": "Dla zespołu ofertowego.",
+      "BUSINESS": "Dla większych zespołów i wielu branż.",
+      "ENTERPRISE": "Indywidualna umowa i limity."
+    },
+    "status": {
+      "active": "Aktywna",
+      "trialing": "Okres próbny",
+      "past_due": "Zaległa płatność",
+      "canceled": "Anulowana",
+      "incomplete": "Oczekuje na płatność",
+      "incomplete_expired": "Wygasła",
+      "unpaid": "Nieopłacona",
+      "paused": "Wstrzymana"
+    },
+    "renews": "Odnowienie: {{date}}",
+    "endsOn": "Subskrypcja kończy się {{date}} – potem plan Free.",
+    "trialEnds": "Okres próbny do {{date}}",
+    "pastDue": "Ostatnia płatność nie powiodła się. Stripe ponawia próbę – zaktualizuj kartę, aby nie stracić planu.",
+    "manual": "Plan wynika z indywidualnej umowy – zmiany przez kontakt z nami.",
+    "manage": "Zarządzaj płatnościami",
+    "manageHint": "Zmiana planu lub karty, anulowanie, faktury – w bezpiecznym panelu Stripe.",
+    "adminOnly": "Planem i płatnościami zarządza administrator organizacji.",
+    "notConfigured": "Płatności online nie są jeszcze uruchomione. Poniżej limity planów; ceny pojawią się po konfiguracji Stripe.",
+    "usage": "Wykorzystanie",
+    "usageMonth": "Limity miesięczne liczymy od 1. dnia miesiąca (UTC).",
+    "meter": {
+      "seats": "Użytkownicy (z zaproszeniami)",
+      "savedSearches": "Twoje zapisane wyszukiwania",
+      "aiAnalyses": "Analizy AI w tym miesiącu",
+      "exports": "Eksporty w tym miesiącu"
+    },
+    "unlimited": "bez limitu",
+    "of": "{{used}} z {{limit}}",
+    "plans": "Plany",
+    "monthly": "Miesięcznie",
+    "yearly": "Rocznie",
+    "perMonth": "/ mies.",
+    "perYear": "/ rok",
+    "netPlusVat": "netto + VAT",
+    "gross": "z VAT",
+    "free": "Bezpłatnie",
+    "contact": "Cena indywidualna",
+    "noPrice": "Ten okres rozliczeniowy nie jest dostępny.",
+    "feature": {
+      "seats": "Użytkownicy: {{n}}",
+      "seatsUnlimited": "Użytkownicy: bez limitu",
+      "savedSearches": "Zapisane wyszukiwania: {{n}} na osobę",
+      "ai": "Analizy AI: {{n}} / mies.",
+      "exports": "Eksporty CSV/XLSX: {{n}} / mies.",
+      "exportsUnlimited": "Eksporty CSV/XLSX: bez limitu",
+      "instant": "E-maile natychmiastowe",
+      "digest": "E-maile w podsumowaniu dziennym/tygodniowym"
+    },
+    "choose": "Wybierz {{plan}}",
+    "change": "Zmień plan",
+    "yourPlan": "Twój plan",
+    "redirecting": "Przekierowanie do Stripe…",
+    "secure": "Płatność obsługuje Stripe. Nie przechowujemy danych karty. Fakturę z VAT wystawia Stripe po każdej płatności.",
+    "checkoutSuccess": "Dziękujemy! Czekamy na potwierdzenie płatności od Stripe…",
+    "activated": "Plan {{plan}} jest aktywny.",
+    "stillPending": "Płatność jest jeszcze przetwarzana. Odśwież stronę za chwilę – plan włączy się po potwierdzeniu od Stripe.",
+    "checkoutCancelled": "Płatność anulowana – nic nie zostało pobrane.",
+    "invoices": "Faktury",
+    "noInvoices": "Brak faktur.",
+    "invoice": {
+      "date": "Data",
+      "number": "Numer",
+      "amount": "Kwota",
+      "tax": "VAT",
+      "status": "Status",
+      "open": "Faktura",
+      "pdf": "PDF"
+    },
+    "invoiceStatus": {
+      "draft": "Szkic",
+      "open": "Do zapłaty",
+      "paid": "Opłacona",
+      "void": "Anulowana",
+      "uncollectible": "Nieściągalna"
     }
   }
 }

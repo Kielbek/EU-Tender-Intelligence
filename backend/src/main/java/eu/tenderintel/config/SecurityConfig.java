@@ -71,6 +71,11 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh", "/api/v1/auth/logout", "/api/v1/auth/verify-email",
                                 "/api/v1/auth/verify-email/resend", "/api/v1/auth/password/forgot",
                                 "/api/v1/auth/password/reset").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/billing/plans").permitAll()
+                        // Authenticated by Stripe's signature (verified in StripeWebhookService), not by a session.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/stripe").permitAll()
+                        // Authenticated by the signed token from the e-mail.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/notifications/unsubscribe").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("PLATFORM_ADMIN")
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().denyAll());

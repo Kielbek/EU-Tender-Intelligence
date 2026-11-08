@@ -28,9 +28,14 @@ class TenderController {
     private final TenderExportService exports;
     private final eu.tenderintel.ratelimit.RateLimiter rateLimiter;
     private final eu.tenderintel.audit.AuditService audit;
+    private final eu.tenderintel.organization.OrganizationAccess access;
+    private final eu.tenderintel.billing.Entitlements entitlements;
 
     TenderController(TenderQueries queries, TenderExportService exports,
-            eu.tenderintel.ratelimit.RateLimiter rateLimiter, eu.tenderintel.audit.AuditService audit) {
+            eu.tenderintel.ratelimit.RateLimiter rateLimiter, eu.tenderintel.audit.AuditService audit,
+            eu.tenderintel.organization.OrganizationAccess access, eu.tenderintel.billing.Entitlements entitlements) {
+        this.access = access;
+        this.entitlements = entitlements;
         this.queries = queries;
         this.exports = exports;
         this.rateLimiter = rateLimiter;
@@ -40,16 +45,20 @@ class TenderController {
     @GetMapping("/export")
     @Operation(summary = "Eksport wyników wyszukiwania do CSV lub XLSX",
             description = "Te same filtry co wyszukiwanie; maks. 5000 wierszy (nagłówek X-Total-Count podaje liczbę "
-                    + "wszystkich wyników). Limity planów abonamentowych – Etap 6.")
+                    + "wszystkich wyników). Każdy eksport liczy się do miesięcznego limitu planu organizacji `orgId` "
+                    + "(402 `export_limit_reached`).")
     org.springframework.http.ResponseEntity<byte[]> export(@Valid @ModelAttribute TenderSearchCriteria criteria,
             @RequestParam(defaultValue = "csv") @jakarta.validation.constraints.Pattern(regexp = "csv|xlsx") String format,
-            @RequestParam(defaultValue = "en") String lang) throws java.io.IOException {
+            @RequestParam(defaultValue = "en") String lang, @RequestParam java.util.UUID orgId)
+            throws java.io.IOException {
         java.util.UUID userId = eu.tenderintel.security.CurrentUser.id();
         rateLimiter.check("export", userId.toString(), 30, java.time.Duration.ofHours(1));
+        access.requireMember(orgId, userId);
+        entitlements.consumeExport(orgId);
         String l = TenderQueries.lang(lang);
         long total = queries.count(criteria);
         java.util.List<TenderDtos.TenderSummary> rows = queries.list(criteria, l, TenderExportService.MAX_ROWS);
-        audit.record(eu.tenderintel.audit.AuditAction.DATA_EXPORTED, userId, null, "tenders", null,
+        audit.record(eu.tenderintel.audit.AuditAction.DATA_EXPORTED, userId, orgId, "tenders", null,
                 java.util.Map.of("format", format, "rows", rows.size(), "total", total));
         String stamp = java.time.LocalDate.now(java.time.ZoneOffset.UTC).toString();
         boolean xlsx = "xlsx".equals(format);

@@ -37,6 +37,10 @@ class LegalInfoController {
         if (props.ai().configured()) {
             processors.add(new Processor("AI", "Anthropic PBC"));
         }
+        if (props.stripe().configured()) {
+            // Stripe processes payment and invoicing data as an independent controller for card data.
+            processors.add(new Processor("PAYMENTS", "Stripe Payments Europe, Ltd."));
+        }
         return new LegalInfo(l.configured(), blankToNull(l.operatorName()), blankToNull(l.operatorAddress()),
                 blankToNull(l.operatorTaxId()), blankToNull(l.operatorEmail()), props.termsVersion(), processors);
     }

@@ -25,6 +25,8 @@ class OrganizationIntegrationTest {
     MockMvc mvc;
     @Autowired
     TestApi api;
+    @Autowired
+    org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     @Test
     void tenantIsolationInvitationsAndRoles() throws Exception {
@@ -32,6 +34,8 @@ class OrganizationIntegrationTest {
         Session bob = api.registerVerifyLogin("bob@org.test");
         String aliceOrg = orgId(alice);
         String bobOrg = orgId(bob);
+        // Teams need a paid plan (FREE has one seat – see BillingIntegrationTest).
+        jdbc.update("update organizations set plan_code = 'PRO' where id = ?::uuid", aliceOrg);
 
         // Bob cannot see or modify Alice's organization – and cannot even tell it exists.
         mvc.perform(get("/api/v1/organizations/" + aliceOrg).with(bob.bearer())).andExpect(status().isNotFound());
@@ -93,6 +97,7 @@ class OrganizationIntegrationTest {
     void invitationsCanBeListedAndRevoked() throws Exception {
         Session admin = api.registerVerifyLogin("dana@org.test");
         String org = orgId(admin);
+        jdbc.update("update organizations set plan_code = 'STARTER' where id = ?::uuid", org);
         var res = mvc.perform(post("/api/v1/organizations/" + org + "/invitations").with(admin.bearer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"later@org.test\",\"role\":\"TEAM_MEMBER\"}")).andReturn().getResponse();

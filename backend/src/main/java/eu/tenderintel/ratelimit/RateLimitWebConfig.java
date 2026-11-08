@@ -15,6 +15,8 @@ class RateLimitWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor).addPathPatterns("/api/**").excludePathPatterns("/api/v1/system/**");
+        registry.addInterceptor(interceptor).addPathPatterns("/api/**").excludePathPatterns("/api/v1/system/**",
+                // Stripe delivers bursts from a few IPs; every request is signature-checked before any work.
+                "/api/v1/webhooks/**");
     }
 }

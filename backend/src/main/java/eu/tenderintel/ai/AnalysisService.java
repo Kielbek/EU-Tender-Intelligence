@@ -108,7 +108,7 @@ public class AnalysisService {
     public QuotaView quota(UUID orgId, UUID userId) {
         access.requireMember(orgId, userId);
         String plan = planCode(orgId);
-        int limit = PlanLimits.analysesPerMonth(plan);
+        int limit = eu.tenderintel.billing.Plan.of(plan).aiAnalysesPerMonth();
         long used = usedThisMonth(orgId);
         return new QuotaView(claude.configured(), plan, limit, used, Math.max(0, limit - used));
     }
@@ -162,7 +162,7 @@ public class AnalysisService {
             if (again != null) {
                 return again;
             }
-            int limit = PlanLimits.analysesPerMonth(planCode);
+            int limit = eu.tenderintel.billing.Plan.of(planCode).aiAnalysesPerMonth();
             long used = usedThisMonth(orgId);
             if (used >= limit) {
                 throw new ApiException(HttpStatus.PAYMENT_REQUIRED, "ai_quota_exceeded",

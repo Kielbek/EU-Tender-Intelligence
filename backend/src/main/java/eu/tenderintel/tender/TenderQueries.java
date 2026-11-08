@@ -77,6 +77,30 @@ public class TenderQueries {
         return n == null ? 0 : n;
     }
 
+    /**
+     * Tenders matching saved-search criteria that were added to the database in {@code (from, to]} and published in
+     * the last {@code recentDays} days (a backfill of old notices is not "new"). Used by saved-search alerts.
+     */
+    public NewTenders addedBetween(TenderSearchCriteria c, Instant from, Instant to, int recentDays, int sample) {
+        MapSqlParameterSource p = new MapSqlParameterSource("lang", "en");
+        String where = where(c, p);
+        where = (where.isEmpty() ? " where " : where + " and ")
+                + "t.created_at > :addedFrom and t.created_at <= :addedTo and t.published_at > :recent";
+        p.addValue("addedFrom", Timestamp.from(from)).addValue("addedTo", Timestamp.from(to))
+                .addValue("recent", Timestamp.from(to.minus(java.time.Duration.ofDays(recentDays))))
+                .addValue("sample", sample);
+        Long total = jdbc.queryForObject("select count(*)" + FROM + where, p, Long.class);
+        if (total == null || total == 0) {
+            return new NewTenders(0, List.of());
+        }
+        List<UUID> ids = jdbc.queryForList("select t.id" + FROM + where + " order by t.published_at desc, t.id "
+                + "limit :sample", p, UUID.class);
+        return new NewTenders(total, ids);
+    }
+
+    public record NewTenders(long count, List<UUID> sample) {
+    }
+
     /** Summaries of the given tenders, keyed by id (missing ids are simply absent). */
     public java.util.Map<UUID, TenderSummary> summaries(java.util.Collection<UUID> ids, String lang) {
         if (ids.isEmpty()) {

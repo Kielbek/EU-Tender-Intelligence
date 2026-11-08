@@ -1,21 +1,24 @@
-import { Component, ElementRef, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiError, toApiError } from '../../core/api/api-error';
-import { SavedSearch } from '../../core/api/tender.model';
+import { AlertFrequency, SavedSearch } from '../../core/api/tender.model';
 import { WorkspaceService } from '../../core/api/tender.service';
 import { countryName } from '../../core/format/format';
 import { FORMAT_PIPES } from '../../core/format/format.pipes';
 import { LanguageService } from '../../core/i18n/language.service';
 import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { paramsFromApiFilters } from '../search/search-state';
 
 @Component({
   selector: 'eti-saved-searches-page',
-  imports: [FormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, SkeletonComponent],
+  imports: [FormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, SkeletonComponent,
+    SelectComponent],
   template: `
     <h1 class="eti-h1">{{ 'savedSearches.title' | transloco }}</h1>
     <p class="eti-subtitle mt-1.5">{{ 'savedSearches.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
@@ -41,6 +44,23 @@ import { paramsFromApiFilters } from '../search/search-state';
                   {{ 'savedSearches.lastRun' | transloco }}:
                   {{ s.lastRunAt ? (s.lastRunAt | userDateTime: language.current()) : ('savedSearches.never' | transloco) }}
                 </p>
+              </div>
+              <div class="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-3 sm:order-last">
+                <label class="flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="checkbox" role="switch" [checked]="s.alertEnabled" [disabled]="busy() === s.id"
+                         (change)="setAlert(s, $any($event.target).checked, s.alertFrequency)" />
+                  {{ 'savedSearches.alert' | transloco }}
+                </label>
+                @if (s.alertEnabled) {
+                  <eti-select class="w-56" size="sm" [spaced]="false" [inputId]="'alert-' + s.id"
+                              [ariaLabel]="'savedSearches.alertFrequency' | transloco"
+                              [options]="frequencyOptions()" [value]="s.alertFrequency" [disabled]="busy() === s.id"
+                              (valueChange)="setAlert(s, true, $any($event))" />
+                  @if (!instantAvailable()) {
+                    <span class="text-xs text-ink-muted">{{ 'notifications.instantPaid' | transloco }}
+                      <a routerLink="/billing" class="eti-link">{{ 'billing.seePlans' | transloco }}</a></span>
+                  }
+                }
               </div>
               <div class="flex gap-2">
                 <button type="button" class="eti-btn-primary h-9" (click)="open(s)">{{ 'savedSearches.open' | transloco }}</button>
@@ -83,6 +103,17 @@ export class SavedSearchesPage {
   protected readonly dialogError = signal<ApiError | null>(null);
   protected newName = '';
   private renaming: SavedSearch | null = null;
+  /** Id of the search whose alert is being saved. */
+  protected readonly busy = signal<string | null>(null);
+  private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
+  /** Instant e-mails are part of the paid plans (the backend enforces it). */
+  protected readonly instantAvailable = computed(() => (this.org.current()?.planCode ?? 'FREE') !== 'FREE');
+  protected readonly frequencyOptions = computed<SelectOption[]>(() => {
+    this.translations();
+    const values: AlertFrequency[] = this.instantAvailable()
+      ? ['INSTANT', 'DAILY', 'WEEKLY', 'OFF'] : ['DAILY', 'WEEKLY', 'OFF'];
+    return values.map((v) => ({ value: v, label: this.transloco.translate('notifications.frequency.' + v) }));
+  });
 
   constructor() {
     effect(() => {
@@ -145,6 +176,25 @@ export class SavedSearchesPage {
         this.renameDialog()?.nativeElement.close();
       },
       error: (err: unknown) => this.dialogError.set(toApiError(err)),
+    });
+  }
+
+  protected setAlert(s: SavedSearch, enabled: boolean, frequency: AlertFrequency): void {
+    // Without instant e-mails in the plan a new alert starts with the daily digest.
+    const f: AlertFrequency = frequency === 'INSTANT' && !this.instantAvailable() ? 'DAILY' : frequency;
+    this.busy.set(s.id);
+    this.error.set(null);
+    this.api.setSearchAlert(this.org.currentId()!, s.id, enabled, f).subscribe({
+      next: (updated) => {
+        this.items.update((list) => list.map((x) => (x.id === updated.id ? updated : x)));
+        this.busy.set(null);
+      },
+      error: (err: unknown) => {
+        this.error.set(toApiError(err));
+        this.busy.set(null);
+        // Re-render the switch with the stored state.
+        this.items.update((list) => [...list]);
+      },
     });
   }
 

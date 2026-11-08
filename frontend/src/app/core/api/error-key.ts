@@ -27,7 +27,24 @@ const KNOWN_CODES = new Set([
   'ai_quota_exceeded',
   'ai_not_configured',
   'no_documents_link',
+  'seat_limit_reached',
+  'saved_search_limit_reached',
+  'export_limit_reached',
+  'instant_alerts_unavailable',
+  'billing_not_configured',
+  'billing_provider_error',
+  'subscription_exists',
+  'manual_plan',
+  'no_billing_account',
+  'cancel_subscription_first',
+  'price_not_configured',
+  'invalid_plan',
 ]);
+
+/** Errors caused by the plan: the UI offers a link to the billing page. */
+export function isPlanLimit(error: ApiError): boolean {
+  return error.status === 402;
+}
 
 export function errorKey(error: ApiError): string {
   if (error.status === 0) {

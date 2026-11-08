@@ -2,6 +2,7 @@ package eu.tenderintel.organization;
 
 import eu.tenderintel.audit.AuditAction;
 import eu.tenderintel.audit.AuditService;
+import eu.tenderintel.billing.Entitlements;
 import eu.tenderintel.common.error.ApiException;
 import eu.tenderintel.common.id.Ids;
 import eu.tenderintel.common.id.Tokens;
@@ -38,10 +39,11 @@ public class OrganizationService {
     private final AuditService audit;
     private final AppProperties props;
     private final Clock clock;
+    private final Entitlements entitlements;
 
     OrganizationService(OrganizationRepository organizations, OrganizationMemberRepository members,
             OrganizationInvitationRepository invitations, OrganizationAccess access, UserRepository users,
-            EmailOutbox outbox, AuditService audit, AppProperties props, Clock clock) {
+            EmailOutbox outbox, AuditService audit, AppProperties props, Clock clock, Entitlements entitlements) {
         this.organizations = organizations;
         this.members = members;
         this.invitations = invitations;
@@ -51,6 +53,7 @@ public class OrganizationService {
         this.audit = audit;
         this.props = props;
         this.clock = clock;
+        this.entitlements = entitlements;
     }
 
     /** Every new user gets an organization in which they are COMPANY_ADMIN (the "User" role from the spec). */
@@ -154,7 +157,9 @@ public class OrganizationService {
                 throw ApiException.conflict("already_member", "This person is already a member");
             }
         });
-        invitations.findOpenByEmail(orgId, normalized).ifPresent(old -> {
+        var open = invitations.findOpenByEmail(orgId, normalized);
+        entitlements.requireSeatForInvitation(orgId, open.filter(i -> i.isOpen(now)).isPresent());
+        open.ifPresent(old -> {
             old.revoke(now);
             invitations.saveAndFlush(old);
         });
@@ -201,6 +206,7 @@ public class OrganizationService {
         }
         UUID orgId = invitation.getOrganizationId();
         if (members.findByOrganizationIdAndUserId(orgId, userId).isEmpty()) {
+            entitlements.requireSeatForMember(orgId);
             members.save(new OrganizationMember(orgId, userId, invitation.getRole(), null, now));
         }
         invitation.accept(now);

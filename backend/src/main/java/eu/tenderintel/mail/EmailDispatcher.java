@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -56,12 +56,12 @@ public class EmailDispatcher {
     int dispatchBatch(int limit) {
         Integer processed = tx.execute(status -> {
             List<Pending> batch = jdbc.query("""
-                    select id, to_address, subject, body_text, attempts from email_outbox
+                    select id, to_address, subject, body_text, attempts, list_unsubscribe from email_outbox
                     where status = 'PENDING' and next_attempt_at <= now()
                     order by created_at
                     limit ? for update skip locked
                     """, (rs, i) -> new Pending(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3),
-                    rs.getString(4), rs.getInt(5)), limit);
+                    rs.getString(4), rs.getInt(5), rs.getString(6)), limit);
             for (Pending p : batch) {
                 deliver(p);
             }
@@ -72,12 +72,18 @@ public class EmailDispatcher {
 
     private void deliver(Pending p) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(props.mail().from());
-            message.setTo(p.to());
-            message.setSubject(p.subject());
-            message.setText(p.body());
-            mailSender.getObject().send(message);
+            mailSender.getObject().send(mime -> {
+                MimeMessageHelper message = new MimeMessageHelper(mime, false, "UTF-8");
+                message.setFrom(props.mail().from());
+                message.setTo(p.to());
+                message.setSubject(p.subject());
+                message.setText(p.body());
+                if (p.listUnsubscribe() != null) {
+                    // RFC 8058 one-click unsubscribe (Gmail/Yahoo bulk-sender requirements).
+                    mime.setHeader("List-Unsubscribe", "<" + p.listUnsubscribe() + ">");
+                    mime.setHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+                }
+            });
             jdbc.update("update email_outbox set status = 'SENT', sent_at = now(), body_text = null, "
                     + "attempts = attempts + 1, last_error = null where id = ?", p.id());
         } catch (RuntimeException ex) {
@@ -95,6 +101,6 @@ public class EmailDispatcher {
         return s == null ? null : s.substring(0, Math.min(s.length(), 500));
     }
 
-    private record Pending(UUID id, String to, String subject, String body, int attempts) {
+    private record Pending(UUID id, String to, String subject, String body, int attempts, String listUnsubscribe) {
     }
 }

@@ -24,8 +24,13 @@ public final class WorkspaceDtos {
     public record SaveTenderRequest(@Pattern(regexp = STATUSES) String status, @Size(max = 5000) String notes) {
     }
 
+    /** {@code alertFrequency}: e-mail cadence of the alert (in-app notifications appear as soon as found). */
     public record SavedSearchView(UUID id, String name, Map<String, Object> filters, Instant createdAt,
-            Instant updatedAt, Instant lastRunAt) {
+            Instant updatedAt, Instant lastRunAt, boolean alertEnabled, String alertFrequency) {
+    }
+
+    public record SavedSearchAlertRequest(boolean enabled,
+            @Pattern(regexp = "INSTANT|DAILY|WEEKLY|OFF") String frequency) {
     }
 
     /** {@code filters}: the same parameters as GET /api/v1/tenders (without page/size). */

@@ -28,6 +28,8 @@ public record AppProperties(
         @Valid @NotNull Bzp bzp,
         @Valid @NotNull Ai ai,
         @Valid @NotNull Legal legal,
+        @Valid @NotNull Stripe stripe,
+        @Valid @NotNull Notifications notifications,
         @Valid @NotNull Integrations integrations) {
 
     public record Cors(@NotNull List<String> allowedOrigins) {
@@ -125,9 +127,66 @@ public record AppProperties(
      * Credentials/endpoints of external services. A blank value means "not configured"; the system status endpoint
      * reports such integrations as {@code PENDING_CONFIGURATION} instead of pretending they work.
      */
+    /**
+     * Stripe Billing. Prices (amounts, currencies, tax behaviour) are created in the Stripe dashboard; only their ids
+     * are configured here, and each id maps a Stripe price to a plan. Without the secret key, the webhook secret and
+     * at least one price, billing is reported as {@code PENDING_CONFIGURATION} and checkout is unavailable.
+     */
+    public record Stripe(
+            String secretKey,
+            String webhookSecret,
+            /* Only for tests against stripe-mock; blank = the real Stripe API. */
+            String apiBase,
+            /* Stripe Tax: VAT computed by Stripe from the customer's address and tax id (requires Stripe Tax). */
+            @DefaultValue("true") boolean automaticTax,
+            String priceStarterMonthly,
+            String priceStarterYearly,
+            String priceProMonthly,
+            String priceProYearly,
+            String priceBusinessMonthly,
+            String priceBusinessYearly,
+            /* Signed webhook events older than this are rejected (replay protection). */
+            @DefaultValue("PT5M") Duration webhookTolerance) {
+
+        public boolean configured() {
+            return notBlank(secretKey) && notBlank(webhookSecret) && !prices().isEmpty();
+        }
+
+        /** Configured price ids: plan code + interval (MONTH/YEAR) → Stripe price id. */
+        public java.util.Map<String, String> prices() {
+            java.util.Map<String, String> out = new java.util.LinkedHashMap<>();
+            put(out, "STARTER:MONTH", priceStarterMonthly);
+            put(out, "STARTER:YEAR", priceStarterYearly);
+            put(out, "PRO:MONTH", priceProMonthly);
+            put(out, "PRO:YEAR", priceProYearly);
+            put(out, "BUSINESS:MONTH", priceBusinessMonthly);
+            put(out, "BUSINESS:YEAR", priceBusinessYearly);
+            return out;
+        }
+
+        private static void put(java.util.Map<String, String> map, String key, String value) {
+            if (notBlank(value)) {
+                map.put(key, value.trim());
+            }
+        }
+
+        private static boolean notBlank(String s) {
+            return s != null && !s.isBlank();
+        }
+    }
+
+    /** Scanner that turns new matches, watch-list changes and saved-search hits into notifications. */
+    public record Notifications(
+            @DefaultValue("true") boolean enabled,
+            @DefaultValue("PT5M") Duration scanInterval,
+            /* Local hour (user's time zone) of daily and weekly digests; weekly digests go out on Mondays. */
+            @DefaultValue("7") int digestHour,
+            /* Reminder for watched tenders this many days before the submission deadline. */
+            @DefaultValue("3") int deadlineReminderDays,
+            @DefaultValue("180") int retentionDays) {
+    }
+
     public record Integrations(
-            String stripeSecretKey,
-            String stripeWebhookSecret,
             String smtpHost,
             String s3Endpoint,
             String s3AccessKey,

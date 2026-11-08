@@ -1,0 +1,230 @@
+@let o = overview();
+@let lang = language.current();
+<h1 class="eti-h1">{{ 'billing.title' | transloco }}</h1>
+<p class="eti-subtitle mt-1.5">{{ 'billing.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
+
+<div class="mt-4 space-y-3" aria-live="polite">
+  @switch (checkout()) {
+    @case ('waiting') {
+      <p class="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/30 bg-accent-soft px-3 py-2 text-sm text-accent" role="status">
+        <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>{{ 'billing.checkoutSuccess' | transloco }}
+      </p>
+    }
+    @case ('done') {
+      <p class="eti-alert-success" role="status">{{ 'billing.activated' | transloco: { plan: planName(o?.plan) } }}</p>
+    }
+    @case ('slow') {
+      <p class="eti-note" role="status">{{ 'billing.stillPending' | transloco }}</p>
+    }
+    @case ('cancelled') {
+      <p class="eti-note" role="status">{{ 'billing.checkoutCancelled' | transloco }}</p>
+    }
+  }
+  <eti-api-error [error]="error()" />
+  <eti-api-error [error]="actionError()" />
+</div>
+
+@if (loading()) {
+  <div class="mt-5 grid gap-4 lg:grid-cols-2">
+    <div class="eti-card space-y-3 p-5"><eti-skeleton size="h-6 w-1/3" /><eti-skeleton size="h-4 w-2/3" /></div>
+    <div class="eti-card space-y-3 p-5"><eti-skeleton size="h-4 w-full" /><eti-skeleton size="h-4 w-full" /></div>
+  </div>
+} @else if (o) {
+  <div class="mt-5 grid gap-4 lg:grid-cols-2">
+    <!-- Current plan -->
+    <section class="eti-card p-5" aria-labelledby="current-plan">
+      <p id="current-plan" class="eti-eyebrow">{{ 'billing.current' | transloco }}</p>
+      <div class="mt-2 flex flex-wrap items-center gap-2">
+        <p class="text-2xl font-bold tracking-[-0.02em]">{{ planName(o.plan) }}</p>
+        @if (subscription(); as s) {
+          <span class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class.bg-success-soft]="s.status === 'active' || s.status === 'trialing'"
+                [class.text-success]="s.status === 'active' || s.status === 'trialing'"
+                [class.bg-warning-soft]="s.status !== 'active' && s.status !== 'trialing'"
+                [class.text-warning]="s.status !== 'active' && s.status !== 'trialing'">
+            {{ 'billing.status.' + s.status | transloco }}
+          </span>
+        }
+      </div>
+      <p class="mt-1 text-sm text-ink-muted">{{ 'billing.planDesc.' + o.plan | transloco }}</p>
+
+      @if (subscription(); as s) {
+        @if (entitled()) {
+          <p class="mt-3 text-sm">
+            @if (s.cancelAtPeriodEnd || s.cancelAt) {
+              {{ 'billing.endsOn' | transloco: { date: ((s.cancelAt ?? s.currentPeriodEnd) | userDate: lang) } }}
+            } @else if (s.status === 'trialing' && s.trialEnd) {
+              {{ 'billing.trialEnds' | transloco: { date: (s.trialEnd | userDate: lang) } }}
+            } @else if (s.currentPeriodEnd) {
+              {{ 'billing.renews' | transloco: { date: (s.currentPeriodEnd | userDate: lang) } }}
+            }
+          </p>
+        }
+        @if (s.status === 'past_due') {
+          <p class="mt-3 rounded-[var(--radius-control)] border border-warning/30 bg-warning-soft px-3 py-2 text-sm text-warning" role="alert">
+            {{ 'billing.pastDue' | transloco }}
+          </p>
+        }
+      }
+      @if (o.planSource === 'MANUAL') {
+        <p class="eti-note mt-3">{{ 'billing.manual' | transloco }}</p>
+      }
+
+      @if (o.canManage && o.configured && o.hasCustomer) {
+        <div class="mt-4">
+          <button type="button" class="eti-btn-secondary" [disabled]="redirecting() !== null" (click)="manage()">
+            @if (redirecting() === 'portal') {
+              <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>{{ 'billing.redirecting' | transloco }}
+            } @else {
+              <svg lucideExternalLink class="size-4" aria-hidden="true"></svg>{{ 'billing.manage' | transloco }}
+            }
+          </button>
+          <p class="mt-1.5 text-xs text-ink-muted">{{ 'billing.manageHint' | transloco }}</p>
+        </div>
+      }
+      @if (!o.canManage) {
+        <p class="eti-note mt-3">{{ 'billing.adminOnly' | transloco }}</p>
+      }
+    </section>
+
+    <!-- Usage -->
+    <section class="eti-card p-5" aria-labelledby="usage-title">
+      <h2 id="usage-title" class="eti-eyebrow">{{ 'billing.usage' | transloco }}</h2>
+      <ul class="mt-3 space-y-3">
+        @for (m of meters(); track m.key) {
+          <li>
+            <div class="flex items-baseline justify-between gap-3 text-sm">
+              <span>{{ 'billing.meter.' + m.key | transloco }}</span>
+              <span class="eti-num text-ink-muted">{{ meterLabel(m.meter) }}</span>
+            </div>
+            @if (m.meter.limit !== null) {
+              <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-track" role="progressbar"
+                   [attr.aria-label]="'billing.meter.' + m.key | transloco"
+                   [attr.aria-valuenow]="m.meter.used" aria-valuemin="0" [attr.aria-valuemax]="m.meter.limit">
+                <div class="h-full rounded-full" [class.bg-accent]="percent(m.meter) < 100" [class.bg-danger]="percent(m.meter) >= 100"
+                     [style.width.%]="percent(m.meter)"></div>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+      <p class="mt-3 text-xs text-ink-muted">{{ 'billing.usageMonth' | transloco }}</p>
+    </section>
+  </div>
+
+  <!-- Plans -->
+  <section class="mt-8" aria-labelledby="plans-title">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="plans-title" class="eti-h2">{{ 'billing.plans' | transloco }}</h2>
+      @if (yearlyAvailable()) {
+        <div class="inline-flex rounded-[var(--radius-control)] border border-border-strong p-0.5" role="group">
+          <button type="button" class="h-8 rounded-[6px] px-3 text-[13px] font-medium" [attr.aria-pressed]="interval() === 'MONTH'"
+                  [class.bg-ink]="interval() === 'MONTH'" [class.text-white]="interval() === 'MONTH'" (click)="interval.set('MONTH')">
+            {{ 'billing.monthly' | transloco }}
+          </button>
+          <button type="button" class="h-8 rounded-[6px] px-3 text-[13px] font-medium" [attr.aria-pressed]="interval() === 'YEAR'"
+                  [class.bg-ink]="interval() === 'YEAR'" [class.text-white]="interval() === 'YEAR'" (click)="interval.set('YEAR')">
+            {{ 'billing.yearly' | transloco }}
+          </button>
+        </div>
+      }
+    </div>
+    @if (plans() && !plans()!.configured) {
+      <p class="eti-note mt-3">{{ 'billing.notConfigured' | transloco }}</p>
+    }
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      @for (p of visiblePlans(); track p.code) {
+        @let current = p.code === o.plan;
+        <article class="eti-card flex flex-col p-5" [class.ring-2]="current" [class.ring-accent]="current"
+                 [attr.aria-labelledby]="'plan-' + p.code">
+          <h3 [id]="'plan-' + p.code" class="text-lg font-bold">{{ planName(p.code) }}</h3>
+          <p class="mt-1 min-h-10 text-sm text-ink-muted">{{ 'billing.planDesc.' + p.code | transloco }}</p>
+          <div class="mt-3 min-h-14">
+            @if (p.code === 'FREE') {
+              <p class="text-2xl font-bold">{{ 'billing.free' | transloco }}</p>
+            } @else if (price(p); as pr) {
+              <p><span class="eti-num text-2xl font-bold">{{ pr.amount }}</span> <span class="text-sm text-ink-muted">{{ pr.per }}</span></p>
+              <p class="text-xs text-ink-muted">{{ pr.note }}</p>
+            } @else if (plans()?.configured) {
+              <p class="text-sm text-ink-muted">{{ 'billing.noPrice' | transloco }}</p>
+            }
+          </div>
+          <ul class="mt-3 flex-1 space-y-1.5 text-sm">
+            @for (f of features(p); track f) {
+              <li class="flex gap-2"><svg lucideCheck class="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true"></svg>{{ f }}</li>
+            }
+          </ul>
+          <div class="mt-4">
+            @switch (action(p)) {
+              @case ('current') {
+                <p class="flex h-10 items-center justify-center rounded-[var(--radius-control)] bg-accent-soft text-sm font-semibold text-accent">
+                  {{ 'billing.yourPlan' | transloco }}
+                </p>
+              }
+              @case ('choose') {
+                <button type="button" class="eti-btn-primary w-full" [disabled]="redirecting() !== null" (click)="choose(p)">
+                  @if (redirecting() === p.code) {
+                    <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>{{ 'billing.redirecting' | transloco }}
+                  } @else {
+                    {{ 'billing.choose' | transloco: { plan: planName(p.code) } }}
+                  }
+                </button>
+              }
+              @case ('change') {
+                <button type="button" class="eti-btn-secondary w-full" [disabled]="redirecting() !== null" (click)="manage()">
+                  {{ 'billing.change' | transloco }}
+                </button>
+              }
+            }
+          </div>
+        </article>
+      }
+    </div>
+    <p class="mt-3 flex items-start gap-2 text-xs text-ink-muted">
+      <svg lucideShieldCheck class="mt-px size-4 shrink-0" aria-hidden="true"></svg>{{ 'billing.secure' | transloco }}
+    </p>
+  </section>
+
+  @if (o.canManage) {
+    <section class="mt-8" aria-labelledby="invoices-title">
+      <h2 id="invoices-title" class="eti-h2">{{ 'billing.invoices' | transloco }}</h2>
+      @if (!o.invoices.length) {
+        <p class="mt-2 text-sm text-ink-muted">{{ 'billing.noInvoices' | transloco }}</p>
+      } @else {
+        <div class="eti-card mt-3 overflow-x-auto">
+          <table class="w-full min-w-[560px] text-sm">
+            <thead>
+              <tr class="eti-table-head text-left">
+                <th scope="col" class="px-4 py-2.5">{{ 'billing.invoice.date' | transloco }}</th>
+                <th scope="col" class="px-4 py-2.5">{{ 'billing.invoice.number' | transloco }}</th>
+                <th scope="col" class="px-4 py-2.5 text-right">{{ 'billing.invoice.amount' | transloco }}</th>
+                <th scope="col" class="px-4 py-2.5 text-right">{{ 'billing.invoice.tax' | transloco }}</th>
+                <th scope="col" class="px-4 py-2.5">{{ 'billing.invoice.status' | transloco }}</th>
+                <th scope="col" class="px-4 py-2.5"><span class="sr-only">PDF</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              @for (i of o.invoices; track i.number ?? i.createdAt) {
+                <tr>
+                  <td class="px-4 py-2.5">{{ (i.paidAt ?? i.createdAt) | userDate: lang }}</td>
+                  <td class="px-4 py-2.5">{{ i.number ?? '—' }}</td>
+                  <td class="eti-num px-4 py-2.5 text-right">{{ invoiceAmount(i.status === 'paid' ? i.amountPaid : i.amountDue, i.currency) }}</td>
+                  <td class="eti-num px-4 py-2.5 text-right">{{ i.tax !== undefined && i.tax !== null ? invoiceAmount(i.tax, i.currency) : '—' }}</td>
+                  <td class="px-4 py-2.5">{{ 'billing.invoiceStatus.' + i.status | transloco }}</td>
+                  <td class="px-4 py-2.5 text-right whitespace-nowrap">
+                    @if (i.hostedInvoiceUrl) {
+                      <a class="eti-link" [href]="i.hostedInvoiceUrl" target="_blank" rel="noopener noreferrer">{{ 'billing.invoice.open' | transloco }}</a>
+                    }
+                    @if (i.pdfUrl) {
+                      <a class="eti-link ml-3" [href]="i.pdfUrl" target="_blank" rel="noopener noreferrer">{{ 'billing.invoice.pdf' | transloco }}</a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+}

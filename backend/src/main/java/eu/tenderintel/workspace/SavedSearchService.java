@@ -1,5 +1,6 @@
 package eu.tenderintel.workspace;
 
+import eu.tenderintel.billing.Entitlements;
 import eu.tenderintel.common.error.ApiException;
 import eu.tenderintel.common.id.Ids;
 import eu.tenderintel.organization.OrganizationAccess;
@@ -23,7 +24,6 @@ import tools.jackson.databind.json.JsonMapper;
 @Service
 public class SavedSearchService {
 
-    static final int MAX_PER_USER = 100;
     /** Keys accepted in saved filters – exactly the search parameters, without paging. */
     static final Set<String> ALLOWED_KEYS = Set.of("q", "country", "cpv", "status", "contractType", "procedureType",
             "authority", "city", "nuts", "currency", "language", "valueMinEur", "valueMaxEur", "publishedFrom",
@@ -33,34 +33,35 @@ public class SavedSearchService {
     private final OrganizationAccess access;
     private final JsonMapper json;
     private final Validator validator;
+    private final Entitlements entitlements;
 
-    SavedSearchService(JdbcTemplate jdbc, OrganizationAccess access, JsonMapper json, Validator validator) {
+    SavedSearchService(JdbcTemplate jdbc, OrganizationAccess access, JsonMapper json, Validator validator,
+            Entitlements entitlements) {
         this.jdbc = jdbc;
         this.access = access;
         this.json = json;
         this.validator = validator;
+        this.entitlements = entitlements;
     }
 
     @Transactional(readOnly = true)
     public List<SavedSearchView> list(UUID orgId, UUID userId) {
         access.requireMember(orgId, userId);
         return jdbc.query("""
-                select id, name, filters::text, created_at, updated_at, last_run_at from saved_searches
+                select id, name, filters::text, created_at, updated_at, last_run_at, alert_enabled, alert_frequency
+                from saved_searches
                 where organization_id = ? and user_id = ? order by name
                 """, (rs, i) -> new SavedSearchView(rs.getObject(1, UUID.class), rs.getString(2),
                 json.readValue(rs.getString(3), new TypeReference<Map<String, Object>>() { }),
                 rs.getTimestamp(4).toInstant(), rs.getTimestamp(5).toInstant(),
-                rs.getTimestamp(6) == null ? null : rs.getTimestamp(6).toInstant()), orgId, userId);
+                rs.getTimestamp(6) == null ? null : rs.getTimestamp(6).toInstant(), rs.getBoolean(7),
+                rs.getString(8) == null ? "DAILY" : rs.getString(8)), orgId, userId);
     }
 
     @Transactional
     public SavedSearchView create(UUID orgId, UUID userId, String name, Map<String, Object> filters) {
         access.requireMember(orgId, userId);
-        Integer count = jdbc.queryForObject("select count(*) from saved_searches where organization_id = ? "
-                + "and user_id = ?", Integer.class, orgId, userId);
-        if (count != null && count >= MAX_PER_USER) {
-            throw ApiException.conflict("too_many_saved_searches", "At most " + MAX_PER_USER + " saved searches");
-        }
+        entitlements.requireSavedSearchSlot(orgId, userId);
         String filtersJson = validated(filters);
         UUID id = Ids.newId();
         try {
@@ -97,6 +98,28 @@ public class SavedSearchService {
         access.requireMember(orgId, userId);
         find(orgId, userId, id);
         jdbc.update("update saved_searches set last_run_at = now() where id = ?", id);
+        return find(orgId, userId, id);
+    }
+
+    /**
+     * Switches the alert on or off. When switched on, only tenders added from now on are reported (no flood of
+     * everything that already matches). {@code INSTANT} e-mails need a plan with instant alerts.
+     */
+    @Transactional
+    public SavedSearchView setAlert(UUID orgId, UUID userId, UUID id, boolean enabled, String frequency) {
+        access.requireMember(orgId, userId);
+        SavedSearchView current = find(orgId, userId, id);
+        String f = frequency == null ? current.alertFrequency() : frequency;
+        if (enabled && "INSTANT".equals(f) && !entitlements.plan(orgId).instantEmails()) {
+            throw new ApiException(org.springframework.http.HttpStatus.PAYMENT_REQUIRED,
+                    "instant_alerts_unavailable", "Instant e-mails are not part of the plan",
+                    Map.of("plan", entitlements.plan(orgId).name()));
+        }
+        jdbc.update("""
+                update saved_searches set alert_enabled = ?, alert_frequency = ?, updated_at = now(),
+                    alert_checked_at = case when ? and not alert_enabled then now() else alert_checked_at end
+                where id = ? and organization_id = ? and user_id = ?
+                """, enabled, f, enabled, id, orgId, userId);
         return find(orgId, userId, id);
     }
 

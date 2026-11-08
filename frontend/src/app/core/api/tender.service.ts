@@ -2,6 +2,7 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  AlertFrequency,
   CpvOption,
   DashboardSummary,
   Page,
@@ -46,9 +47,10 @@ export class TenderService {
     return this.http.get<TenderVersion[]>(`/api/v1/tenders/${id}/versions`);
   }
 
-  export(filters: SearchFilters, format: 'csv' | 'xlsx', lang: string): Observable<HttpResponse<Blob>> {
+  /** Counts against the organization's monthly export limit. */
+  export(orgId: string, filters: SearchFilters, format: 'csv' | 'xlsx', lang: string): Observable<HttpResponse<Blob>> {
     return this.http.get('/api/v1/tenders/export', {
-      params: toParams(filters, { format, lang }),
+      params: toParams(filters, { format, lang, orgId }),
       responseType: 'blob',
       observe: 'response',
     });
@@ -110,6 +112,10 @@ export class WorkspaceService {
 
   markSearchRun(orgId: string, id: string): Observable<SavedSearch> {
     return this.http.post<SavedSearch>(`/api/v1/organizations/${orgId}/saved-searches/${id}/run`, null);
+  }
+
+  setSearchAlert(orgId: string, id: string, enabled: boolean, frequency: AlertFrequency): Observable<SavedSearch> {
+    return this.http.put<SavedSearch>(`/api/v1/organizations/${orgId}/saved-searches/${id}/alert`, { enabled, frequency });
   }
 
   deleteSearch(orgId: string, id: string): Observable<void> {

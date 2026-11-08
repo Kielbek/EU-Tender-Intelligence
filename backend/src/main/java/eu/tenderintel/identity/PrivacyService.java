@@ -68,6 +68,14 @@ public class PrivacyService {
                 from saved_tenders s join tenders t on t.id = s.tender_id
                 where s.created_by = ? order by s.created_at
                 """, userId));
+        out.put("notificationPreferences", jdbc.queryForList("""
+                select organization_id, event_type, in_app, email_frequency, min_score, updated_at
+                from notification_preferences where user_id = ? order by organization_id, event_type
+                """, userId));
+        out.put("notifications", jdbc.queryForList("""
+                select organization_id, type, tender_id, payload::text as payload, created_at, read_at, emailed_at
+                from notifications where user_id = ? order by created_at desc
+                """, userId));
         out.put("uploadedDocuments", jdbc.queryForList("""
                 select id, tender_id, organization_id, file_name, mime_type, size_bytes, created_at
                 from tender_documents where uploaded_by = ? order by created_at
@@ -117,6 +125,21 @@ public class PrivacyService {
             throw new ApiException(HttpStatus.CONFLICT, "transfer_admin_first",
                     "Hand over the administrator role before deleting the account",
                     Map.of("organizations", blocking.stream().map(r -> r.get("name")).toList()));
+        }
+        // A paid subscription of an organization that would be deleted keeps charging the card in Stripe.
+        List<String> paying = jdbc.queryForList("""
+                select o.name from organization_members m join organizations o on o.id = m.organization_id
+                where m.user_id = ?
+                  and not exists (select 1 from organization_members x where x.organization_id = m.organization_id
+                                  and x.user_id <> m.user_id)
+                  and exists (select 1 from subscriptions s where s.organization_id = o.id
+                              and s.status in ('active', 'trialing', 'past_due', 'unpaid', 'paused')
+                              and not s.cancel_at_period_end)
+                """, String.class, userId);
+        if (!paying.isEmpty()) {
+            throw new ApiException(HttpStatus.CONFLICT, "cancel_subscription_first",
+                    "Cancel the organization's subscription before deleting the account",
+                    Map.of("organizations", paying));
         }
         // Organizations where the user is the only member go with the account (profile, documents, analyses…).
         List<UUID> solo = jdbc.queryForList("""

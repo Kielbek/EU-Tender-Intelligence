@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import({TestcontainersConfig.class, TestApi.class, eu.tenderintel.ai.FakeClaudeGateway.class})
+@Import({TestcontainersConfig.class, TestApi.class, eu.tenderintel.ai.FakeClaudeGateway.class,
+        eu.tenderintel.billing.FakeStripeGateway.class})
 public @interface IntegrationTest {
 }

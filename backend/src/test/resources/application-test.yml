@@ -19,3 +19,11 @@ app:
     pause-between-pages: PT0S
     # Tests never call the real BZP API.
     search-url: http://127.0.0.1:9/disabled
+  # Billing tests use FakeStripeGateway; these ids only map prices to plans (amounts are test values).
+  stripe:
+    secret-key: sk_test_not_a_real_key
+    webhook-secret: whsec_test_only_secret
+    price-starter-monthly: price_starter_m
+    price-starter-yearly: price_starter_y
+    price-pro-monthly: price_pro_m
+    price-business-monthly: price_business_m

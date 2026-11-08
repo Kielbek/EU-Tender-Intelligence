@@ -6,7 +6,9 @@ public enum EmailTemplate {
     ACCOUNT_ALREADY_EXISTS("exists"),
     PASSWORD_RESET("reset"),
     PASSWORD_CHANGED("passwordChanged"),
-    ORGANIZATION_INVITATION("invitation");
+    ORGANIZATION_INVITATION("invitation"),
+    BILLING_PAYMENT_FAILED("paymentFailed"),
+    NOTIFICATION_DIGEST("digest");
 
     private final String key;
 

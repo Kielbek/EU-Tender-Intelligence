@@ -104,3 +104,18 @@ export function isoToDateInput(iso: string | undefined, endExclusive = false): s
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
 }
+
+/** Amount in minor units (grosze, cents) as charged by Stripe, e.g. 24900 PLN → "249,00 zł". */
+export function moneyMinor(minor: number | null | undefined, currency: string | null | undefined, locale: string): string {
+  if (minor === null || minor === undefined || !currency) {
+    return '';
+  }
+  const code = currency.toUpperCase();
+  try {
+    const digits = new Intl.NumberFormat('en', { style: 'currency', currency: code }).resolvedOptions()
+      .maximumFractionDigits ?? 2;
+    return new Intl.NumberFormat(locale, { style: 'currency', currency: code }).format(minor / 10 ** digits);
+  } catch {
+    return `${(minor / 100).toFixed(2)} ${code}`;
+  }
+}

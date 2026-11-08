@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideActivity,
+  LucideBell,
   LucideBookmark,
   LucideBriefcase,
   LucideBuilding2,
   LucideChevronDown,
   LucideChevronRight,
+  LucideCreditCard,
   LucideHouse,
   LucideLandmark,
   LucideLayoutDashboard,
@@ -24,10 +26,22 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { OrgContextService } from '../org/org-context.service';
+import { UnreadNotificationsStore } from '../notifications/unread.store';
 import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 
-type Icon = 'dashboard' | 'search' | 'target' | 'star' | 'bookmark' | 'briefcase' | 'building' | 'user' | 'activity';
+type Icon =
+  | 'dashboard'
+  | 'search'
+  | 'target'
+  | 'star'
+  | 'bookmark'
+  | 'bell'
+  | 'briefcase'
+  | 'building'
+  | 'card'
+  | 'user'
+  | 'activity';
 
 interface NavItem {
   path: string;
@@ -66,11 +80,13 @@ const COLLAPSE_KEY = 'eti.sidebar.collapsed';
     LanguageSwitcherComponent,
     SelectComponent,
     LucideActivity,
+    LucideBell,
     LucideBookmark,
     LucideBriefcase,
     LucideBuilding2,
     LucideChevronDown,
     LucideChevronRight,
+    LucideCreditCard,
     LucideHouse,
     LucideLandmark,
     LucideLayoutDashboard,
@@ -87,6 +103,7 @@ const COLLAPSE_KEY = 'eti.sidebar.collapsed';
 export class ShellComponent {
   protected readonly auth = inject(AuthService);
   protected readonly org = inject(OrgContextService);
+  protected readonly unread = inject(UnreadNotificationsStore);
   private readonly router = inject(Router);
   /** Mobile drawer. */
   protected readonly menuOpen = signal(false);
@@ -105,7 +122,7 @@ export class ShellComponent {
       .map((p) => p[0]!.toUpperCase())
       .join(''),
   );
-  protected readonly roadmap = ['assistant', 'alerts'] as const;
+  protected readonly roadmap = ['assistant'] as const;
   protected readonly orgOptions = computed<SelectOption[]>(() =>
     this.org.memberships().map((m) => ({ value: m.id, label: m.name })),
   );
@@ -120,6 +137,7 @@ export class ShellComponent {
         { path: '/matches', icon: 'target', key: 'nav.matches', exact: false, query: null },
         { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
         { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
+        { path: '/notifications', icon: 'bell', key: 'nav.notifications', exact: false, query: null },
       ],
     },
     {
@@ -128,6 +146,7 @@ export class ShellComponent {
       items: [
         { path: '/company', icon: 'briefcase', key: 'nav.company', exact: false, query: null },
         { path: '/organization', icon: 'building', key: 'nav.organization', exact: false, query: null },
+        { path: '/billing', icon: 'card', key: 'nav.billing', exact: false, query: null },
       ],
     },
     {
