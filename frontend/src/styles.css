@@ -3,37 +3,36 @@
 @import "@fontsource-variable/inter";
 
 /*
- * Design tokens – style "A · Czysta biel": white surfaces, hairline borders, near-black ink and one blue accent
- * reserved for actions, the active navigation item and data marks. Colours are defined once here and consumed through
+ * Design tokens – "European data platform" style: white surfaces, hairline cool-grey lines (#E8ECF2), navy-blue ink
+ * (#172B4D), one blue accent (#2457D6) for actions, the active navigation item and data marks, 6 px controls. Colours are defined once here and consumed through
  * Tailwind utilities (bg-surface, text-ink, border-border, …).
  */
 @theme {
   --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   /* Kept for dialog backdrops and text on dark fills. */
-  --color-navy-950: #0a0f1c;
-  --color-navy-900: #0f1d36;
+  --color-navy-950: #0f1d3a;
+  --color-navy-900: #173b75;
 
-  --color-accent: #2457f5;
-  --color-accent-hover: #1a46d6;
-  --color-accent-soft: #f2f5ff;
+  --color-accent: #2457d6;
+  --color-accent-hover: #1947bb;
+  --color-accent-soft: #eaf0ff;
   /* Single-series chart marks – validated for contrast against white (dataviz validator). */
-  --color-chart: #2457f5;
+  --color-chart: #2457d6;
 
   /* Page and component surfaces: everything is white; canvas is only a subtle hover / table-header tint. */
   --color-surface: #ffffff;
-  /* Sidebar: a barely-there grey, separating navigation from content. */
-  --color-sidebar: #f9fafb;
-  --color-canvas: #f7f8fa;
-  --color-subtle: #fafafb;
-  --color-border: #eef0f3;
-  --color-border-strong: #eaecf0;
-  --color-track: #f2f4f7;
+  --color-sidebar: #ffffff;
+  --color-canvas: #f7f9fc;
+  --color-subtle: #f9fbfe;
+  --color-border: #e8ecf2;
+  --color-border-strong: #e1e6ef;
+  --color-track: #eef2f7;
 
-  --color-ink: #0a0f1c;
-  --color-ink-soft: #344054;
-  --color-ink-muted: #667085;
-  --color-ink-faint: #98a2b3;
+  --color-ink: #172b4d;
+  --color-ink-soft: #596a83;
+  --color-ink-muted: #718096;
+  --color-ink-faint: #94a3b8;
 
   --color-success: #067647;
   --color-success-soft: #ecfdf3;
@@ -42,15 +41,15 @@
   --color-danger: #b42318;
   --color-danger-soft: #fef3f2;
 
-  --radius-card: 10px;
-  --radius-control: 8px;
+  --radius-card: 8px;
+  --radius-control: 6px;
 }
 
 /* Chart series are read through var() in templates, so they live outside @theme (Tailwind emits only used theme
    variables). Categorical, fixed order – validated: CVD separation and normal-vision floor pass; orange and yellow are
    below 3:1 on white, so they are always shown with a legend carrying the values. */
 :root {
-  --color-series-1: #2457f5;
+  --color-series-1: #2457d6;
   --color-series-2: #ef7d2d;
   --color-series-3: #16a37f;
   --color-series-4: #8257e6;
@@ -139,21 +138,25 @@
 @layer components {
   /* Typography */
   .eti-eyebrow {
-    @apply text-[13px] text-ink-muted;
+    @apply text-xs text-ink-muted;
+  }
+  /* Small uppercase section label (sidebar groups, panel captions). */
+  .eti-overline {
+    @apply text-[10px] font-semibold tracking-[0.11em] text-[#9aa6b6] uppercase;
   }
   .eti-h1 {
-    @apply text-[28px] leading-tight font-semibold tracking-[-0.02em] text-ink;
+    @apply text-[28px] leading-tight font-semibold tracking-[-0.043em] text-ink;
   }
   .eti-h2 {
-    @apply text-[17px] font-semibold tracking-[-0.01em] text-ink;
+    @apply text-[15px] font-semibold tracking-[-0.01em] text-ink;
   }
-  /* Big KPI figure: large and light, like a printed report. */
+  /* Big KPI figure. */
   .eti-kpi {
-    @apply text-[34px] leading-none font-medium tracking-[-0.03em] text-ink;
+    @apply text-[29px] leading-none font-semibold tracking-[-0.048em] text-ink;
     font-variant-numeric: tabular-nums;
   }
   .eti-subtitle {
-    @apply text-[14px] text-ink-muted;
+    @apply text-[13px] text-ink-muted;
   }
   .eti-num {
     font-variant-numeric: tabular-nums;
@@ -161,10 +164,10 @@
 
   /* Forms */
   .eti-label {
-    @apply block text-sm font-medium text-ink-soft;
+    @apply block text-[11px] font-semibold text-ink;
   }
   .eti-input {
-    @apply mt-1 block h-10 w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent-soft;
+    @apply mt-1.5 block h-10 w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-[13px] text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/10;
   }
   .eti-input[aria-invalid="true"] {
     @apply border-danger;
@@ -178,19 +181,20 @@
 
   /* Buttons */
   .eti-btn-primary {
-    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex whitespace-nowrap h-[38px] items-center justify-center gap-2 rounded-[var(--radius-control)] border border-accent bg-accent px-4 text-[13px] font-semibold text-white transition-colors hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-btn-secondary {
-    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-4 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex whitespace-nowrap h-[38px] items-center justify-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-3.5 text-[13px] font-medium text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-btn-danger {
-    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-danger/30 bg-surface px-4 text-sm font-medium text-danger transition-colors hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex whitespace-nowrap h-[38px] items-center justify-center gap-2 rounded-[var(--radius-control)] border border-danger/30 bg-surface px-3.5 text-[13px] font-medium text-danger transition-colors hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-btn-ghost {
-    @apply inline-flex whitespace-nowrap h-9 items-center justify-center gap-2 rounded-[var(--radius-control)] px-3 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas;
+    @apply inline-flex whitespace-nowrap h-9 items-center justify-center gap-2 rounded-[var(--radius-control)] px-3 text-[13px] font-medium text-ink-soft transition-colors hover:bg-canvas hover:text-accent;
   }
+  /* Borderless icon button (top bar). */
   .eti-icon-btn {
-    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] border border-border-strong bg-surface text-ink-soft transition-colors hover:bg-canvas hover:text-ink disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-control)] text-ink-soft transition-colors hover:bg-canvas hover:text-accent disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-link {
     @apply font-medium text-accent underline-offset-2 hover:underline;
@@ -200,8 +204,9 @@
   .eti-card {
     @apply rounded-[var(--radius-card)] border border-border bg-surface;
   }
+  /* Table header: small uppercase captions on the canvas tint. */
   .eti-table-head {
-    @apply bg-subtle text-left text-xs font-medium text-ink-muted;
+    @apply bg-canvas text-left text-[10px] font-semibold tracking-[0.06em] text-ink-muted uppercase;
   }
 
   /* Feedback */

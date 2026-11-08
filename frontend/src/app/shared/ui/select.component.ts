@@ -45,7 +45,7 @@ export function isSmallScreen(): boolean {
             [attr.aria-expanded]="open()" [attr.aria-controls]="listId" [attr.aria-label]="ariaLabel()"
             [attr.aria-activedescendant]="open() && !mobile() && active() >= 0 ? optionId(active()) : null"
             [disabled]="isDisabled()"
-            class="flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-left text-sm text-ink transition-colors hover:border-ink-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent-soft disabled:cursor-not-allowed disabled:bg-canvas disabled:text-ink-muted"
+            class="flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-left text-[13px] text-ink transition-colors hover:border-ink-faint focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/10 disabled:cursor-not-allowed disabled:bg-canvas disabled:text-ink-muted"
             [class.h-10]="size() === 'md'" [class.h-8]="size() === 'sm'" [class.mt-1]="spaced()"
             [class.border-accent]="open()" [class.ring-4]="open()" [class.ring-accent-soft]="open()"
             (click)="toggle()" (keydown)="onTriggerKey($event)">
@@ -154,7 +154,7 @@ export class SelectComponent implements ControlValueAccessor {
   });
 
   protected optionClass(o: SelectOption, i: number): string {
-    const size = this.mobile() ? 'py-3 text-[15px]' : 'py-2 text-sm';
+    const size = this.mobile() ? 'py-3 text-[15px]' : 'py-2 text-[13px]';
     const bg = i === this.active() ? 'bg-canvas' : '';
     const tone = o.value === this.value() ? 'font-medium text-accent' : i === this.active() ? 'text-ink' : 'text-ink-soft';
     return `${size} ${bg} ${tone}`;

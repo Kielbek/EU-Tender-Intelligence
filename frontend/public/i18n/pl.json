@@ -32,7 +32,8 @@
     "breadcrumbs": "Ścieżka",
     "dataSource": "Dane o przetargach: TED (Urząd Publikacji UE) i BZP (Urząd Zamówień Publicznych)",
     "notifications": "Powiadomienia",
-    "billing": "Plan i płatności"
+    "billing": "Plan i płatności",
+    "tagline": "Zamówienia publiczne UE"
   },
   "language": {
     "label": "Język interfejsu",
@@ -470,7 +471,7 @@
       "deadline": "Termin ofert",
       "status": "Status"
     },
-    "export": "Eksport",
+    "export": "Eksportuj",
     "exportCsv": "Pobierz CSV",
     "exportXlsx": "Pobierz Excel (XLSX)",
     "exporting": "Przygotowywanie pliku…",
@@ -484,7 +485,28 @@
     "showFilters": "Pokaż filtry",
     "hideFilters": "Ukryj filtry",
     "nlNote": "Wyszukiwanie w języku naturalnym („budowlane w Niemczech powyżej 500 000 euro”) pojawi się razem z modułem AI.",
-    "noMatches": "Brak pasujących pozycji"
+    "noMatches": "Brak pasujących pozycji",
+    "apply": "Zastosuj filtry",
+    "allTenders": "Wszystkie postępowania",
+    "allTendersHint": "Przeglądaj i analizuj zamówienia publiczne z TED i BZP.",
+    "resultsWord": "wyników",
+    "resultsWordOne": "wynik",
+    "sourceNote": "Źródła: TED, BZP",
+    "showing": "Wyświetlanie {{from}}–{{to}} z {{total}}",
+    "strip": {
+      "sources": "TED + Biuletyn Zamówień Publicznych",
+      "fulltext": "Szukanie w tytule i opisie (bez względu na polskie znaki)",
+      "cpv": "Wpisz kod CPV w filtrach, by zawęzić branżę"
+    },
+    "stats": {
+      "label": "Statystyki bazy przetargów",
+      "open": "Otwarte postępowania",
+      "openHint": "w {{n}} krajach",
+      "new": "Nowe ogłoszenia",
+      "newHint": "Dodane w ostatnich 7 dniach",
+      "due": "Termin ofert wkrótce",
+      "dueHint": "Otwarte, z terminem w ciągu 7 dni"
+    }
   },
   "savedSearches": {
     "title": "Zapisane wyszukiwania",

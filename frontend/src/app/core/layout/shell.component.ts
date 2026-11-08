@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -112,6 +112,21 @@ export class ShellComponent {
   /** Sidebar sections folded by the user. */
   protected readonly folded = signal<Set<string>>(new Set());
   protected globalQuery = '';
+  private readonly globalSearch = viewChild<ElementRef<HTMLInputElement>>('globalSearch');
+  protected readonly shortcutLabel = /Mac|iPhone|iPad/.test(navigator.platform ?? '') ? '⌘ K' : 'Ctrl K';
+
+  /** Ctrl+K / ⌘K focuses the top-bar search (as the hint in the field says). */
+  @HostListener('document:keydown', ['$event'])
+  protected onKey(e: KeyboardEvent): void {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      const input = this.globalSearch()?.nativeElement;
+      if (input && input.offsetParent !== null) {
+        e.preventDefault();
+        input.focus();
+        input.select();
+      }
+    }
+  }
   protected readonly year = new Date().getFullYear();
 
   protected readonly initials = computed(() =>

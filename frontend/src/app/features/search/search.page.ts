@@ -1,12 +1,12 @@
-import { Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LucideDownload, LucideSearch, LucideSlidersHorizontal } from '@lucide/angular';
+import { LucideBookmarkPlus, LucideDatabase, LucideDownload, LucideSearch, LucideSlidersHorizontal } from '@lucide/angular';
 import { ApiError, toApiError, toApiErrorFromBlob } from '../../core/api/api-error';
 import { EU_LANGUAGES, ReferenceService } from '../../core/api/reference.service';
-import { Page, TenderSummary } from '../../core/api/tender.model';
+import { DashboardSummary, Page, TenderSummary } from '../../core/api/tender.model';
 import { TenderService, WorkspaceService } from '../../core/api/tender.service';
 import { countryName, languageName } from '../../core/format/format';
 import { FORMAT_PIPES } from '../../core/format/format.pipes';
@@ -47,6 +47,8 @@ const PROCEDURES = ['open', 'pl-basic', 'restricted', 'neg-w-call', 'neg-wo-call
     LucideSearch,
     LucideDownload,
     LucideSlidersHorizontal,
+    LucideBookmarkPlus,
+    LucideDatabase,
   ],
   templateUrl: './search.page.html',
 })
@@ -70,6 +72,22 @@ export class SearchPage {
   protected readonly exportBusy = signal(false);
   protected readonly exportNote = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
+  protected readonly exportMenu = signal(false);
+  private readonly exportMenuHost = viewChild<ElementRef<HTMLElement>>('exportMenuHost');
+
+  @HostListener('document:click', ['$event'])
+  protected closeMenus(e: MouseEvent): void {
+    if (this.exportMenu() && !this.exportMenuHost()?.nativeElement.contains(e.target as Node)) {
+      this.exportMenu.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  protected escape(): void {
+    this.exportMenu.set(false);
+  }
+  /** Database-wide figures for the strip above the results (from the dashboard summary; real counts only). */
+  protected readonly stats = signal<Pick<DashboardSummary, 'openTenders' | 'openCountries' | 'newLast7Days' | 'dueWithin7Days'> | null>(null);
   protected saveName = '';
   protected readonly saveError = signal<ApiError | null>(null);
 
@@ -113,6 +131,13 @@ export class SearchPage {
   });
 
   constructor() {
+    effect(() => {
+      const orgId = this.org.currentId();
+      const lang = this.language.current();
+      if (orgId) {
+        untracked(() => this.tenders.dashboard(orgId, lang).subscribe({ next: (d) => this.stats.set(d), error: () => this.stats.set(null) }));
+      }
+    });
     this.route.queryParams.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe((params) => {
       this.form = formFromParams(params);
       this.page = Math.max(0, Number(params['page'] ?? 0) || 0);
@@ -218,5 +243,16 @@ export class SearchPage {
       },
       error: (err: unknown) => this.saveError.set(toApiError(err)),
     });
+  }
+
+  /** Up to five page numbers around the current page (0-based). */
+  protected pageNumbers(r: Page<TenderSummary>): number[] {
+    const last = Math.min(r.totalPages, 500) - 1;
+    const start = Math.max(0, Math.min(r.page - 2, last - 4));
+    const out: number[] = [];
+    for (let n = start; n <= Math.min(last, start + 4); n++) {
+      out.push(n);
+    }
+    return out;
   }
 }

@@ -32,7 +32,8 @@
     "breadcrumbs": "Breadcrumb",
     "dataSource": "Tender data: TED (Publications Office of the EU) and BZP (Polish Public Procurement Office)",
     "notifications": "Notifications",
-    "billing": "Plan and billing"
+    "billing": "Plan and billing",
+    "tagline": "EU public procurement"
   },
   "language": {
     "label": "Interface language",
@@ -484,7 +485,28 @@
     "showFilters": "Show filters",
     "hideFilters": "Hide filters",
     "nlNote": "Natural-language search (\"construction in Germany above EUR 500,000\") comes with the AI module.",
-    "noMatches": "No matching items"
+    "noMatches": "No matching items",
+    "apply": "Apply filters",
+    "allTenders": "All procedures",
+    "allTendersHint": "Browse and analyse public procurement from TED and BZP.",
+    "resultsWord": "results",
+    "resultsWordOne": "result",
+    "sourceNote": "Sources: TED, BZP",
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "strip": {
+      "sources": "TED + Polish Public Procurement Bulletin",
+      "fulltext": "Searches titles and descriptions (accent-insensitive)",
+      "cpv": "Use the CPV filter to narrow the industry"
+    },
+    "stats": {
+      "label": "Tender database statistics",
+      "open": "Open procedures",
+      "openHint": "in {{n}} countries",
+      "new": "New notices",
+      "newHint": "Added in the last 7 days",
+      "due": "Closing soon",
+      "dueHint": "Open, deadline within 7 days"
+    }
   },
   "savedSearches": {
     "title": "Saved searches",

@@ -1,38 +1,98 @@
-<div class="flex flex-wrap items-end justify-between gap-3">
+<div class="flex flex-wrap items-end justify-between gap-4">
   <div>
     <h1 class="eti-h1">{{ 'search.title' | transloco }}</h1>
-    <p class="eti-subtitle mt-1.5">{{ 'search.subtitle' | transloco }}</p>
+    <p class="eti-subtitle mt-2">{{ 'search.subtitle' | transloco }}</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <div class="relative" #exportMenuHost>
+      <button type="button" class="eti-btn-secondary" aria-haspopup="menu" [attr.aria-expanded]="exportMenu()"
+              [disabled]="exportBusy() || !results()?.totalItems" (click)="exportMenu.set(!exportMenu())">
+        <svg lucideDownload class="size-3.5" aria-hidden="true"></svg>{{ 'search.export' | transloco }}
+      </button>
+      @if (exportMenu()) {
+        <ul role="menu" class="absolute right-0 z-30 mt-1 min-w-44 rounded-[var(--radius-control)] border border-border bg-surface py-1 shadow-lg">
+          <li role="none"><button type="button" role="menuitem" class="w-full px-3 py-2 text-left text-[13px] hover:bg-canvas"
+                  (click)="exportMenu.set(false); export('csv')">{{ 'search.exportCsv' | transloco }}</button></li>
+          <li role="none"><button type="button" role="menuitem" class="w-full px-3 py-2 text-left text-[13px] hover:bg-canvas"
+                  (click)="exportMenu.set(false); export('xlsx')">{{ 'search.exportXlsx' | transloco }}</button></li>
+        </ul>
+      }
+    </div>
+    @if (org.currentId()) {
+      <button type="button" class="eti-btn-primary" (click)="openSave()">
+        <svg lucideBookmarkPlus class="size-3.5" aria-hidden="true"></svg>{{ 'search.save' | transloco }}
+      </button>
+    }
   </div>
 </div>
 
-<form class="mt-5" role="search" (ngSubmit)="submit()">
-  <div class="flex gap-2">
-    <label class="sr-only" for="q">{{ 'search.q' | transloco }}</label>
-    <div class="relative flex-1">
-      <svg lucideSearch class="pointer-events-none absolute left-3 top-1/2 mt-0.5 size-4 -translate-y-1/2 text-ink-muted" aria-hidden="true"></svg>
-      <input id="q" name="q" type="search" class="eti-input pl-9" [(ngModel)]="form.q"
-             [placeholder]="'search.qPlaceholder' | transloco" maxlength="200" />
+<form class="mt-8" role="search" (ngSubmit)="submit()">
+  <section class="eti-card">
+    <div class="flex flex-wrap gap-2 p-3">
+      <label class="sr-only" for="q">{{ 'search.q' | transloco }}</label>
+      <div class="flex min-w-[200px] flex-1 items-center gap-3 px-2">
+        <svg lucideSearch class="size-4 shrink-0 text-ink-faint" aria-hidden="true"></svg>
+        <input id="q" name="q" type="search" class="w-full bg-transparent py-2 text-[13px] text-ink placeholder:text-ink-faint focus:outline-none"
+               [(ngModel)]="form.q" [placeholder]="'search.qPlaceholder' | transloco" maxlength="200" />
+      </div>
+      <button type="submit" class="eti-btn-primary px-6">{{ 'search.submit' | transloco }}</button>
     </div>
-    <button type="submit" class="eti-btn-primary mt-1">{{ 'search.submit' | transloco }}</button>
-  </div>
-  <p class="mt-1 text-xs text-ink-muted">{{ 'search.nlNote' | transloco }}</p>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-4 py-2.5 text-[11px] text-ink-muted">
+      <span class="flex items-center gap-2"><svg lucideDatabase class="size-3.5 text-accent" aria-hidden="true"></svg>{{ 'search.strip.sources' | transloco }}</span>
+      <span class="hidden text-border-strong sm:inline" aria-hidden="true">|</span>
+      <span>{{ 'search.strip.fulltext' | transloco }}</span>
+      <span class="hidden text-border-strong sm:inline" aria-hidden="true">|</span>
+      <span>{{ 'search.strip.cpv' | transloco }}</span>
+    </div>
+  </section>
 
-  <div class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-    <!-- Filters -->
-    <div class="min-w-0">
-      <button type="button" class="eti-btn-secondary w-full lg:hidden" [attr.aria-expanded]="filtersOpen()"
+  @if (stats(); as st) {
+    <section class="eti-card mt-7 grid grid-cols-3 divide-x divide-border" [attr.aria-label]="'search.stats.label' | transloco">
+      <div class="p-3 sm:p-5">
+        <p class="text-[11px] text-ink-muted sm:text-xs">{{ 'search.stats.open' | transloco }}</p>
+        <p class="eti-kpi mt-2 text-xl sm:mt-3 sm:text-[29px]">{{ st.openTenders.toLocaleString(language.current()) }}</p>
+        <p class="mt-2 hidden text-[11px] text-ink-muted sm:block">{{ 'search.stats.openHint' | transloco: { n: st.openCountries } }}</p>
+      </div>
+      <div class="p-3 sm:p-5">
+        <p class="text-[11px] text-ink-muted sm:text-xs">{{ 'search.stats.new' | transloco }}</p>
+        <p class="eti-kpi mt-2 text-xl sm:mt-3 sm:text-[29px]">{{ st.newLast7Days.toLocaleString(language.current()) }}</p>
+        <p class="mt-2 hidden text-[11px] text-ink-muted sm:block">{{ 'search.stats.newHint' | transloco }}</p>
+      </div>
+      <div class="p-3 sm:p-5">
+        <p class="text-[11px] text-ink-muted sm:text-xs">{{ 'search.stats.due' | transloco }}</p>
+        <p class="eti-kpi mt-2 text-xl sm:mt-3 sm:text-[29px]">{{ st.dueWithin7Days.toLocaleString(language.current()) }}</p>
+        <p class="mt-2 hidden text-[11px] text-ink-muted sm:block">{{ 'search.stats.dueHint' | transloco }}</p>
+      </div>
+    </section>
+  }
+
+  <div class="mt-8 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 id="results-heading" tabindex="-1" class="eti-h2">{{ 'search.allTenders' | transloco }}</h2>
+      <p class="mt-1 text-[11px] text-ink-muted">{{ 'search.allTendersHint' | transloco }}</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <eti-select class="w-56" inputId="sort" name="sort" [spaced]="false" [ariaLabel]="'search.sort' | transloco"
+                  [options]="form.q ? sortSelect().withQuery : sortSelect().withoutQuery"
+                  [(ngModel)]="form.sort" (ngModelChange)="submit()" />
+      <button type="button" class="eti-btn-secondary xl:hidden" [attr.aria-expanded]="filtersOpen()"
               aria-controls="filters" (click)="filtersOpen.set(!filtersOpen())">
-        <svg lucideSlidersHorizontal class="size-4" aria-hidden="true"></svg>
-        {{ (filtersOpen() ? 'search.hideFilters' : 'search.showFilters') | transloco }}
+        <svg lucideSlidersHorizontal class="size-3.5" aria-hidden="true"></svg>{{ 'search.filters' | transloco }}
         @if (activeFilters()) {
-          <span class="rounded-full bg-accent-soft px-1.5 text-xs text-accent">{{ activeFilters() }}</span>
+          <span class="rounded bg-accent-soft px-1.5 text-[10px] font-semibold text-accent">{{ activeFilters() }}</span>
         }
       </button>
-      <section id="filters" class="eti-card mt-3 space-y-4 self-start p-5 lg:mt-0 lg:block" [class.hidden]="!filtersOpen()" aria-labelledby="filters-heading">
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-5 xl:grid-cols-[240px_minmax(0,1fr)]">
+    <!-- Filters -->
+    <div class="min-w-0">
+      <section id="filters" class="eti-card space-y-5 self-start p-4 xl:block" [class.hidden]="!filtersOpen()" aria-labelledby="filters-heading">
         <div class="flex items-center justify-between">
-          <h2 id="filters-heading" class="eti-h2">{{ 'search.filters' | transloco }}</h2>
+          <h2 id="filters-heading" class="text-[13px] font-semibold">{{ 'search.filters' | transloco }}</h2>
           @if (activeFilters()) {
-            <button type="button" class="eti-link text-xs" (click)="clear()">{{ 'search.clear' | transloco }}</button>
+            <button type="button" class="text-[11px] text-accent hover:underline" (click)="clear()">{{ 'search.clear' | transloco }}</button>
           }
         </div>
 
@@ -49,12 +109,12 @@
         <fieldset class="grid grid-cols-2 gap-2">
           <legend class="sr-only">{{ 'search.valueMin' | transloco }}</legend>
           <div>
-            <label class="eti-label text-xs" for="vmin">{{ 'search.valueMin' | transloco }}</label>
+            <label class="eti-label" for="vmin">{{ 'search.valueMin' | transloco }}</label>
             <input id="vmin" name="vmin" type="number" min="0" step="1000" inputmode="numeric" class="eti-input"
                    [(ngModel)]="form.valueMinEur" aria-describedby="value-hint" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="vmax">{{ 'search.valueMax' | transloco }}</label>
+            <label class="eti-label" for="vmax">{{ 'search.valueMax' | transloco }}</label>
             <input id="vmax" name="vmax" type="number" min="0" step="1000" inputmode="numeric" class="eti-input"
                    [(ngModel)]="form.valueMaxEur" aria-describedby="value-hint" />
           </div>
@@ -63,85 +123,56 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="eti-label text-xs" for="df">{{ 'search.deadlineFrom' | transloco }}</label>
+            <label class="eti-label" for="df">{{ 'search.deadlineFrom' | transloco }}</label>
             <eti-date-input inputId="df" name="df" [locale]="language.current()" [(ngModel)]="form.deadlineFrom" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="dt">{{ 'search.deadlineTo' | transloco }}</label>
+            <label class="eti-label" for="dt">{{ 'search.deadlineTo' | transloco }}</label>
             <eti-date-input inputId="dt" name="dt" [locale]="language.current()" [(ngModel)]="form.deadlineTo" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="pf">{{ 'search.publishedFrom' | transloco }}</label>
+            <label class="eti-label" for="pf">{{ 'search.publishedFrom' | transloco }}</label>
             <eti-date-input inputId="pf" name="pf" [locale]="language.current()" [(ngModel)]="form.publishedFrom" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="pt">{{ 'search.publishedTo' | transloco }}</label>
+            <label class="eti-label" for="pt">{{ 'search.publishedTo' | transloco }}</label>
             <eti-date-input inputId="pt" name="pt" [locale]="language.current()" [(ngModel)]="form.publishedTo" />
           </div>
         </div>
 
         <div>
-          <label class="eti-label text-xs" for="authority">{{ 'search.authority' | transloco }}</label>
+          <label class="eti-label" for="authority">{{ 'search.authority' | transloco }}</label>
           <input id="authority" name="authority" class="eti-input" [(ngModel)]="form.authority"
                  [placeholder]="'search.authorityPlaceholder' | transloco" maxlength="200" />
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="eti-label text-xs" for="city">{{ 'search.city' | transloco }}</label>
+            <label class="eti-label" for="city">{{ 'search.city' | transloco }}</label>
             <input id="city" name="city" class="eti-input" [(ngModel)]="form.city" maxlength="100" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="nuts">{{ 'search.nuts' | transloco }}</label>
+            <label class="eti-label" for="nuts">{{ 'search.nuts' | transloco }}</label>
             <input id="nuts" name="nuts" class="eti-input uppercase" [(ngModel)]="form.nuts" maxlength="5"
                    pattern="[A-Za-z0-9]{2,5}" [placeholder]="'search.nutsPlaceholder' | transloco" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="eti-label text-xs" for="language">{{ 'search.language' | transloco }}</label>
+            <label class="eti-label" for="language">{{ 'search.language' | transloco }}</label>
             <eti-select inputId="language" name="language" [options]="languageSelect()" [(ngModel)]="form.language" />
           </div>
           <div>
-            <label class="eti-label text-xs" for="currency">{{ 'search.currency' | transloco }}</label>
+            <label class="eti-label" for="currency">{{ 'search.currency' | transloco }}</label>
             <eti-select inputId="currency" name="currency" [options]="currencySelect()" [(ngModel)]="form.currency" />
           </div>
         </div>
-        <button type="submit" class="eti-btn-primary w-full">{{ 'search.submit' | transloco }}</button>
+        <button type="submit" class="eti-btn-primary w-full">{{ 'search.apply' | transloco }}</button>
       </section>
     </div>
 
     <!-- Results -->
     <section class="min-w-0" aria-labelledby="results-heading" [attr.aria-busy]="loading()">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="results-heading" tabindex="-1" class="eti-h2" aria-live="polite">
-          @if (loading()) {
-            {{ 'search.loading' | transloco }}
-          } @else if (results(); as r) {
-            {{ (r.totalItems === 1 ? 'search.resultsOne' : 'search.results') | transloco: { n: r.totalItems.toLocaleString(language.current()) } }}
-          }
-        </h2>
-        <div class="flex flex-wrap items-center gap-2">
-          <eti-select class="w-60" inputId="sort" name="sort" [spaced]="false" [ariaLabel]="'search.sort' | transloco"
-                      [prefix]="('search.sort' | transloco) + ':'"
-                      [options]="form.q ? sortSelect().withQuery : sortSelect().withoutQuery"
-                      [(ngModel)]="form.sort" (ngModelChange)="submit()" />
-          @if (org.currentId()) {
-            <button type="button" class="eti-btn-secondary h-9" (click)="openSave()">{{ 'search.save' | transloco }}</button>
-          }
-          <button type="button" class="eti-btn-secondary h-9" [disabled]="exportBusy() || !results()?.totalItems"
-                  (click)="export('csv')">
-            <svg lucideDownload class="size-4" aria-hidden="true"></svg> CSV
-            <span class="sr-only">{{ 'search.exportCsv' | transloco }}</span>
-          </button>
-          <button type="button" class="eti-btn-secondary h-9" [disabled]="exportBusy() || !results()?.totalItems"
-                  (click)="export('xlsx')">
-            <svg lucideDownload class="size-4" aria-hidden="true"></svg> XLSX
-            <span class="sr-only">{{ 'search.exportXlsx' | transloco }}</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="mt-3 space-y-2" aria-live="polite">
+      <div class="space-y-2" aria-live="polite">
         @if (notice(); as n) {
           <p role="status" class="eti-alert-success">{{ n }}</p>
         }
@@ -155,14 +186,14 @@
       </div>
 
       @if (loading() && !results()) {
-        <div class="mt-3 space-y-2" aria-hidden="true">
+        <div class="space-y-2" aria-hidden="true">
           @for (i of [1, 2, 3, 4, 5]; track i) {
             <div class="eti-card space-y-2 p-4"><eti-skeleton size="h-4 w-3/4" /><eti-skeleton size="h-3 w-1/2" /></div>
           }
         </div>
       } @else if (results(); as r) {
         @if (r.items.length === 0) {
-          <div class="eti-card mt-3 p-8 text-center">
+          <div class="eti-card p-8 text-center">
             <p class="font-medium">{{ 'search.noResults' | transloco }}</p>
             <p class="mt-1 text-sm text-ink-muted">{{ 'search.noResultsHint' | transloco }}</p>
             @if (activeFilters()) {
@@ -170,33 +201,40 @@
             }
           </div>
         } @else {
-          <div class="eti-card mt-3 overflow-hidden" [class.opacity-60]="loading()">
-            <div class="eti-table-head hidden grid-cols-[minmax(0,1fr)_7rem_8.5rem_12.5rem_2.5rem] gap-3 px-5 py-2.5 md:grid" aria-hidden="true">
+          <div class="eti-card overflow-hidden" [class.opacity-60]="loading()">
+            <div class="flex items-center justify-between border-b border-border px-4 py-3.5">
+              <p class="text-xs text-ink-muted" aria-live="polite">
+                @if (loading()) {
+                  {{ 'search.loading' | transloco }}
+                } @else {
+                  <strong class="eti-num font-semibold text-ink">{{ r.totalItems.toLocaleString(language.current()) }}</strong>
+                  {{ (r.totalItems === 1 ? 'search.resultsWordOne' : 'search.resultsWord') | transloco }}
+                }
+              </p>
+              <span class="text-[10px] text-ink-muted">{{ 'search.sourceNote' | transloco }}</span>
+            </div>
+            <div class="eti-table-head hidden grid-cols-[minmax(0,1fr)_8rem_8.5rem_9rem_7rem_2.5rem] gap-3 px-4 py-3 lg:grid" aria-hidden="true">
               <span>{{ 'search.columns.tender' | transloco }}</span>
               <span>{{ 'search.columns.country' | transloco }}</span>
-              <span class="text-right">{{ 'search.columns.value' | transloco }}</span>
+              <span>{{ 'search.columns.value' | transloco }}</span>
               <span>{{ 'search.columns.deadline' | transloco }}</span>
+              <span>{{ 'search.columns.status' | transloco }}</span>
               <span></span>
             </div>
-            <ul class="divide-y divide-track">
+            <ul class="divide-y divide-border">
               @for (t of r.items; track t.id) {
                 @let lang = language.current();
-                <li class="grid grid-cols-[minmax(0,1fr)_2.5rem] gap-3 px-5 py-3.5 hover:bg-subtle md:grid-cols-[minmax(0,1fr)_7rem_8.5rem_12.5rem_2.5rem] md:items-center">
+                <li class="grid grid-cols-[minmax(0,1fr)_2.5rem] gap-3 px-4 py-4 text-xs hover:bg-subtle lg:grid-cols-[minmax(0,1fr)_8rem_8.5rem_9rem_7rem_2.5rem] lg:items-center">
                   <div class="min-w-0">
-                    <h3 class="text-sm leading-snug font-medium break-words text-ink">
+                    <h3 class="line-clamp-2 text-[13px] leading-snug font-semibold break-words text-ink" [title]="t.title">
                       <a [routerLink]="['/tenders', t.id]" class="hover:text-accent">{{ t.title }}</a>
                     </h3>
-                    @if (t.authorityName) {
-                      <p class="mt-0.5 truncate text-[13px] text-ink-muted">{{ t.authorityName }}</p>
-                    }
-                    <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
-                      <eti-tender-status [status]="t.status" />
-                      @if (t.mainCpv) {
-                        <span><span class="eti-num">{{ t.mainCpv }}</span>@if (t.mainCpvLabel) { · {{ t.mainCpvLabel }}}</span>
-                      }
+                    <p class="mt-1 truncate text-[11px] text-ink-muted">
+                      {{ t.authorityName ?? '' }}@if (t.authorityName && t.mainCpv) { · }@if (t.mainCpv) {CPV <span class="eti-num">{{ t.mainCpv }}</span>}
                     </p>
-                    <!-- Phone: the columns below are hidden, so key facts repeat here. -->
-                    <p class="mt-1.5 flex flex-wrap gap-x-3 text-xs text-ink-soft md:hidden">
+                    <!-- Narrow screens: the columns are hidden, so key facts repeat here. -->
+                    <p class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-soft lg:hidden">
+                      <eti-tender-status [status]="t.status" />
                       <span>{{ t.countryCode | country: lang }}@if (t.city) {, {{ t.city }}}</span>
                       @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
                         <span class="eti-num font-medium">{{ t.estimatedValue | money: t.currency : lang }}</span>
@@ -206,19 +244,20 @@
                       }
                     </p>
                   </div>
-                  <div class="hidden text-[13px] text-ink-soft md:block">
+                  <div class="hidden text-ink-soft lg:block">
                     {{ t.countryCode | country: lang }}
-                    @if (t.city) { <span class="block truncate text-xs text-ink-muted">{{ t.city }}</span> }
+                    @if (t.city) { <span class="mt-1 block truncate text-[10px] text-ink-muted">{{ t.city }}</span> }
                   </div>
-                  <div class="eti-num hidden text-right text-[13px] whitespace-nowrap md:block">
+                  <div class="eti-num hidden font-medium whitespace-nowrap lg:block">
                     @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
                       {{ t.estimatedValue | money: t.currency : lang }}
                     } @else {
                       <span class="text-ink-faint">—</span>
                     }
                   </div>
-                  <div class="hidden text-[13px] md:block"><eti-deadline [iso]="t.submissionDeadline" [locale]="lang" /></div>
-                  <div class="row-start-1 md:row-start-auto col-start-2 md:col-start-auto">
+                  <div class="hidden lg:block"><eti-deadline [iso]="t.submissionDeadline" [locale]="lang" [stacked]="true" [dateOnly]="true" /></div>
+                  <div class="hidden lg:block"><eti-tender-status [status]="t.status" /></div>
+                  <div class="col-start-2 row-start-1 lg:col-start-auto lg:row-start-auto">
                     @if (org.currentId()) {
                       <eti-watch-toggle [tenderId]="t.id" [title]="t.title" />
                     }
@@ -226,20 +265,26 @@
                 </li>
               }
             </ul>
+            @if (r.totalPages > 1) {
+              <nav class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3"
+                   [attr.aria-label]="'common.pageOf' | transloco: { page: r.page + 1, pages: r.totalPages }">
+                <span class="text-[11px] text-ink-muted">{{ 'search.showing' | transloco: { from: (r.page * r.size + 1).toLocaleString(language.current()), to: (r.page * r.size + r.items.length).toLocaleString(language.current()), total: r.totalItems.toLocaleString(language.current()) } }}</span>
+                <div class="flex gap-1">
+                  <button type="button" class="eti-btn-secondary h-8 px-2.5" [disabled]="r.page === 0" (click)="goTo(r.page - 1)"
+                          [attr.aria-label]="'common.previous' | transloco">←</button>
+                  @for (n of pageNumbers(r); track n) {
+                    @if (n === r.page) {
+                      <span class="inline-flex h-8 min-w-8 items-center justify-center rounded-[var(--radius-control)] bg-accent px-3 text-xs text-white" aria-current="page">{{ n + 1 }}</span>
+                    } @else {
+                      <button type="button" class="eti-btn-secondary h-8 min-w-8 px-3" (click)="goTo(n)">{{ n + 1 }}</button>
+                    }
+                  }
+                  <button type="button" class="eti-btn-secondary h-8 px-2.5" [disabled]="r.page + 1 >= r.totalPages || r.page >= 499"
+                          (click)="goTo(r.page + 1)" [attr.aria-label]="'common.next' | transloco">→</button>
+                </div>
+              </nav>
+            }
           </div>
-
-          @if (r.totalPages > 1) {
-            <nav class="mt-4 flex items-center justify-between gap-3 text-sm" [attr.aria-label]="'common.pageOf' | transloco: { page: r.page + 1, pages: r.totalPages }">
-              <button type="button" class="eti-btn-secondary h-9" [disabled]="r.page === 0" (click)="goTo(r.page - 1)">
-                {{ 'common.previous' | transloco }}
-              </button>
-              <span class="text-ink-muted">{{ 'common.pageOf' | transloco: { page: r.page + 1, pages: r.totalPages } }}</span>
-              <button type="button" class="eti-btn-secondary h-9" [disabled]="r.page + 1 >= r.totalPages || r.page >= 499"
-                      (click)="goTo(r.page + 1)">
-                {{ 'common.next' | transloco }}
-              </button>
-            </nav>
-          }
         }
       }
     </section>

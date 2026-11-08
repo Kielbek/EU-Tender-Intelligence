@@ -40,7 +40,7 @@ function parse(v: string | null | undefined): Date | null {
     <div class="relative mt-1">
       <button #trigger type="button" [id]="inputId()" aria-haspopup="dialog" [attr.aria-expanded]="open()"
               [attr.aria-label]="ariaLabel()" [disabled]="isDisabled()"
-              class="flex h-10 w-full items-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-left text-sm text-ink transition-colors hover:border-ink-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent-soft disabled:cursor-not-allowed disabled:bg-canvas"
+              class="flex h-10 w-full items-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-left text-[13px] text-ink transition-colors hover:border-ink-faint focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/10 disabled:cursor-not-allowed disabled:bg-canvas"
               [class.border-accent]="open()" [class.ring-4]="open()" [class.ring-accent-soft]="open()"
               [class.pr-9]="!!value()" (click)="toggle()" (keydown)="onTriggerKey($event)">
         <svg lucideCalendar class="size-4 shrink-0 text-ink-muted" aria-hidden="true"></svg>

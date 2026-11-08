@@ -31,7 +31,7 @@ let nextId = 0;
         <fieldset class="mt-1 max-h-56 overflow-auto">
           <legend class="sr-only">{{ label() }}</legend>
           @for (o of visible(); track o.value) {
-            <label class="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-canvas">
+            <label class="flex items-center gap-2 rounded px-1 py-1 text-[13px] hover:bg-canvas">
               <input type="checkbox" class="size-4 accent-accent" [checked]="selected().includes(o.value)"
                      (change)="toggle(o.value, $any($event.target).checked)" />
               {{ o.label }}
