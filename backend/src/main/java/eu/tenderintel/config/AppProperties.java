@@ -25,7 +25,9 @@ public record AppProperties(
         @Valid @NotNull Mail mail,
         @Valid @NotNull Reference reference,
         @Valid @NotNull Ted ted,
+        @Valid @NotNull Bzp bzp,
         @Valid @NotNull Ai ai,
+        @Valid @NotNull Legal legal,
         @Valid @NotNull Integrations integrations) {
 
     public record Cors(@NotNull List<String> allowedOrigins) {
@@ -67,6 +69,35 @@ public record AppProperties(
     }
 
     /**
+     * Operator details shown in the terms of service and privacy policy. Never invented: blank values are reported
+     * as {@code configured = false} and the pages show a notice instead of fake company data.
+     */
+    public record Legal(String operatorName, String operatorAddress, String operatorTaxId, String operatorEmail,
+            String hostingProvider, String emailProvider) {
+
+        public boolean configured() {
+            return notBlank(operatorName) && notBlank(operatorAddress) && notBlank(operatorEmail);
+        }
+
+        private static boolean notBlank(String s) {
+            return s != null && !s.isBlank();
+        }
+    }
+
+    /**
+     * Polish Public Procurement Bulletin (BZP) via the e-Zamówienia API. Free, no access request needed (UZP API
+     * regulations, §3 sec. 8). Pages are capped at 500 by the API; smaller pages keep memory low (notices are ~35 kB).
+     */
+    public record Bzp(
+            @DefaultValue("https://ezamowienia.gov.pl/mo-board/api/v1/notice") @NotBlank String searchUrl,
+            @DefaultValue("100") int pageSize,
+            @DefaultValue("3") int initialBackfillDays,
+            @DefaultValue("31") int maxBackfillDays,
+            @DefaultValue("true") boolean scheduleEnabled,
+            @DefaultValue("PT0.5S") Duration pauseBetweenPages) {
+    }
+
+    /**
      * Claude (Anthropic) for tender document analysis. A blank key disables AI features: endpoints answer
      * {@code 503 ai_not_configured} and the status page shows {@code PENDING_CONFIGURATION}.
      */
@@ -81,7 +112,9 @@ public record AppProperties(
             /* Raw PDF bytes sent in one request (base64 adds a third; the API caps a request at 32 MB). */
             @DefaultValue("22") int maxPdfMbPerRequest,
             @DefaultValue("2") int workers,
-            @DefaultValue("PT10M") Duration requestTimeout) {
+            @DefaultValue("PT10M") Duration requestTimeout,
+            /* Server-side fallback when a safety classifier declines (beta); can be switched off if the API rejects it. */
+            @DefaultValue("true") boolean refusalFallback) {
 
         public boolean configured() {
             return anthropicApiKey != null && !anthropicApiKey.isBlank();

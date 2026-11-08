@@ -56,7 +56,12 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
           <label class="flex items-start gap-2 text-sm">
             <input type="checkbox" class="mt-0.5 size-4 accent-accent" formControlName="acceptTerms"
                    [attr.aria-invalid]="invalid('acceptTerms')" aria-describedby="terms-error" />
-            <span>{{ 'auth.register.terms' | transloco }}</span>
+            <span>
+              {{ 'auth.register.termsPrefix' | transloco }}
+              <a routerLink="/legal/terms" target="_blank" class="eti-link">{{ 'auth.register.termsLink' | transloco }}</a>
+              {{ 'auth.register.termsAnd' | transloco }}
+              <a routerLink="/legal/privacy" target="_blank" class="eti-link">{{ 'auth.register.privacyLink' | transloco }}</a>
+            </span>
           </label>
           @if (invalid('acceptTerms')) {
             <p id="terms-error" class="eti-field-error">{{ 'auth.register.termsRequired' | transloco }}</p>

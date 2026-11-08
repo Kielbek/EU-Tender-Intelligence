@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AccountService } from '../../core/api/account.service';
 import { ApiError, toApiError } from '../../core/api/api-error';
@@ -19,7 +19,7 @@ function timeZones(): string[] {
 
 @Component({
   selector: 'eti-account-page',
-  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorAlertComponent, SelectComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ApiErrorAlertComponent, SelectComponent],
   templateUrl: './account.page.html',
 })
 export class AccountPage {
@@ -39,6 +39,59 @@ export class AccountPage {
     currentPassword: ['', Validators.required],
     newPassword: ['', [Validators.required, Validators.minLength(PASSWORD_MIN_LENGTH), Validators.maxLength(128)]],
   });
+
+  protected readonly exportBusy = signal(false);
+  protected readonly deleteOpen = signal(false);
+  protected readonly deleteBusy = signal(false);
+  protected readonly deletePassword = signal('');
+  protected readonly privacyError = signal<ApiError | null>(null);
+  protected readonly blockingOrgs = signal<string[]>([]);
+
+  protected exportData(): void {
+    this.exportBusy.set(true);
+    this.privacyError.set(null);
+    this.accountApi.exportData().subscribe({
+      next: (res) => {
+        this.exportBusy.set(false);
+        const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ?? 'eti-data.json';
+        const url = URL.createObjectURL(res.body!);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      },
+      error: (err: unknown) => {
+        this.exportBusy.set(false);
+        this.privacyError.set(toApiError(err));
+      },
+    });
+  }
+
+  protected deleteAccount(): void {
+    if (!this.deletePassword() || this.deleteBusy()) {
+      return;
+    }
+    this.deleteBusy.set(true);
+    this.privacyError.set(null);
+    this.blockingOrgs.set([]);
+    this.accountApi.deleteAccount(this.deletePassword()).subscribe({
+      next: () => {
+        this.auth.clear();
+        void this.router.navigate(['/auth/login'], { queryParams: { deleted: 1 } });
+      },
+      error: (err: unknown) => {
+        this.deleteBusy.set(false);
+        const e = toApiError(err);
+        if (e.code === 'transfer_admin_first') {
+          const body = (err as { error?: { organizations?: string[] } }).error;
+          this.blockingOrgs.set(body?.organizations ?? []);
+        } else {
+          this.privacyError.set(e);
+        }
+      },
+    });
+  }
 
   protected readonly profileBusy = signal(false);
   protected readonly profileSaved = signal(false);

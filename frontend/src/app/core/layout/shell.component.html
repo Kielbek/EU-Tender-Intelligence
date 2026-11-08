@@ -153,7 +153,11 @@
     <footer class="mx-auto flex w-full max-w-[1440px] flex-wrap justify-between gap-2 px-4 pb-6 text-[13px] text-ink-muted sm:px-8">
       <div class="w-full border-t border-border pt-5"></div>
       <span>© {{ year }} EU Tender Intelligence</span>
-      <span>{{ 'nav.dataSource' | transloco }}</span>
+      <span>
+        <a routerLink="/legal/terms" class="hover:text-accent">{{ 'legal.terms' | transloco }}</a> ·
+        <a routerLink="/legal/privacy" class="hover:text-accent">{{ 'legal.privacy' | transloco }}</a> ·
+        {{ 'nav.dataSource' | transloco }}
+      </span>
     </footer>
   </div>
 </div>

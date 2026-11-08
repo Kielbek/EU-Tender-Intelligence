@@ -43,6 +43,32 @@ public class IngestionJobs {
         return id;
     }
 
+    /** Code of the data source of a job, or null if the job does not exist. */
+    public String sourceOf(UUID jobId) {
+        return jdbc.query("""
+                select d.code from ingestion_jobs j join data_sources d on d.id = j.data_source_id where j.id = ?
+                """, rs -> rs.next() ? rs.getString(1) : null, jobId);
+    }
+
+    /** Publication window [from, to] of a finished job in the given zone. */
+    public java.time.LocalDate[] retryWindow(UUID jobId, java.time.ZoneId zone) {
+        Object[] w = jdbc.query("""
+                select j.window_from, j.window_to, j.status from ingestion_jobs j where j.id = ?
+                """, rs -> rs.next() ? new Object[] {rs.getTimestamp(1), rs.getTimestamp(2), rs.getString(3)} : null,
+                jobId);
+        if (w == null) {
+            throw ApiException.notFound("Ingestion job");
+        }
+        if (w[0] == null || w[1] == null) {
+            throw ApiException.badRequest("not_retryable", "Only jobs with a recorded window can be retried");
+        }
+        if ("RUNNING".equals(w[2]) || "QUEUED".equals(w[2])) {
+            throw ApiException.conflict("job_already_running", "The job is still running");
+        }
+        return new java.time.LocalDate[] {((java.sql.Timestamp) w[0]).toInstant().atZone(zone).toLocalDate(),
+                ((java.sql.Timestamp) w[1]).toInstant().atZone(zone).toLocalDate()};
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markRunning(UUID jobId) {
         jdbc.update("update ingestion_jobs set status = 'RUNNING', started_at = now() where id = ?", jobId);

@@ -71,7 +71,51 @@ public class MatchingService {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     void onProfileChanged(CompanyProfileChangedEvent event) {
+        profileCache = null;
         executor.execute(() -> safely(() -> recompute(event.organizationId())));
+    }
+
+    /**
+     * All company profiles, loaded in three queries and kept until a profile changes. Scoring a newly ingested
+     * notice is then pure computation (an import publishes thousands of events).
+     */
+    private volatile Map<UUID, Profile> profileCache;
+    private volatile long profileCacheAt;
+    /** Other instances change profiles too: the cache is also refreshed after this long. */
+    static final long PROFILE_CACHE_MILLIS = 5 * 60_000;
+
+    Map<UUID, Profile> profiles() {
+        Map<UUID, Profile> cached = profileCache;
+        if (cached != null && System.currentTimeMillis() - profileCacheAt < PROFILE_CACHE_MILLIS) {
+            return cached;
+        }
+        Map<UUID, List<String>> cpv = new java.util.HashMap<>();
+        jdbc.query("select p.organization_id, c.cpv_code from company_cpv c join company_profiles p "
+                + "on p.id = c.company_profile_id order by c.cpv_code", rs -> {
+                    cpv.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
+                            .add(rs.getString(2));
+                });
+        Map<UUID, List<Reference>> refs = new java.util.HashMap<>();
+        jdbc.query("select p.organization_id, r.title, r.cpv_code from company_references r join company_profiles p "
+                + "on p.id = r.company_profile_id", rs -> {
+                    refs.computeIfAbsent(rs.getObject(1, UUID.class), k -> new java.util.ArrayList<>())
+                            .add(new Reference(rs.getString(2), rs.getString(3)));
+                });
+        Map<UUID, Profile> loaded = new java.util.HashMap<>();
+        jdbc.query("""
+                select organization_id, countries_of_interest, registration_country, contract_types,
+                       min_contract_value_eur, max_contract_value_eur
+                from company_profiles
+                """, rs -> {
+                    UUID org = rs.getObject(1, UUID.class);
+                    loaded.put(org, new Profile(cpv.getOrDefault(org, List.of()), list(rs.getArray(2)),
+                            rs.getString(3), list(rs.getArray(4)), rs.getBigDecimal(5), rs.getBigDecimal(6),
+                            refs.getOrDefault(org, List.of())));
+                });
+        Map<UUID, Profile> result = Map.copyOf(loaded);
+        profileCache = result;
+        profileCacheAt = System.currentTimeMillis();
+        return result;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -79,10 +123,12 @@ public class MatchingService {
         executor.execute(() -> safely(() -> rescoreTender(event.tenderId())));
     }
 
-    private static void safely(Runnable task) {
+    private void safely(Runnable task) {
         try {
             task.run();
         } catch (RuntimeException e) {
+            // E.g. an organization deleted since the cache was loaded: reload next time.
+            profileCache = null;
             log.error("Matching task failed", e);
         }
     }
@@ -129,8 +175,8 @@ public class MatchingService {
 
     /** Scores one tender for every organization with a profile (after ingestion of a new or changed notice). */
     public void rescoreTender(UUID tenderId) {
-        List<UUID> orgs = jdbc.queryForList("select organization_id from company_profiles", UUID.class);
-        if (orgs.isEmpty()) {
+        Map<UUID, Profile> profiles = profiles();
+        if (profiles.isEmpty()) {
             return;
         }
         tx.executeWithoutResult(status -> {
@@ -141,8 +187,9 @@ public class MatchingService {
             if (tender == null || !Boolean.TRUE.equals(open)) {
                 return;
             }
-            for (UUID orgId : orgs) {
-                Profile profile = loadProfile(orgId);
+            for (Map.Entry<UUID, Profile> e : profiles.entrySet()) {
+                UUID orgId = e.getKey();
+                Profile profile = e.getValue();
                 if (profile == null || profile.cpvCodes().isEmpty()) {
                     continue;
                 }

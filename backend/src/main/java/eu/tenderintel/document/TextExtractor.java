@@ -9,6 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import jakarta.annotation.PreDestroy;
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.tika.Tika;
@@ -41,7 +50,7 @@ public class TextExtractor {
             "application/vnd.oasis.opendocument.spreadsheet");
     static final int MAX_TEXT_CHARS = 2_000_000;
     static final int MAX_ZIP_ENTRIES = 60;
-    static final long MAX_ZIP_TOTAL_BYTES = 150L * 1024 * 1024;
+    static final long MAX_ZIP_TOTAL_BYTES = 100L * 1024 * 1024;
 
     private final Tika tika = new Tika();
 
@@ -65,10 +74,47 @@ public class TextExtractor {
         return SUPPORTED.contains(mime);
     }
 
+    /** Untrusted files are parsed one or two at a time, each with a time limit (a hostile file cannot pin threads). */
+    static final Duration PARSE_TIMEOUT = Duration.ofSeconds(60);
+    private final Semaphore permits = new Semaphore(2);
+    private final ExecutorService parsers = Executors.newCachedThreadPool(
+            Thread.ofPlatform().name("tika-", 0).daemon().factory());
+
+    @PreDestroy
+    void shutdown() {
+        parsers.shutdownNow();
+    }
+
     public Extraction extract(byte[] content, String mime) {
         if (!isSupported(mime)) {
             return new Extraction("UNSUPPORTED", null, null, "Unsupported file type: " + mime);
         }
+        try {
+            if (!permits.tryAcquire(PARSE_TIMEOUT.toSeconds(), TimeUnit.SECONDS)) {
+                return new Extraction("FAILED", null, null, "Server busy – try again");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new Extraction("FAILED", null, null, "Interrupted");
+        }
+        Future<Extraction> job = parsers.submit(() -> parse(content, mime));
+        try {
+            return job.get(PARSE_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            job.cancel(true);
+            return new Extraction("FAILED", null, null, "Reading the file took too long");
+        } catch (ExecutionException e) {
+            return new Extraction("FAILED", null, null, "Could not read the file");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            job.cancel(true);
+            return new Extraction("FAILED", null, null, "Interrupted");
+        } finally {
+            permits.release();
+        }
+    }
+
+    private Extraction parse(byte[] content, String mime) {
         BodyContentHandler handler = new BodyContentHandler(MAX_TEXT_CHARS);
         Metadata metadata = new Metadata();
         try (InputStream in = new ByteArrayInputStream(content)) {
@@ -97,10 +143,21 @@ public class TextExtractor {
 
     /** Supported files inside a ZIP archive. Nested archives, directories and hidden files are skipped. */
     public List<Entry> unzip(byte[] zip, long maxEntryBytes) throws IOException {
+        // Decompressed archives live in memory: at most two at a time across the server.
+        try {
+            if (!permits.tryAcquire(PARSE_TIMEOUT.toSeconds(), TimeUnit.SECONDS)) {
+                throw new IOException("Server busy");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted");
+        }
         try {
             return unzip(zip, maxEntryBytes, StandardCharsets.UTF_8);
         } catch (IllegalArgumentException malformedName) {
             return unzip(zip, maxEntryBytes, Charset.forName("IBM437"));
+        } finally {
+            permits.release();
         }
     }
 

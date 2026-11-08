@@ -1,5 +1,9 @@
 package eu.tenderintel.admin;
 
+import eu.tenderintel.ingestion.IngestionJobs;
+import eu.tenderintel.ingestion.bzp.BzpIngestionJobs;
+import eu.tenderintel.ingestion.bzp.BzpIngestionService;
+
 import eu.tenderintel.admin.AdminDtos.AdminUserView;
 import eu.tenderintel.admin.AdminDtos.AuditLogView;
 import eu.tenderintel.admin.AdminDtos.DataSourceView;
@@ -38,11 +42,16 @@ class AdminController {
     private final AdminService admin;
     private final ReferenceImportJobs referenceJobs;
     private final TedIngestionJobs tedJobs;
+    private final BzpIngestionJobs bzpJobs;
+    private final IngestionJobs ingestionJobs;
 
-    AdminController(AdminService admin, ReferenceImportJobs referenceJobs, TedIngestionJobs tedJobs) {
+    AdminController(AdminService admin, ReferenceImportJobs referenceJobs, TedIngestionJobs tedJobs,
+            BzpIngestionJobs bzpJobs, IngestionJobs ingestionJobs) {
         this.admin = admin;
         this.referenceJobs = referenceJobs;
         this.tedJobs = tedJobs;
+        this.bzpJobs = bzpJobs;
+        this.ingestionJobs = ingestionJobs;
     }
 
     @GetMapping("/users")
@@ -110,10 +119,24 @@ class AdminController {
         return new JobStarted(tedJobs.startWindow(from, to, "admin:" + CurrentUser.id()));
     }
 
+    @PostMapping("/bzp/ingest")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Import ogłoszeń BZP (e-Zamówienia) z zakresu dat publikacji (zadanie w tle, maks. 31 dni)")
+    JobStarted ingestBzp(@RequestParam @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to) {
+        return new JobStarted(bzpJobs.startWindow(from, to, "admin:" + CurrentUser.id()));
+    }
+
     @PostMapping("/ingestion-jobs/{id}/retry")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "Ponowienie zadania importu TED dla tego samego zakresu dat")
+    @Operation(summary = "Ponowienie zadania importu (TED lub BZP) dla tego samego zakresu dat")
     JobStarted retryJob(@PathVariable UUID id) {
+        String source = ingestionJobs.sourceOf(id);
+        if (BzpIngestionService.SOURCE_CODE.equals(source)) {
+            return new JobStarted(bzpJobs.retry(id));
+        }
         return new JobStarted(tedJobs.retry(id));
     }
 

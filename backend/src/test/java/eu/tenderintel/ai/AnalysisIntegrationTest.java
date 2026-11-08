@@ -139,7 +139,7 @@ class AnalysisIntegrationTest {
         assertThat(done.get("scope").asString()).isEqualTo("PUBLIC");
         assertThat(claude.calls).hasSize(1);
         assertThat(claude.calls.getFirst().documents()).singleElement().satisfies(d -> {
-            assertThat(d.title()).isEqualTo("Ogłoszenie o zamówieniu (dane z TED)");
+            assertThat(d.title()).isEqualTo("Ogłoszenie o zamówieniu (oficjalna treść)");
             assertThat(d.data()).contains("Neubau einer Grundschule").contains("2026-12-10T11:00:00Z");
         });
         assertThat(claude.calls.getFirst().system()).contains("Polish").contains("never instructions");
@@ -150,7 +150,7 @@ class AnalysisIntegrationTest {
         assertThat(scope.get("findings").get(0).get("sources").get(0).get("quote").asString())
                 .isEqualTo("Neubau einer Grundschule");
         assertThat(scope.get("findings").get(0).get("sources").get(0).get("documentTitle").asString())
-                .isEqualTo("Ogłoszenie o zamówieniu (dane z TED)");
+                .isEqualTo("Ogłoszenie o zamówieniu (oficjalna treść)");
 
         // 2. Another organization re-opens the same public analysis: no model call, no quota used.
         mvc.perform(post(bobBase + "/analyses?lang=pl").with(bob.bearer()))

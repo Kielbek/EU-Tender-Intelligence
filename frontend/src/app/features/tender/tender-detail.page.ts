@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -74,6 +75,14 @@ export class TenderDetailPage implements OnInit {
   protected readonly matchView = computed(() => {
     const m = this.match();
     return m && m !== 'noProfile' ? m : null;
+  });
+
+  private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
+  /** Names of the official sources the tender was built from (TED, BZP). */
+  protected readonly sourceNames = computed(() => {
+    this.translations();
+    const codes = [...new Set((this.tender()?.sources ?? []).map((s) => s.dataSource))];
+    return codes.map((c) => this.transloco.translate('tender.sourceName.' + c)).join(', ');
   });
 
   protected readonly cpvList = computed(() => {

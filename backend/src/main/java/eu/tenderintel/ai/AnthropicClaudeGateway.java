@@ -74,16 +74,18 @@ class AnthropicClaudeGateway implements ClaudeGateway {
             blocks.add(ContentBlockParam.ofDocument(b.build()));
         }
         blocks.add(ContentBlockParam.ofText(TextBlockParam.builder().text(instruction).build()));
-        MessageCreateParams params = MessageCreateParams.builder()
+        MessageCreateParams.Builder builder = MessageCreateParams.builder()
                 .model(props.analysisModel())
                 .maxTokens(props.analysisMaxOutputTokens())
                 .system(system)
                 .thinking(ThinkingConfigAdaptive.builder().build())
                 .outputConfig(OutputConfig.builder().effort(OutputConfig.Effort.of(props.analysisEffort())).build())
-                .addUserMessageOfContentBlockParams(blocks)
-                .putAdditionalHeader("anthropic-beta", FALLBACK_BETA)
-                .putAdditionalBodyProperty("fallbacks", JsonValue.from("default"))
-                .build();
+                .addUserMessageOfContentBlockParams(blocks);
+        if (props.refusalFallback()) {
+            builder.putAdditionalHeader("anthropic-beta", FALLBACK_BETA)
+                    .putAdditionalBodyProperty("fallbacks", JsonValue.from("default"));
+        }
+        MessageCreateParams params = builder.build();
         MessageAccumulator acc = MessageAccumulator.create();
         try (StreamResponse<RawMessageStreamEvent> stream = client.messages().createStreaming(params)) {
             stream.stream().forEach(acc::accumulate);

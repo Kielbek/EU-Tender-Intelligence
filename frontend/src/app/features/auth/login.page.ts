@@ -12,6 +12,9 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ApiErrorAlertComponent],
   template: `
     <h1 class="eti-h1">{{ 'auth.login.title' | transloco }}</h1>
+    @if (deleted()) {
+      <p class="eti-alert-success mt-3" role="status">{{ 'auth.login.accountDeleted' | transloco }}</p>
+    }
     <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <eti-api-error [error]="error()" />
       @if (notice(); as key) {
@@ -59,6 +62,8 @@ export class LoginPage {
   private readonly router = inject(Router);
   private readonly language = inject(LanguageService);
   readonly returnUrl = input<string>();
+  /** ?deleted=1 after account deletion. */
+  readonly deleted = input<string>();
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

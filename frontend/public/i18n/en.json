@@ -30,7 +30,7 @@
     "company": "Company profile",
     "accountSection": "Account",
     "breadcrumbs": "Breadcrumb",
-    "dataSource": "Tender data: TED – Publications Office of the EU"
+    "dataSource": "Tender data: TED (Publications Office of the EU) and BZP (Polish Public Procurement Office)"
   },
   "language": {
     "label": "Interface language",
@@ -67,7 +67,8 @@
       "OBJECT_STORAGE_S3": "Document storage (S3)",
       "CLAUDE_API": "Claude (Anthropic) – AI analysis",
       "EMAIL_SMTP": "E-mail (SMTP)",
-      "STRIPE": "Stripe payments"
+      "STRIPE": "Stripe payments",
+      "BZP_NOTICE_API": "BZP notice API (e-Zamówienia)"
     },
     "error": {
       "title": "Could not load status",
@@ -121,21 +122,25 @@
       "noAccount": "No account yet?",
       "register": "Create an account",
       "resend": "Resend activation link",
-      "resent": "If the account needs activation, we have sent a new link."
+      "resent": "If the account needs activation, we have sent a new link.",
+      "accountDeleted": "Your account and data have been deleted."
     },
     "register": {
       "title": "Create an account",
       "fullName": "Full name",
       "organizationName": "Company name",
       "organizationHint": "Optional. You can change it later.",
-      "terms": "I accept the terms of service and privacy policy.",
       "termsRequired": "You must accept the terms.",
       "submit": "Create account",
       "submitting": "Creating account…",
       "haveAccount": "Already have an account?",
       "login": "Sign in",
       "doneTitle": "Check your inbox",
-      "doneBody": "We sent an activation link to {{email}}. Click it to activate your account. The link is valid for 24 hours."
+      "doneBody": "We sent an activation link to {{email}}. Click it to activate your account. The link is valid for 24 hours.",
+      "termsPrefix": "I accept the",
+      "termsLink": "terms of service",
+      "termsAnd": "and have read the",
+      "privacyLink": "privacy policy"
     },
     "verify": {
       "title": "Account activation",
@@ -178,6 +183,19 @@
     "roles": {
       "USER": "User",
       "PLATFORM_ADMIN": "Platform administrator"
+    },
+    "privacy": {
+      "title": "Your data (GDPR)",
+      "body": "You can download all your data or delete your account at any time. Details:",
+      "export": "Download my data (JSON)",
+      "exporting": "Preparing the file…",
+      "delete": "Delete account",
+      "deleteWarning": "Deleting the account cannot be undone.",
+      "deleteSoloOrg": "Organizations where you are the only member are deleted together with the company profile, documents and analyses.",
+      "deleteSharedOrg": "In organizations with other members your account is removed and the organization’s data stays.",
+      "confirmPassword": "Confirm with your password",
+      "deleteConfirm": "Delete my account for good",
+      "transferFirst": "First hand the administrator role to another member in: {{orgs}}."
     }
   },
   "org": {
@@ -276,7 +294,8 @@
       "comp-dial": "Competitive dialogue",
       "innovation": "Innovation partnership",
       "oth-single": "Other single-stage procedure",
-      "oth-mult": "Other multi-stage procedure"
+      "oth-mult": "Other multi-stage procedure",
+      "pl-basic": "Basic procedure (Poland)"
     },
     "changeKind": {
       "PRIOR_INFORMATION": "Prior information notice",
@@ -341,10 +360,14 @@
     "noChangedFields": "No changes in tracked fields.",
     "changed": "changed",
     "disclaimer": "Information comes from official notices and is for guidance only. The original notice is binding.",
-    "source": "Source: TED – Tenders Electronic Daily",
+    "source": "Source: {{names}}.",
     "participation": "Conditions for participation",
     "awardCriteria": "Award criteria",
-    "crumb": "Tender details"
+    "crumb": "Tender details",
+    "sourceName": {
+      "TED": "TED – Tenders Electronic Daily",
+      "PL_EZAMOWIENIA": "Polish Public Procurement Bulletin (BZP, e-Zamówienia)"
+    }
   },
   "watch": {
     "add": "Watch",
@@ -377,7 +400,7 @@
   },
   "search": {
     "title": "Tender search",
-    "subtitle": "Notices from TED (27 EU member states and other countries publishing in TED).",
+    "subtitle": "Notices from TED (EU and other countries) and the Polish Public Procurement Bulletin (national tenders in Poland).",
     "q": "Search title and description",
     "qPlaceholder": "e.g. school construction, ERP software",
     "submit": "Search",
@@ -471,15 +494,15 @@
     "upcoming": "Upcoming deadlines",
     "upcomingEmpty": "No open watched tenders with a deadline.",
     "noticesPerDay": "New notices per day",
-    "noticesCaption": "TED notices per day over the last 30 days",
+    "noticesCaption": "Notices per day in the last 30 days",
     "topCpv": "Top sectors (CPV)",
     "byCountry": "Open tenders by country",
     "updates": "Recent updates",
     "updatesWatched": "Changes in watched tenders",
     "updatesAll": "Latest changes on the platform (you are not watching any tenders yet)",
     "updatesEmpty": "No changes.",
-    "freshness": "TED data, last update: {{time}}",
-    "freshnessNever": "The TED import has not finished yet.",
+    "freshness": "Data from TED and BZP, last update: {{time}}",
+    "freshnessNever": "The notice import has not finished yet.",
     "seeAll": "See all",
     "kpi": "Key figures",
     "newSearch": "New search",
@@ -488,7 +511,7 @@
     "dueSoon": "Deadline within 7 days",
     "dueSoonHint": "open procedures",
     "watchedCount": "active: {{n}} · total value",
-    "noticesHint": "TED, last 30 days · TED does not publish at weekends",
+    "noticesHint": "TED and BZP, last 30 days",
     "upcomingHint": "watched by your team",
     "bestMatches": "Best tenders for your company",
     "bestMatchesHint": "open with a fit of 60+: {{n}}",
@@ -496,7 +519,7 @@
     "noGoodMatches": "No open tenders with a fit of 60 or higher.",
     "lowerMatches": "Show weaker matches",
     "openTendersDesc": "Procedures still accepting tenders.",
-    "newTendersDesc": "Procedures first published on TED.",
+    "newTendersDesc": "Procedures published for the first time.",
     "vsPreviousWeek": "vs previous 7 days",
     "dueSoonDesc": "Open procedures with a tender deadline.",
     "goodMatches": "Matching your company",
@@ -652,7 +675,7 @@
     "subtitle": "Conditions, criteria, deadlines, guarantees and risks – every point with a quote from the source.",
     "quota": "Analyses this month: {{remaining}} of {{limit}} left ({{plan}} plan)",
     "documents": "Documents to analyse",
-    "noticeDocument": "Contract notice (data from TED)",
+    "noticeDocument": "Contract notice (official text)",
     "always": "always included",
     "scopePublic": "public",
     "scopeOrg": "uploaded by your organization (private)",
@@ -724,5 +747,23 @@
       "UNSUPPORTED": "The link does not lead to a supported document."
     },
     "fetchManual": "Download the documents on the authority’s portal and add them here."
+  },
+  "legal": {
+    "nav": "Legal documents",
+    "terms": "Terms of service",
+    "privacy": "Privacy policy",
+    "version": "Version: {{version}}",
+    "notConfigured": "The operator details have not been configured yet (LEGAL_OPERATOR_*). They must be set before selling the service.",
+    "draft": "Draft document – to be reviewed by a lawyer before commercial launch.",
+    "operator": "Service operator",
+    "address": "Address",
+    "taxId": "Tax ID",
+    "contact": "Contact",
+    "missing": "not provided",
+    "processor": {
+      "HOSTING": "Hosting (servers and database)",
+      "EMAIL": "E-mail delivery",
+      "AI": "AI model for document analysis"
+    }
   }
 }

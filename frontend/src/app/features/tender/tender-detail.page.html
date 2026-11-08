@@ -296,7 +296,7 @@
         </section>
       }
 
-      <p class="text-xs leading-relaxed text-ink-muted">{{ 'tender.disclaimer' | transloco }} {{ 'tender.source' | transloco }}</p>
+      <p class="text-xs leading-relaxed text-ink-muted">{{ 'tender.disclaimer' | transloco }} {{ 'tender.source' | transloco: { names: sourceNames() } }}</p>
     </aside>
   </div>
 }

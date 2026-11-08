@@ -13,3 +13,9 @@ app:
     schedule-enabled: false
     initial-backfill-days: 0
     pause-between-pages: PT0S
+  bzp:
+    schedule-enabled: false
+    initial-backfill-days: 0
+    pause-between-pages: PT0S
+    # Tests never call the real BZP API.
+    search-url: http://127.0.0.1:9/disabled

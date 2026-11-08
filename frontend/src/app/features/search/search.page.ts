@@ -26,7 +26,7 @@ import { SearchForm, activeFilterCount, apiFilters, emptyForm, formFromParams, p
 const PAGE_SIZE = 20;
 const STATUSES = ['OPEN', 'PLANNED', 'CLOSED', 'AWARDED', 'CANCELLED'];
 const CONTRACT_TYPES = ['WORKS', 'SUPPLIES', 'SERVICES'];
-const PROCEDURES = ['open', 'restricted', 'neg-w-call', 'neg-wo-call', 'comp-dial', 'innovation', 'oth-single', 'oth-mult'];
+const PROCEDURES = ['open', 'pl-basic', 'restricted', 'neg-w-call', 'neg-wo-call', 'comp-dial', 'innovation', 'oth-single', 'oth-mult'];
 
 @Component({
   selector: 'eti-search-page',

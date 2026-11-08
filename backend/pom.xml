@@ -22,6 +22,7 @@
         <springdoc.version>3.2.0</springdoc.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <anthropic.version>3.6.0</anthropic.version>
+        <okhttp.version>4.12.0</okhttp.version>
         <tika.version>3.3.3</tika.version>
         <fastexcel.version>0.20.2</fastexcel.version>
     </properties>
@@ -73,6 +74,12 @@
             <groupId>com.anthropic</groupId>
             <artifactId>anthropic-java</artifactId>
             <version>${anthropic.version}</version>
+        </dependency>
+        <dependency>
+            <!-- HTTP client with a pluggable resolver: public document fetching pins the checked addresses (SSRF) -->
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
         </dependency>
         <dependency>
             <!-- Text extraction from DOCX/DOC/ODT/RTF/XLSX tender documents; PDF page counts -->

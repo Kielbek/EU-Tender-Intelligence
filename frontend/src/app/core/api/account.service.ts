@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Me } from '../auth/auth.model';
@@ -23,6 +23,15 @@ export class AccountService {
 
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
     return this.http.post<void>('/api/v1/me/password', { currentPassword, newPassword });
+  }
+
+  /** GDPR export: every piece of personal data as a JSON file. */
+  exportData(): Observable<HttpResponse<Blob>> {
+    return this.http.get('/api/v1/me/export', { responseType: 'blob', observe: 'response' });
+  }
+
+  deleteAccount(password: string): Observable<void> {
+    return this.http.delete<void>('/api/v1/me', { body: { password } });
   }
 
   revokeAllSessions(): Observable<void> {

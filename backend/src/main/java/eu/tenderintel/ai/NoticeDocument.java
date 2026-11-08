@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * The notice itself as a citable text document, built from the data published in the official TED notice (the TED
- * website blocks automated PDF downloads, so we do not fetch the PDF). Field labels are in English; values are
+ * The notice itself as a citable text document, built from the official notice data (TED API fields; for BZP the
+ * full notice text is appended by AnalysisService). The TED website blocks automated PDF downloads, so it is not fetched. Field labels are in English; values are
  * copied verbatim from the notice.
  */
 final class NoticeDocument {
@@ -17,7 +17,7 @@ final class NoticeDocument {
     }
 
     static String title(String lang) {
-        return "pl".equals(lang) ? "Ogłoszenie o zamówieniu (dane z TED)" : "Contract notice (data from TED)";
+        return "pl".equals(lang) ? "Ogłoszenie o zamówieniu (oficjalna treść)" : "Contract notice (official text)";
     }
 
     static String text(TenderDetail t) {

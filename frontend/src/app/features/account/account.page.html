@@ -64,5 +64,45 @@
       <p class="mt-1 text-sm text-ink-muted">{{ 'account.sessionsBody' | transloco }}</p>
       <button type="button" class="eti-btn-danger mt-4" (click)="revokeAll()">{{ 'account.revokeAll' | transloco }}</button>
     </section>
+
+    <section class="eti-card p-5" aria-labelledby="privacy-heading">
+      <h2 id="privacy-heading" class="eti-h2">{{ 'account.privacy.title' | transloco }}</h2>
+      <p class="mt-1 text-sm text-ink-muted">
+        {{ 'account.privacy.body' | transloco }}
+        <a routerLink="/legal/privacy" class="eti-link">{{ 'legal.privacy' | transloco }}</a>
+      </p>
+      <eti-api-error class="mt-3 block" [error]="privacyError()" />
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" class="eti-btn-secondary" [disabled]="exportBusy()" (click)="exportData()">
+          {{ (exportBusy() ? 'account.privacy.exporting' : 'account.privacy.export') | transloco }}
+        </button>
+        @if (!deleteOpen()) {
+          <button type="button" class="eti-btn-danger" (click)="deleteOpen.set(true)">{{ 'account.privacy.delete' | transloco }}</button>
+        }
+      </div>
+      @if (deleteOpen()) {
+        <form class="mt-4 rounded-[var(--radius-control)] border border-danger/30 bg-danger-soft/40 p-4" (ngSubmit)="deleteAccount()">
+          <p class="text-sm font-medium text-danger">{{ 'account.privacy.deleteWarning' | transloco }}</p>
+          <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+            <li>{{ 'account.privacy.deleteSoloOrg' | transloco }}</li>
+            <li>{{ 'account.privacy.deleteSharedOrg' | transloco }}</li>
+          </ul>
+          <label class="eti-label mt-3" for="delete-password">{{ 'account.privacy.confirmPassword' | transloco }}</label>
+          <input id="delete-password" type="password" class="eti-input max-w-sm" autocomplete="current-password"
+                 [value]="deletePassword()" (input)="deletePassword.set($any($event.target).value)" />
+          @if (blockingOrgs().length) {
+            <p class="eti-field-error mt-2" role="alert">
+              {{ 'account.privacy.transferFirst' | transloco: { orgs: blockingOrgs().join(', ') } }}
+            </p>
+          }
+          <div class="mt-3 flex gap-2">
+            <button type="submit" class="eti-btn-danger" [disabled]="!deletePassword() || deleteBusy()">
+              {{ 'account.privacy.deleteConfirm' | transloco }}
+            </button>
+            <button type="button" class="eti-btn-ghost" (click)="deleteOpen.set(false)">{{ 'common.cancel' | transloco }}</button>
+          </div>
+        </form>
+      }
+    </section>
   </div>
 </div>

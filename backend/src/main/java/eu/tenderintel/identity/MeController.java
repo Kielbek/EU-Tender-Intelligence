@@ -36,12 +36,42 @@ class MeController {
     private final AuthService auth;
     private final AuditService audit;
     private final Clock clock;
+    private final PrivacyService privacy;
+    private final eu.tenderintel.config.AppProperties props;
 
-    MeController(UserRepository users, AuthService auth, AuditService audit, Clock clock) {
+    MeController(UserRepository users, AuthService auth, AuditService audit, Clock clock, PrivacyService privacy,
+            eu.tenderintel.config.AppProperties props) {
         this.users = users;
         this.auth = auth;
         this.audit = audit;
         this.clock = clock;
+        this.privacy = privacy;
+        this.props = props;
+    }
+
+    @GetMapping("/export")
+    @Operation(summary = "Eksport wszystkich danych osobowych użytkownika (RODO art. 15 i 20), plik JSON")
+    org.springframework.http.ResponseEntity<Map<String, Object>> export() {
+        String name = "eti-moje-dane-" + java.time.LocalDate.now(clock) + ".json";
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\"")
+                .header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(privacy.export(CurrentUser.id()));
+    }
+
+    public record DeleteAccountRequest(@jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Size(max = 128) String password) {
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping
+    @Operation(summary = "Usunięcie konta (RODO art. 17) po potwierdzeniu hasłem; 409 transfer_admin_first")
+    org.springframework.http.ResponseEntity<Void> deleteAccount(@Valid @RequestBody DeleteAccountRequest req) {
+        privacy.delete(CurrentUser.id(), req.password());
+        org.springframework.http.ResponseCookie clear = org.springframework.http.ResponseCookie
+                .from(AuthController.REFRESH_COOKIE, "").httpOnly(true).secure(props.security().refreshCookieSecure())
+                .sameSite("Strict").path(AuthController.REFRESH_COOKIE_PATH).maxAge(java.time.Duration.ZERO).build();
+        return org.springframework.http.ResponseEntity.noContent()
+                .header(org.springframework.http.HttpHeaders.SET_COOKIE, clear.toString()).build();
     }
 
     @GetMapping

@@ -131,7 +131,8 @@ public class AnalysisService {
         if (!"DONE".equals(v.status())) {
             return v;
         }
-        String current = plan(tenderId, orgId, language).documentSetHash();
+        // Metadata only: no document content is read just to tell whether the analysis is out of date.
+        String current = plan(tenderId, orgId, language, false).documentSetHash();
         String stored = jdbc.queryForObject("select document_set_hash from ai_analyses where id = ?", String.class,
                 v.id());
         return new AnalysisView(v.id(), v.status(), v.language(), v.scope(), v.model(), v.createdAt(),
@@ -146,11 +147,12 @@ public class AnalysisService {
                     "AI analysis is not configured on this server");
         }
         String language = language(lang);
-        Plan plan = plan(tenderId, orgId, language);
-        AnalysisView existing = find(tenderId, plan, language);
+        Plan meta = plan(tenderId, orgId, language, false);
+        AnalysisView existing = find(tenderId, meta, language);
         if (existing != null) {
             return existing;
         }
+        Plan plan = plan(tenderId, orgId, language, true);
         UUID analysisId = Ids.newId();
         UUID usageId = Ids.newId();
         AnalysisView created = tx.execute(s -> {
@@ -184,8 +186,10 @@ public class AnalysisService {
         }
         audit.record(AuditAction.AI_ANALYSIS_REQUESTED, userId, orgId, "tender", tenderId,
                 Map.of("analysisId", analysisId.toString(), "documents", plan.sent().size()));
+        // Read before the worker starts: the response always reports the new analysis as PENDING (202).
+        AnalysisView pending = byId(analysisId);
         executor.execute(() -> run(analysisId, usageId, plan, language));
-        return byId(analysisId);
+        return pending;
     }
 
     // --- execution ----------------------------------------------------------------------------------------------
@@ -265,27 +269,55 @@ public class AnalysisService {
         jdbc.update("update ai_usage set counts_to_quota = false where id = ?", usageId);
     }
 
-    /** Analyses interrupted by a restart are failed (and refunded) so users can run them again. */
+    /**
+     * Analyses abandoned by a crashed or restarted instance (no result long after the request timeout) are failed and
+     * refunded so users can run them again. Age-based, so analyses running on other instances are left alone.
+     */
     @EventListener(ApplicationReadyEvent.class)
-    void failInterrupted() {
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelayString = "PT15M", initialDelayString = "PT15M")
+    void failAbandoned() {
+        Timestamp cutoff = Timestamp.from(Instant.now(clock).minus(props.requestTimeout().multipliedBy(3)));
         jdbc.update("""
                 update ai_usage set counts_to_quota = false
-                where analysis_id in (select id from ai_analyses where status in ('PENDING', 'RUNNING'))
-                """);
+                where analysis_id in (select id from ai_analyses
+                                      where status in ('PENDING', 'RUNNING') and created_at < ?)
+                """, cutoff);
         int n = jdbc.update("""
                 update ai_analyses set status = 'FAILED', error_code = 'interrupted', completed_at = now()
-                where status in ('PENDING', 'RUNNING')
-                """);
+                where status in ('PENDING', 'RUNNING') and created_at < ?
+                """, cutoff);
         if (n > 0) {
-            log.warn("Marked {} interrupted AI analyses as failed", n);
+            log.warn("Marked {} abandoned AI analyses as failed", n);
         }
     }
 
     // --- planning -----------------------------------------------------------------------------------------------
 
-    Plan plan(UUID tenderId, UUID orgId, String language) {
+    /**
+     * Chooses the documents of an analysis within the request limits (by stored size, page and character counts) and
+     * computes the document-set hash. Content is read only when {@code loadContent} – the hash never needs it.
+     */
+    Plan plan(UUID tenderId, UUID orgId, String language, boolean loadContent) {
         TenderDetail tender = tenders.get(tenderId, language);
         String notice = NoticeDocument.text(tender);
+        // BZP notices carry the full official text (conditions, criteria, guarantees): include it, in order.
+        List<String> bzpTexts = jdbc.queryForList("""
+                select r.payload->>'htmlBody' from tender_sources s
+                join data_sources d on d.id = s.data_source_id and d.code = 'PL_EZAMOWIENIA'
+                join raw_notices r on r.data_source_id = s.data_source_id and r.external_id = s.external_id
+                where s.tender_id = ? and r.payload->>'htmlBody' is not null
+                order by s.first_seen_at, r.fetched_at
+                """, String.class, tenderId);
+        if (!bzpTexts.isEmpty()) {
+            StringBuilder full = new StringBuilder(notice).append("\n\n");
+            for (String html : bzpTexts) {
+                full.append("\n\n").append(eu.tenderintel.ingestion.bzp.BzpNoticeText.plainText(html));
+            }
+            notice = full.toString().strip();
+            if (notice.length() > MAX_TEXT_CHARS / 2) {
+                notice = notice.substring(0, MAX_TEXT_CHARS / 2);
+            }
+        }
         List<UsableDocument> usable = documents.usable(tenderId, orgId);
         boolean orgScope = usable.stream().anyMatch(UsableDocument::organizationScoped);
 
@@ -301,23 +333,26 @@ public class AnalysisService {
         StringBuilder hash = new StringBuilder("notice:").append(sha256(notice));
         for (UsableDocument d : usable) {
             if (TextExtractor.PDF.equals(d.mimeType())) {
-                byte[] pdf = documents.content(d.sha256());
                 int p = d.pageCount() == null ? 1 : d.pageCount();
-                if (pdf.length > pdfBudget || pages + p > MAX_PDF_PAGES) {
+                if (d.sizeBytes() > pdfBudget || pages + p > MAX_PDF_PAGES) {
                     skipped.add(docInfo(d.id(), d.fileName(), "REQUEST_LIMIT"));
                     continue;
                 }
-                pdfBudget -= pdf.length;
+                pdfBudget -= d.sizeBytes();
                 pages += p;
-                inputs.add(new DocumentInput(d.fileName(), Kind.PDF, Base64.getEncoder().encodeToString(pdf)));
+                if (loadContent) {
+                    inputs.add(new DocumentInput(d.fileName(), Kind.PDF,
+                            Base64.getEncoder().encodeToString(documents.content(d.sha256()))));
+                }
             } else {
-                String text = documents.text(d.id());
-                if (text == null || chars + text.length() > MAX_TEXT_CHARS) {
+                if (d.textChars() == 0 || chars + d.textChars() > MAX_TEXT_CHARS) {
                     skipped.add(docInfo(d.id(), d.fileName(), "REQUEST_LIMIT"));
                     continue;
                 }
-                chars += text.length();
-                inputs.add(new DocumentInput(d.fileName(), Kind.TEXT, text));
+                chars += d.textChars();
+                if (loadContent) {
+                    inputs.add(new DocumentInput(d.fileName(), Kind.TEXT, documents.text(d.id())));
+                }
             }
             sent.add(docInfo(d.id(), d.fileName(), d.organizationScoped() ? "ORGANIZATION" : "PUBLIC"));
             hash.append('|').append(d.sha256());

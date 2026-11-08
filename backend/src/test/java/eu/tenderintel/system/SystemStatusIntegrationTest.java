@@ -31,7 +31,8 @@ class SystemStatusIntegrationTest {
                 .andExpect(jsonPath("$.dependencies[?(@.name=='postgresql')].detail")
                         .value(hasItem(containsString("EU countries: 27"))))
                 .andExpect(jsonPath("$.dependencies[?(@.name=='redis')].status").value("UP"))
-                .andExpect(jsonPath("$.integrations", hasSize(5)))
+                .andExpect(jsonPath("$.integrations[?(@.code=='BZP_NOTICE_API')].status").value("READY"))
+                .andExpect(jsonPath("$.integrations", hasSize(6)))
                 .andExpect(jsonPath("$.integrations[?(@.code=='TED_SEARCH_API')].status").value("READY"))
                 .andExpect(jsonPath("$.integrations[?(@.code=='EMAIL_SMTP')].status")
                         .value("PENDING_CONFIGURATION"));

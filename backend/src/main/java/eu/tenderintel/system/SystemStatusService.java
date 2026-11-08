@@ -44,6 +44,8 @@ public class SystemStatusService {
         return List.of(
                 // TED Search API is anonymous – no credentials needed.
                 integration("TED_SEARCH_API", true, true, 3),
+                // BZP notice API is free and anonymous (UZP API regulations, §3 sec. 8).
+                integration("BZP_NOTICE_API", true, true, 5),
                 integration("OBJECT_STORAGE_S3", false,
                         all(i.s3Endpoint(), i.s3AccessKey(), i.s3SecretKey(), i.s3Bucket()), 5),
                 integration("CLAUDE_API", true, props.ai().configured(), 5),

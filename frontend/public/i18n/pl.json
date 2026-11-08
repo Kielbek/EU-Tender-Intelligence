@@ -30,7 +30,7 @@
     "company": "Profil firmy",
     "accountSection": "Konto",
     "breadcrumbs": "Ścieżka",
-    "dataSource": "Dane o przetargach: TED – Urząd Publikacji UE"
+    "dataSource": "Dane o przetargach: TED (Urząd Publikacji UE) i BZP (Urząd Zamówień Publicznych)"
   },
   "language": {
     "label": "Język interfejsu",
@@ -67,7 +67,8 @@
       "OBJECT_STORAGE_S3": "Magazyn dokumentów (S3)",
       "CLAUDE_API": "Claude (Anthropic) – analiza AI",
       "EMAIL_SMTP": "Poczta e-mail (SMTP)",
-      "STRIPE": "Płatności Stripe"
+      "STRIPE": "Płatności Stripe",
+      "BZP_NOTICE_API": "API ogłoszeń BZP (e-Zamówienia)"
     },
     "error": {
       "title": "Nie udało się pobrać statusu",
@@ -121,21 +122,25 @@
       "noAccount": "Nie masz konta?",
       "register": "Załóż konto",
       "resend": "Wyślij ponownie link aktywacyjny",
-      "resent": "Jeśli konto wymaga aktywacji, wysłaliśmy nowy link."
+      "resent": "Jeśli konto wymaga aktywacji, wysłaliśmy nowy link.",
+      "accountDeleted": "Konto zostało usunięte razem z Twoimi danymi."
     },
     "register": {
       "title": "Załóż konto",
       "fullName": "Imię i nazwisko",
       "organizationName": "Nazwa firmy",
       "organizationHint": "Opcjonalnie. Możesz ją zmienić później.",
-      "terms": "Akceptuję regulamin i politykę prywatności.",
       "termsRequired": "Akceptacja regulaminu jest wymagana.",
       "submit": "Załóż konto",
       "submitting": "Tworzenie konta…",
       "haveAccount": "Masz już konto?",
       "login": "Zaloguj się",
       "doneTitle": "Sprawdź skrzynkę e-mail",
-      "doneBody": "Wysłaliśmy link aktywacyjny na adres {{email}}. Kliknij go, aby aktywować konto. Link jest ważny 24 godziny."
+      "doneBody": "Wysłaliśmy link aktywacyjny na adres {{email}}. Kliknij go, aby aktywować konto. Link jest ważny 24 godziny.",
+      "termsPrefix": "Akceptuję",
+      "termsLink": "regulamin",
+      "termsAnd": "i zapoznałem się z",
+      "privacyLink": "polityką prywatności"
     },
     "verify": {
       "title": "Aktywacja konta",
@@ -178,6 +183,19 @@
     "roles": {
       "USER": "Użytkownik",
       "PLATFORM_ADMIN": "Administrator platformy"
+    },
+    "privacy": {
+      "title": "Twoje dane (RODO)",
+      "body": "Możesz w każdej chwili pobrać wszystkie swoje dane albo usunąć konto. Szczegóły:",
+      "export": "Pobierz moje dane (JSON)",
+      "exporting": "Przygotowujemy plik…",
+      "delete": "Usuń konto",
+      "deleteWarning": "Usunięcie konta jest nieodwracalne.",
+      "deleteSoloOrg": "Organizacje, których jesteś jedynym członkiem, zostaną usunięte razem z profilem firmy, dokumentami i analizami.",
+      "deleteSharedOrg": "W organizacjach z innymi członkami Twoje konto zostanie z nich usunięte, a dane organizacji pozostaną.",
+      "confirmPassword": "Potwierdź hasłem",
+      "deleteConfirm": "Usuń konto na zawsze",
+      "transferFirst": "Najpierw przekaż rolę administratora innemu członkowi w: {{orgs}}."
     }
   },
   "org": {
@@ -276,7 +294,8 @@
       "comp-dial": "Dialog konkurencyjny",
       "innovation": "Partnerstwo innowacyjne",
       "oth-single": "Inny tryb jednoetapowy",
-      "oth-mult": "Inny tryb wieloetapowy"
+      "oth-mult": "Inny tryb wieloetapowy",
+      "pl-basic": "Tryb podstawowy"
     },
     "changeKind": {
       "PRIOR_INFORMATION": "Wstępne ogłoszenie informacyjne",
@@ -341,10 +360,14 @@
     "noChangedFields": "Ogłoszenie bez zmian w śledzonych polach.",
     "changed": "zmieniono",
     "disclaimer": "Informacje pochodzą z oficjalnych ogłoszeń i służą pomocniczo. Wiążąca jest treść oryginalnego ogłoszenia.",
-    "source": "Źródło: TED – Tenders Electronic Daily",
+    "source": "Źródło: {{names}}.",
     "participation": "Warunki udziału",
     "awardCriteria": "Kryteria oceny ofert",
-    "crumb": "Szczegóły przetargu"
+    "crumb": "Szczegóły przetargu",
+    "sourceName": {
+      "TED": "TED – Tenders Electronic Daily",
+      "PL_EZAMOWIENIA": "Biuletyn Zamówień Publicznych (e-Zamówienia)"
+    }
   },
   "watch": {
     "add": "Obserwuj",
@@ -377,7 +400,7 @@
   },
   "search": {
     "title": "Wyszukiwarka przetargów",
-    "subtitle": "Ogłoszenia z TED (27 państw UE i inne kraje publikujące w TED).",
+    "subtitle": "Ogłoszenia z TED (państwa UE i inne kraje) oraz z Biuletynu Zamówień Publicznych (przetargi krajowe w Polsce).",
     "q": "Szukaj w tytule i opisie",
     "qPlaceholder": "np. budowa szkoły, oprogramowanie ERP",
     "submit": "Szukaj",
@@ -471,15 +494,15 @@
     "upcoming": "Najbliższe terminy",
     "upcomingEmpty": "Brak otwartych obserwowanych przetargów z terminem.",
     "noticesPerDay": "Nowe ogłoszenia dziennie",
-    "noticesCaption": "Liczba ogłoszeń TED dziennie w ostatnich 30 dniach",
+    "noticesCaption": "Liczba ogłoszeń dziennie w ostatnich 30 dniach",
     "topCpv": "Najczęstsze branże (CPV)",
     "byCountry": "Otwarte przetargi według kraju",
     "updates": "Ostatnie aktualizacje",
     "updatesWatched": "Zmiany w obserwowanych przetargach",
     "updatesAll": "Najnowsze zmiany na platformie (nie obserwujesz jeszcze przetargów)",
     "updatesEmpty": "Brak zmian.",
-    "freshness": "Dane z TED, ostatnia aktualizacja: {{time}}",
-    "freshnessNever": "Import z TED jeszcze się nie zakończył.",
+    "freshness": "Dane z TED i BZP, ostatnia aktualizacja: {{time}}",
+    "freshnessNever": "Import ogłoszeń jeszcze się nie zakończył.",
     "seeAll": "Wszystkie",
     "kpi": "Wskaźniki",
     "newSearch": "Nowe wyszukiwanie",
@@ -488,7 +511,7 @@
     "dueSoon": "Termin w ciągu 7 dni",
     "dueSoonHint": "otwarte postępowania",
     "watchedCount": "aktywne: {{n}} · suma wartości",
-    "noticesHint": "TED, ostatnie 30 dni · TED nie publikuje w weekendy",
+    "noticesHint": "TED i BZP, ostatnie 30 dni",
     "upcomingHint": "obserwowane przez zespół",
     "bestMatches": "Najlepsze przetargi dla Twojej firmy",
     "bestMatchesHint": "otwarte z dopasowaniem 60+: {{n}}",
@@ -496,7 +519,7 @@
     "noGoodMatches": "Brak otwartych przetargów z dopasowaniem 60 lub wyższym.",
     "lowerMatches": "Pokaż słabiej dopasowane",
     "openTendersDesc": "Postępowania, w których można jeszcze złożyć ofertę.",
-    "newTendersDesc": "Postępowania opublikowane po raz pierwszy w TED.",
+    "newTendersDesc": "Postępowania opublikowane po raz pierwszy.",
     "vsPreviousWeek": "vs poprzednie 7 dni",
     "dueSoonDesc": "Otwarte postępowania z terminem składania ofert.",
     "goodMatches": "Dopasowane do Twojej firmy",
@@ -652,7 +675,7 @@
     "subtitle": "Warunki udziału, kryteria, terminy, wadium i ryzyka – każdy punkt z cytatem ze źródła.",
     "quota": "Analizy w tym miesiącu: {{remaining}} z {{limit}} (plan {{plan}})",
     "documents": "Dokumenty do analizy",
-    "noticeDocument": "Ogłoszenie o zamówieniu (dane z TED)",
+    "noticeDocument": "Ogłoszenie o zamówieniu (oficjalna treść)",
     "always": "zawsze uwzględniane",
     "scopePublic": "publiczny",
     "scopeOrg": "wgrany przez Twoją organizację (prywatny)",
@@ -724,5 +747,23 @@
       "UNSUPPORTED": "Link nie prowadzi do obsługiwanego dokumentu."
     },
     "fetchManual": "Pobierz dokumenty na portalu zamawiającego i dodaj je tutaj."
+  },
+  "legal": {
+    "nav": "Dokumenty prawne",
+    "terms": "Regulamin",
+    "privacy": "Polityka prywatności",
+    "version": "Wersja: {{version}}",
+    "notConfigured": "Dane operatora serwisu nie zostały jeszcze uzupełnione w konfiguracji (LEGAL_OPERATOR_*). Przed uruchomieniem sprzedaży trzeba je podać.",
+    "draft": "Projekt dokumentu – przed uruchomieniem komercyjnym wymaga weryfikacji przez prawnika.",
+    "operator": "Operator serwisu",
+    "address": "Adres",
+    "taxId": "NIP",
+    "contact": "Kontakt",
+    "missing": "nie uzupełniono",
+    "processor": {
+      "HOSTING": "Hosting (serwery i baza danych)",
+      "EMAIL": "Wysyłka e-maili",
+      "AI": "Model AI do analizy dokumentów"
+    }
   }
 }

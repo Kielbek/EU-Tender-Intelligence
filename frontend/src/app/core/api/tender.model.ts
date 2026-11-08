@@ -170,8 +170,6 @@ export interface DashboardSummary {
   byContractType: Bucket[];
   pipeline: { status: WatchStatus; count: number; valueEur: number }[];
   newPerDay: { day: string; count: number }[];
-  deadlinesPerDay: { day: string; count: number }[];
-  matchScoreBands: Bucket[];
 }
 
 export interface CpvOption {

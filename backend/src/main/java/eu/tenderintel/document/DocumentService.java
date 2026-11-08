@@ -61,7 +61,7 @@ public class DocumentService {
 
     /** A document usable for analysis: a PDF (sent as PDF) or extracted text. */
     public record UsableDocument(UUID id, String fileName, String mimeType, String sha256, boolean organizationScoped,
-            Integer pageCount) {
+            Integer pageCount, long sizeBytes, int textChars) {
     }
 
     long maxBytes() {
@@ -222,13 +222,15 @@ public class DocumentService {
     /** Documents of a tender the analysis can read: public ones and those of the given organization. */
     public List<UsableDocument> usable(UUID tenderId, UUID orgId) {
         return jdbc.query("""
-                select id, file_name, mime_type, sha256, organization_id is not null, page_count
+                select id, file_name, mime_type, sha256, organization_id is not null, page_count,
+                       coalesce(size_bytes, 0), coalesce(text_chars, 0)
                 from tender_documents
                 where tender_id = ? and (organization_id is null or organization_id = ?)
                   and extraction_status = 'DONE' and sha256 is not null
                 order by organization_id nulls first, created_at, file_name
                 """, (rs, i) -> new UsableDocument(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3),
-                rs.getString(4), rs.getBoolean(5), (Integer) rs.getObject(6)), tenderId, orgId);
+                rs.getString(4), rs.getBoolean(5), (Integer) rs.getObject(6), rs.getLong(7), rs.getInt(8)), tenderId,
+                orgId);
     }
 
     public byte[] content(String sha256) {
