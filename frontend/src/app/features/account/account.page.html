@@ -26,11 +26,7 @@
       </div>
       <div>
         <label class="eti-label" for="timezone">{{ 'account.timezone' | transloco }}</label>
-        <select id="timezone" class="eti-input" formControlName="timezone">
-          @for (zone of zones; track zone) {
-            <option [value]="zone">{{ zone }}</option>
-          }
-        </select>
+        <eti-select inputId="timezone" formControlName="timezone" [options]="zoneOptions" />
       </div>
       <button type="submit" class="eti-btn-primary" [disabled]="profileBusy()">
         {{ (profileBusy() ? 'common.saving' : 'common.save') | transloco }}

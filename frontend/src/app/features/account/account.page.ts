@@ -6,6 +6,7 @@ import { AccountService } from '../../core/api/account.service';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import { PASSWORD_MIN_LENGTH } from '../../core/auth/auth.model';
 import { AuthService } from '../../core/auth/auth.service';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 
 function timeZones(): string[] {
@@ -18,7 +19,7 @@ function timeZones(): string[] {
 
 @Component({
   selector: 'eti-account-page',
-  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorAlertComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, ApiErrorAlertComponent, SelectComponent],
   templateUrl: './account.page.html',
 })
 export class AccountPage {
@@ -29,6 +30,7 @@ export class AccountPage {
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly zones = timeZones();
+  protected readonly zoneOptions: SelectOption[] = this.zones.map((z) => ({ value: z, label: z.replace(/_/g, " ") }));
   protected readonly profile = this.fb.group({
     fullName: [this.auth.user()?.fullName ?? '', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
     timezone: [this.auth.user()?.timezone ?? 'Europe/Warsaw', Validators.required],

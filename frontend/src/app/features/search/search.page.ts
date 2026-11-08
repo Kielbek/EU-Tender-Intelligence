@@ -15,6 +15,8 @@ import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { CpvPickerComponent } from '../../shared/ui/cpv-picker.component';
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
+import { DateInputComponent } from '../../shared/ui/date-input.component';
 import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { TenderStatusBadgeComponent } from '../../shared/ui/tender-status-badge.component';
@@ -36,6 +38,8 @@ const PROCEDURES = ['open', 'restricted', 'neg-w-call', 'neg-wo-call', 'comp-dia
     ApiErrorAlertComponent,
     CpvPickerComponent,
     MultiCheckComponent,
+    SelectComponent,
+    DateInputComponent,
     SkeletonComponent,
     TenderStatusBadgeComponent,
     DeadlineComponent,
@@ -87,6 +91,26 @@ export class SearchPage {
     ),
   );
   protected readonly sortOptions = ['RELEVANCE', 'PUBLISHED', 'DEADLINE', 'VALUE'];
+  protected readonly languageSelect = computed<SelectOption[]>(() => {
+    this.translations();
+    return [{ value: '', label: this.transloco.translate('search.anyLanguage') },
+      ...this.languages().map((l) => ({ value: l.code, label: l.label, hint: l.code.toUpperCase() }))];
+  });
+  protected readonly currencySelect = computed<SelectOption[]>(() => {
+    this.translations();
+    return [{ value: '', label: this.transloco.translate('search.anyCurrency') },
+      ...this.currencies().map((c) => ({ value: c.code, label: c.code }))];
+  });
+  /** The default sort ("") is relevance with a text query, newest otherwise. */
+  protected readonly sortSelect = computed(() => {
+    this.translations();
+    const rest = this.sortOptions.map((s) => ({ value: s, label: this.transloco.translate('search.sortOptions.' + s) }));
+    return {
+      withQuery: [{ value: '', label: this.transloco.translate('search.sortOptions.RELEVANCE') }, ...rest.slice(1)],
+      withoutQuery: [{ value: '', label: this.transloco.translate('search.sortOptions.PUBLISHED') },
+        ...rest.filter((o) => o.value !== 'PUBLISHED')],
+    };
+  });
 
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe((params) => {

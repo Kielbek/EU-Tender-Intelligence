@@ -116,13 +116,8 @@
 
       <div class="ml-auto flex items-center gap-2.5">
         @if (org.memberships().length > 1) {
-          <label class="sr-only" for="org-context">{{ 'nav.currentOrg' | transloco }}</label>
-          <select id="org-context" class="h-10 max-w-48 rounded-[8px] border border-border-strong bg-surface px-2 text-sm text-ink-soft"
-                  [value]="org.currentId()" (change)="org.select($any($event.target).value)">
-            @for (m of org.memberships(); track m.id) {
-              <option [value]="m.id" [selected]="m.id === org.currentId()">{{ m.name }}</option>
-            }
-          </select>
+          <eti-select class="hidden w-52 md:block" inputId="org-context" [spaced]="false" [ariaLabel]="'nav.currentOrg' | transloco"
+                      [options]="orgOptions()" [value]="org.currentId()" (valueChange)="org.select($any($event))" />
         }
         <eti-language-switcher />
         @if (auth.user(); as user) {

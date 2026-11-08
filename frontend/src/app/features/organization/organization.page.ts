@@ -17,11 +17,15 @@ import { ReferenceService } from '../../core/api/reference.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
+import { OptionsPipe } from '../../shared/ui/options.pipe';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
+import { countryName } from '../../core/format/format';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 
 @Component({
   selector: 'eti-organization-page',
-  imports: [ReactiveFormsModule, DatePipe, TranslocoPipe, ApiErrorAlertComponent, SkeletonComponent],
+  imports: [ReactiveFormsModule, DatePipe, TranslocoPipe, ApiErrorAlertComponent, SkeletonComponent, SelectComponent,
+    OptionsPipe],
   templateUrl: './organization.page.html',
 })
 export class OrganizationPage implements OnInit {
@@ -37,6 +41,18 @@ export class OrganizationPage implements OnInit {
   readonly org = input<string>();
 
   protected readonly roles: OrganizationRole[] = ['COMPANY_ADMIN', 'TEAM_MEMBER'];
+  private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
+  protected readonly countryOptions = computed<SelectOption[]>(() => {
+    this.translations();
+    const lang = this.language.current();
+    const list = this.countries()
+      .map((c) => ({ value: c.code, label: countryName(c.code, lang) }))
+      .sort((a, b) => a.label.localeCompare(b.label, lang));
+    return [{ value: '', label: this.transloco.translate('org.noCountry') }, ...list];
+  });
+  protected readonly orgOptions = computed<SelectOption[]>(() =>
+    this.memberships().map((m) => ({ value: m.id, label: m.name })),
+  );
   protected readonly memberships = signal<Membership[]>([]);
   protected readonly organization = signal<Organization | null>(null);
   protected readonly members = signal<Member[]>([]);
@@ -140,9 +156,8 @@ export class OrganizationPage implements OnInit {
     });
   }
 
-  protected changeRole(member: Member, event: Event): void {
+  protected changeRole(member: Member, role: OrganizationRole): void {
     const m = this.current();
-    const role = (event.target as HTMLSelectElement).value as OrganizationRole;
     if (!m || role === member.role) {
       return;
     }

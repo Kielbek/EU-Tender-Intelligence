@@ -24,6 +24,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { OrgContextService } from '../org/org-context.service';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 
 type Icon = 'dashboard' | 'search' | 'target' | 'star' | 'bookmark' | 'briefcase' | 'building' | 'user' | 'activity';
@@ -63,6 +64,7 @@ const COLLAPSE_KEY = 'eti.sidebar.collapsed';
     RouterLinkActive,
     TranslocoPipe,
     LanguageSwitcherComponent,
+    SelectComponent,
     LucideActivity,
     LucideBookmark,
     LucideBriefcase,
@@ -104,6 +106,9 @@ export class ShellComponent {
       .join(''),
   );
   protected readonly roadmap = ['assistant', 'alerts'] as const;
+  protected readonly orgOptions = computed<SelectOption[]>(() =>
+    this.org.memberships().map((m) => ({ value: m.id, label: m.name })),
+  );
 
   protected readonly sections: NavSection[] = [
     {

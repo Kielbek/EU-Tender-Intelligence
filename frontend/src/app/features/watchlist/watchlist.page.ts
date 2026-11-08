@@ -13,11 +13,13 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { TenderStatusBadgeComponent } from '../../shared/ui/tender-status-badge.component';
+import { OptionsPipe } from '../../shared/ui/options.pipe';
+import { SelectComponent } from '../../shared/ui/select.component';
 import { WATCH_STATUSES } from '../tender/tender-detail.page';
 
 @Component({
   selector: 'eti-watchlist-page',
-  imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, DeadlineComponent, SkeletonComponent,
+  imports: [SelectComponent, OptionsPipe, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, DeadlineComponent, SkeletonComponent,
     TenderStatusBadgeComponent, LucideStickyNote],
   template: `
     <h1 class="eti-h1">{{ 'watch.title' | transloco }}</h1>
@@ -71,13 +73,9 @@ import { WATCH_STATUSES } from '../tender/tender-detail.page';
                   <td class="px-4 py-3 text-xs"><eti-deadline [iso]="s.tender?.submissionDeadline" [locale]="lang" /></td>
                   <td class="px-4 py-3 text-right tabular-nums">{{ s.tender?.estimatedValue | money: s.tender?.currency : lang }}</td>
                   <td class="px-4 py-3">
-                    <label class="sr-only" [for]="'stage-' + s.tenderId">{{ 'watch.stage' | transloco }}</label>
-                    <select [id]="'stage-' + s.tenderId" class="eti-input mt-0 h-8 w-auto" [value]="s.status"
-                            (change)="setStage(s, $any($event.target).value)">
-                      @for (st of statuses; track st) {
-                        <option [value]="st" [selected]="st === s.status">{{ 'watch.status.' + st | transloco }}</option>
-                      }
-                    </select>
+                    <eti-select class="w-52" size="sm" [spaced]="false" [ariaLabel]="'watch.stage' | transloco"
+                                [options]="statuses | etiOptions: 'watch.status.'" [value]="s.status"
+                                (valueChange)="setStage(s, $any($event))" />
                   </td>
                 </tr>
               }

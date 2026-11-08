@@ -1,5 +1,6 @@
 import { Component, computed, input, model, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LucideChevronDown } from '@lucide/angular';
 
 export interface CheckOption {
   value: string;
@@ -11,7 +12,7 @@ let nextId = 0;
 /** Multi-select as a disclosure with a filterable checkbox list (native controls – keyboard and screen-reader friendly). */
 @Component({
   selector: 'eti-multi-check',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, LucideChevronDown],
   template: `
     <details class="group" [attr.open]="startOpen() ? '' : null">
       <summary class="eti-input flex cursor-pointer list-none items-center justify-between">
@@ -19,7 +20,7 @@ let nextId = 0;
           <span class="text-ink-muted">{{ label() }}:</span>
           {{ summary() }}
         </span>
-        <span aria-hidden="true" class="text-ink-muted group-open:rotate-180">▾</span>
+        <svg lucideChevronDown class="size-4 shrink-0 text-ink-muted transition-transform group-open:rotate-180" aria-hidden="true"></svg>
       </summary>
       <div class="mt-1 rounded-md border border-border bg-surface p-2">
         @if (options().length > 8) {

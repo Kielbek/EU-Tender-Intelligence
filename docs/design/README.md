@@ -19,4 +19,6 @@ Zasady stylu (źródło prawdy: tokeny w `frontend/src/styles.css`):
 * układ (wersja 2, wzorowana na nowoczesnych panelach analitycznych): menu boczne ze zwijanymi sekcjami, ścieżka nawigacji (breadcrumbs), karty KPI z opisem, dużą liczbą, zmianą vs poprzedni tydzień i mini-wykresem, karty z tytułem, opisem i przyciskiem odświeżania, wykres pierścieniowy, pasek segmentowy, paski postępu, stopka;
 * Inter hostowany lokalnie (`@fontsource-variable/inter`) – bez zapytań do Google Fonts (CSP, RODO);
 * klasy wspólne: `eti-h1`, `eti-h2`, `eti-kpi`, `eti-icon-btn`, `eti-eyebrow`, `eti-subtitle`, `eti-card`, `eti-input`, `eti-btn-*`, `eti-table-head`, `eti-note`;
+* **własne kontrolki zamiast domyślnych przeglądarki**: `eti-select` (lista rozwijana na komputerze, panel od dołu na telefonie, wyszukiwanie w długich listach, obsługa klawiatury i czytników ekranu), `eti-date-input` (własny kalendarz, tydzień od poniedziałku, format zależny od języka), własne checkboxy i radio, pola liczbowe bez strzałek;
+* karty KPI bez mini-wykresów, na telefonie po 2 w rzędzie;
 * bez gradientów, emoji, kolorowych pasków przy kartach; status zawsze tekstem, kolor tylko wspiera.

@@ -19,7 +19,7 @@ import { MatchScoreComponent } from '../../shared/ui/match-score.component';
 import { ProgressListComponent, ProgressRow } from '../../shared/ui/progress-list.component';
 import { Segment, SegmentedBarComponent } from '../../shared/ui/segmented-bar.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
-import { MiniBar, StatTileComponent } from '../../shared/ui/stat-tile.component';
+import { StatTileComponent } from '../../shared/ui/stat-tile.component';
 
 /** Categorical series in fixed order (validated palette, see styles.css). */
 const SERIES = [1, 2, 3, 4, 5, 6].map((i) => `var(--color-series-${i})`);
@@ -82,9 +82,6 @@ export class DashboardPage {
 
   // --- KPI tiles ------------------------------------------------------------------------------------------------
 
-  protected readonly newBars = computed<MiniBar[]>(() =>
-    (this.data()?.newPerDay ?? []).slice(-7).map((d) => ({ label: this.dayLabel(d.day, { weekday: 'short', day: 'numeric' }), value: d.count })),
-  );
   /** New tenders in the last 7 days vs the 7 days before; null when there is nothing to compare with. */
   protected readonly newTrend = computed(() => {
     const days = this.data()?.newPerDay ?? [];
@@ -95,19 +92,6 @@ export class DashboardPage {
     const prev = days.slice(-14, -7).reduce((a, d) => a + d.count, 0);
     return prev === 0 ? null : ((last - prev) / prev) * 100;
   });
-  protected readonly deadlineBars = computed<MiniBar[]>(() =>
-    (this.data()?.deadlinesPerDay ?? []).map((d) => ({ label: this.dayLabel(d.day, { weekday: 'short', day: 'numeric' }), value: d.count })),
-  );
-  protected readonly countryMiniBars = computed<MiniBar[]>(() => {
-    const lang = this.language.current();
-    return (this.data()?.byCountry ?? []).slice(0, 7).map((b) => ({ label: countryName(b.key, lang), value: b.count }));
-  });
-  protected readonly bandBars = computed<MiniBar[]>(() =>
-    (this.data()?.matchScoreBands ?? []).map((b) => {
-      const from = Number(b.key);
-      return { label: from === 90 ? '90–100' : `${from}–${from + 9}`, value: b.count };
-    }),
-  );
 
   // --- part-to-whole cards --------------------------------------------------------------------------------------
 

@@ -21,6 +21,8 @@ import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { CpvPickerComponent } from '../../shared/ui/cpv-picker.component';
 import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.component';
+import { DateInputComponent } from '../../shared/ui/date-input.component';
+import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 
 type Num = number | null;
@@ -42,7 +44,7 @@ function text(value: string | null | undefined): string | undefined {
 @Component({
   selector: 'eti-company-profile-page',
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, CpvPickerComponent,
-    MultiCheckComponent, SkeletonComponent, LucideCheck, LucideCircle, LucideLock, LucideTrash2],
+    MultiCheckComponent, SkeletonComponent, SelectComponent, DateInputComponent, LucideCheck, LucideCircle, LucideLock, LucideTrash2],
   templateUrl: './company-profile.page.html',
 })
 export class CompanyProfilePage {
@@ -112,6 +114,16 @@ export class CompanyProfilePage {
     return this.countries()
       .map((c) => ({ value: c.code, label: countryName(c.code, lang) }))
       .sort((a, b) => a.label.localeCompare(b.label, lang));
+  });
+
+  protected readonly countrySelect = computed<SelectOption[]>(() => [{ value: '', label: '—' }, ...this.countryOptions()]);
+  protected readonly currencySelect = computed<SelectOption[]>(() =>
+    this.currencies().map((c) => ({ value: c.code, label: c.code })),
+  );
+  protected readonly sizeSelect = computed<SelectOption[]>(() => {
+    this.translations();
+    return [{ value: '', label: '—' },
+      ...this.sizes.map((s) => ({ value: s, label: this.transloco.translate('company.sizes.' + s) }))];
   });
 
   /** What the matching engine can use from the saved profile. */

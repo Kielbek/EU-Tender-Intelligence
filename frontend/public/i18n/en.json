@@ -103,7 +103,13 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {{page}} of {{pages}}",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "clearDate": "Clear date",
+    "chooseDate": "Choose a date",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "clear": "Clear"
   },
   "auth": {
     "tagline": "Public tenders from across the European Union in one place.",
@@ -440,7 +446,8 @@
     "clearSelection": "Clear selection",
     "showFilters": "Show filters",
     "hideFilters": "Hide filters",
-    "nlNote": "Natural-language search (\"construction in Germany above EUR 500,000\") comes with the AI module."
+    "nlNote": "Natural-language search (\"construction in Germany above EUR 500,000\") comes with the AI module.",
+    "noMatches": "No matching items"
   },
   "savedSearches": {
     "title": "Saved searches",
@@ -494,7 +501,7 @@
     "dueSoonDesc": "Open procedures with a tender deadline.",
     "goodMatches": "Matching your company",
     "goodMatchesDesc": "Open tenders with a fit of 60 or higher.",
-    "goodMatchesHint": "score distribution 40–100",
+    "goodMatchesHint": "open, score 60 or higher",
     "watchedValueDesc": "Estimated value of the team’s active procedures.",
     "byType": "Contract type",
     "byTypeHint": "Open tenders by contract type.",

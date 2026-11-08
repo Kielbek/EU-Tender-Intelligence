@@ -24,7 +24,7 @@
     <button type="button" class="eti-btn-secondary mt-3" (click)="load()">{{ 'common.retry' | transloco }}</button>
   } @else if (!data()) {
     <p class="sr-only">{{ 'common.loading' | transloco }}</p>
-    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+    <div class="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4" aria-hidden="true">
       @for (i of [1, 2, 3, 4]; track i) {
         <div class="eti-card space-y-3 px-[22px] py-5"><eti-skeleton size="h-4 w-32" /><eti-skeleton size="h-3 w-48" /><eti-skeleton size="h-9 w-24" /></div>
       }
@@ -35,26 +35,22 @@
     </div>
   } @else if (data(); as d) {
     <!-- KPIs -->
-    <section [attr.aria-label]="'dashboard.kpi' | transloco" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <section [attr.aria-label]="'dashboard.kpi' | transloco" class="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
       <a routerLink="/search" [queryParams]="{ status: 'OPEN' }" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
         <eti-stat-tile [label]="'dashboard.openTenders' | transloco" [description]="'dashboard.openTendersDesc' | transloco"
-                       [value]="fmtInt()(d.openTenders)" [hint]="'dashboard.inCountries' | transloco: { n: d.openCountries }"
-                       [bars]="countryMiniBars()" color="var(--color-series-1)" />
+                       [value]="fmtInt()(d.openTenders)" [hint]="'dashboard.inCountries' | transloco: { n: d.openCountries }" />
       </a>
       <eti-stat-tile [label]="'dashboard.newTenders' | transloco" [description]="'dashboard.newTendersDesc' | transloco"
                      [value]="fmtInt()(d.newLast7Days)" [trend]="newTrend()" [trendLabel]="'dashboard.vsPreviousWeek' | transloco"
-                     [hint]="'dashboard.newTendersHint' | transloco" [locale]="lang"
-                     [bars]="newBars()" color="var(--color-series-4)" />
+                     [hint]="'dashboard.newTendersHint' | transloco" [locale]="lang" />
       <a routerLink="/search" [queryParams]="dueSoonQuery()" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
         <eti-stat-tile [label]="'dashboard.dueSoon' | transloco" [description]="'dashboard.dueSoonDesc' | transloco"
-                       [value]="fmtInt()(d.dueWithin7Days)" [hint]="'dashboard.dueSoonHint' | transloco"
-                       [bars]="deadlineBars()" color="var(--color-series-3)" />
+                       [value]="fmtInt()(d.dueWithin7Days)" [hint]="'dashboard.dueSoonHint' | transloco" />
       </a>
       @if (d.hasProfile) {
         <a routerLink="/matches" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">
           <eti-stat-tile [label]="'dashboard.goodMatches' | transloco" [description]="'dashboard.goodMatchesDesc' | transloco"
-                         [value]="fmtInt()(d.goodMatches)" [hint]="'dashboard.goodMatchesHint' | transloco"
-                         [bars]="bandBars()" color="var(--color-series-1)" />
+                         [value]="fmtInt()(d.goodMatches)" [hint]="'dashboard.goodMatchesHint' | transloco" />
         </a>
       } @else {
         <a routerLink="/watchlist" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">

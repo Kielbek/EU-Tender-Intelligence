@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { OptionsPipe } from '../../shared/ui/options.pipe';
+import { SelectComponent } from '../../shared/ui/select.component';
 import { AccountService } from '../api/account.service';
 import { AuthService } from '../auth/auth.service';
 import { LanguageService } from '../i18n/language.service';
@@ -7,21 +9,11 @@ import { AVAILABLE_LANGUAGES, isLanguage } from '../i18n/languages';
 
 @Component({
   selector: 'eti-language-switcher',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, SelectComponent, OptionsPipe],
   template: `
-    <label class="sr-only" for="eti-lang">{{ 'language.label' | transloco }}</label>
-    <select
-      id="eti-lang"
-      class="h-10 rounded-[var(--radius-control)] border border-border-strong bg-surface px-2.5 text-sm text-ink-soft hover:bg-canvas"
-      [value]="language.current()"
-      (change)="onChange($event)"
-    >
-      @for (lang of languages; track lang) {
-        <option [value]="lang" [selected]="lang === language.current()">
-          {{ 'language.' + lang | transloco }}
-        </option>
-      }
-    </select>
+    <eti-select class="w-[132px]" [spaced]="false" [ariaLabel]="'language.label' | transloco"
+                [options]="languages | etiOptions: 'language.'" [value]="language.current()"
+                (valueChange)="onChange($any($event))" />
   `,
 })
 export class LanguageSwitcherComponent {
@@ -30,8 +22,7 @@ export class LanguageSwitcherComponent {
   private readonly auth = inject(AuthService);
   private readonly account = inject(AccountService);
 
-  protected onChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
+  protected onChange(value: string): void {
     if (isLanguage(value)) {
       this.language.use(value);
       // Signed-in users: also store the choice in the profile (it drives the language of e-mails).

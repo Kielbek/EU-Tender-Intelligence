@@ -108,12 +108,7 @@
             </div>
             <div>
               <label class="eti-label" for="cp-country">{{ 'company.registrationCountry' | transloco }}</label>
-              <select id="cp-country" class="eti-input" formControlName="registrationCountry">
-                <option value="">—</option>
-                @for (c of countryOptions(); track c.value) {
-                  <option [value]="c.value">{{ c.label }}</option>
-                }
-              </select>
+              <eti-select inputId="cp-country" formControlName="registrationCountry" [options]="countrySelect()" />
             </div>
             <div>
               <label class="eti-label" for="cp-industry">{{ 'company.industry' | transloco }}</label>
@@ -129,12 +124,7 @@
             </div>
             <div>
               <label class="eti-label" for="cp-size">{{ 'company.size' | transloco }}</label>
-              <select id="cp-size" class="eti-input" formControlName="companySize">
-                <option value="">—</option>
-                @for (s of sizes; track s) {
-                  <option [value]="s">{{ 'company.sizes.' + s | transloco }}</option>
-                }
-              </select>
+              <eti-select inputId="cp-size" formControlName="companySize" [options]="sizeSelect()" />
             </div>
             <div>
               <label class="eti-label" for="cp-employees">{{ 'company.employees' | transloco }}</label>
@@ -150,11 +140,7 @@
             </div>
             <div>
               <label class="eti-label" for="cp-revcur">{{ 'company.currency' | transloco }}</label>
-              <select id="cp-revcur" class="eti-input" formControlName="revenueCurrency">
-                @for (c of currencies(); track c.code) {
-                  <option [value]="c.code">{{ c.code }}</option>
-                }
-              </select>
+              <eti-select inputId="cp-revcur" formControlName="revenueCurrency" [options]="currencySelect()" />
             </div>
             <div class="sm:col-span-2">
               <label class="eti-label" for="cp-desc">{{ 'company.description' | transloco }}</label>
@@ -272,22 +258,13 @@
               </div>
               <div>
                 <label class="eti-label" for="ref-country">{{ 'company.refCountry' | transloco }}</label>
-                <select id="ref-country" class="eti-input" formControlName="countryCode">
-                  <option value="">—</option>
-                  @for (c of countryOptions(); track c.value) {
-                    <option [value]="c.value">{{ c.label }}</option>
-                  }
-                </select>
+                <eti-select inputId="ref-country" formControlName="countryCode" [options]="countrySelect()" />
               </div>
               <div>
                 <label class="eti-label" for="ref-value">{{ 'company.refValue' | transloco }}</label>
                 <div class="flex gap-2">
                   <input id="ref-value" type="number" min="0" inputmode="numeric" class="eti-input eti-num" formControlName="value" />
-                  <select class="eti-input w-24" formControlName="currency" [attr.aria-label]="'company.currency' | transloco">
-                    @for (c of currencies(); track c.code) {
-                      <option [value]="c.code">{{ c.code }}</option>
-                    }
-                  </select>
+                  <eti-select class="w-28 shrink-0" formControlName="currency" [ariaLabel]="'company.currency' | transloco" [options]="currencySelect()" />
                 </div>
               </div>
               <div>
@@ -355,7 +332,7 @@
               </div>
               <div>
                 <label class="eti-label" for="cert-valid">{{ 'company.certValidUntil' | transloco }}</label>
-                <input id="cert-valid" type="date" class="eti-input" formControlName="validUntil" />
+                <eti-date-input inputId="cert-valid" formControlName="validUntil" [locale]="lang" />
               </div>
               <div class="sm:col-span-2">
                 <button type="submit" class="eti-btn-secondary" [disabled]="busy()">{{ 'company.addCertification' | transloco }}</button>

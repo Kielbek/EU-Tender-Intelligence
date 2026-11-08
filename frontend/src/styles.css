@@ -72,6 +72,59 @@
     @apply outline-2 outline-offset-2 outline-accent;
   }
 
+  /* Own checkbox and radio (no browser default look). */
+  input[type="checkbox"],
+  input[type="radio"] {
+    appearance: none;
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface) center / 0.75rem no-repeat;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  input[type="checkbox"] {
+    border-radius: 4px;
+  }
+  input[type="radio"] {
+    border-radius: 9999px;
+  }
+  input[type="checkbox"]:hover,
+  input[type="radio"]:hover {
+    border-color: var(--color-ink-faint);
+  }
+  input[type="checkbox"]:checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.2 5 8.5l4.5-5'/%3E%3C/svg%3E");
+  }
+  input[type="radio"]:checked {
+    border: 5px solid var(--color-accent);
+  }
+  input[type="checkbox"]:disabled,
+  input[type="radio"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Number fields without spinner arrows; search fields without the browser's clear button. */
+  input[type="number"] {
+    appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* Textareas, file inputs and other native controls follow the design tokens. */
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

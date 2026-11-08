@@ -64,19 +64,19 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="eti-label text-xs" for="df">{{ 'search.deadlineFrom' | transloco }}</label>
-            <input id="df" name="df" type="date" class="eti-input" [(ngModel)]="form.deadlineFrom" />
+            <eti-date-input inputId="df" name="df" [locale]="language.current()" [(ngModel)]="form.deadlineFrom" />
           </div>
           <div>
             <label class="eti-label text-xs" for="dt">{{ 'search.deadlineTo' | transloco }}</label>
-            <input id="dt" name="dt" type="date" class="eti-input" [(ngModel)]="form.deadlineTo" />
+            <eti-date-input inputId="dt" name="dt" [locale]="language.current()" [(ngModel)]="form.deadlineTo" />
           </div>
           <div>
             <label class="eti-label text-xs" for="pf">{{ 'search.publishedFrom' | transloco }}</label>
-            <input id="pf" name="pf" type="date" class="eti-input" [(ngModel)]="form.publishedFrom" />
+            <eti-date-input inputId="pf" name="pf" [locale]="language.current()" [(ngModel)]="form.publishedFrom" />
           </div>
           <div>
             <label class="eti-label text-xs" for="pt">{{ 'search.publishedTo' | transloco }}</label>
-            <input id="pt" name="pt" type="date" class="eti-input" [(ngModel)]="form.publishedTo" />
+            <eti-date-input inputId="pt" name="pt" [locale]="language.current()" [(ngModel)]="form.publishedTo" />
           </div>
         </div>
 
@@ -99,21 +99,11 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="eti-label text-xs" for="language">{{ 'search.language' | transloco }}</label>
-            <select id="language" name="language" class="eti-input" [(ngModel)]="form.language">
-              <option value="">{{ 'search.anyLanguage' | transloco }}</option>
-              @for (l of languages(); track l.code) {
-                <option [value]="l.code">{{ l.label }}</option>
-              }
-            </select>
+            <eti-select inputId="language" name="language" [options]="languageSelect()" [(ngModel)]="form.language" />
           </div>
           <div>
             <label class="eti-label text-xs" for="currency">{{ 'search.currency' | transloco }}</label>
-            <select id="currency" name="currency" class="eti-input" [(ngModel)]="form.currency">
-              <option value="">{{ 'search.anyCurrency' | transloco }}</option>
-              @for (c of currencies(); track c.code) {
-                <option [value]="c.code">{{ c.code }}</option>
-              }
-            </select>
+            <eti-select inputId="currency" name="currency" [options]="currencySelect()" [(ngModel)]="form.currency" />
           </div>
         </div>
         <button type="submit" class="eti-btn-primary w-full">{{ 'search.submit' | transloco }}</button>
@@ -131,13 +121,10 @@
           }
         </h2>
         <div class="flex flex-wrap items-center gap-2">
-          <label class="sr-only" for="sort">{{ 'search.sort' | transloco }}</label>
-          <select id="sort" name="sort" class="eti-input mt-0 h-9 w-auto" [(ngModel)]="form.sort" (change)="submit()">
-            <option value="">{{ (form.q ? 'search.sortOptions.RELEVANCE' : 'search.sortOptions.PUBLISHED') | transloco }}</option>
-            @for (s of sortOptions; track s) {
-              <option [value]="s">{{ 'search.sortOptions.' + s | transloco }}</option>
-            }
-          </select>
+          <eti-select class="w-60" inputId="sort" name="sort" [spaced]="false" [ariaLabel]="'search.sort' | transloco"
+                      [prefix]="('search.sort' | transloco) + ':'"
+                      [options]="form.q ? sortSelect().withQuery : sortSelect().withoutQuery"
+                      [(ngModel)]="form.sort" (ngModelChange)="submit()" />
           @if (org.currentId()) {
             <button type="button" class="eti-btn-secondary h-9" (click)="openSave()">{{ 'search.save' | transloco }}</button>
           }

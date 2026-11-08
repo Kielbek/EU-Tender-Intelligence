@@ -242,11 +242,8 @@
             <div class="mt-3 space-y-3">
               <div>
                 <label class="eti-label" for="stage">{{ 'watch.stage' | transloco }}</label>
-                <select id="stage" class="eti-input" [disabled]="busy()" [value]="s.status" (change)="setStage($any($event.target).value)">
-                  @for (st of watchStatuses; track st) {
-                    <option [value]="st" [selected]="st === s.status">{{ 'watch.status.' + st | transloco }}</option>
-                  }
-                </select>
+                <eti-select inputId="stage" [disabled]="busy()" [options]="watchStatuses | etiOptions: 'watch.status.'"
+                            [value]="s.status" (valueChange)="setStage($any($event))" />
               </div>
               <div>
                 <label class="eti-label" for="notes">{{ 'watch.notes' | transloco }}</label>

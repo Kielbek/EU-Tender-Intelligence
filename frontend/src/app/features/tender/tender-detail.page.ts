@@ -21,6 +21,8 @@ import { MatchExplanationComponent } from '../../shared/ui/match-explanation.com
 import { MatchScoreComponent } from '../../shared/ui/match-score.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { TenderStatusBadgeComponent } from '../../shared/ui/tender-status-badge.component';
+import { OptionsPipe } from '../../shared/ui/options.pipe';
+import { SelectComponent } from '../../shared/ui/select.component';
 import { TenderAnalysisComponent } from './tender-analysis.component';
 
 export const WATCH_STATUSES: WatchStatus[] = ['WATCHING', 'PREPARING', 'SUBMITTED', 'WON', 'LOST', 'DROPPED'];
@@ -39,6 +41,8 @@ export const WATCH_STATUSES: WatchStatus[] = ['WATCHING', 'PREPARING', 'SUBMITTE
     SkeletonComponent,
     TenderStatusBadgeComponent,
     TenderAnalysisComponent,
+    SelectComponent,
+    OptionsPipe,
     LucideArrowLeft,
     LucideExternalLink,
   ],

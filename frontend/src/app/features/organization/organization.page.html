@@ -3,11 +3,8 @@
   @if (memberships().length > 1) {
     <div>
       <label class="eti-label" for="org-switch">{{ 'org.switch' | transloco }}</label>
-      <select id="org-switch" class="eti-input min-w-56" [value]="current()?.id" (change)="switchTo($any($event.target).value)">
-        @for (m of memberships(); track m.id) {
-          <option [value]="m.id" [selected]="m.id === current()?.id">{{ m.name }}</option>
-        }
-      </select>
+      <eti-select class="min-w-56" inputId="org-switch" [options]="orgOptions()" [value]="current()?.id ?? null"
+                  (valueChange)="switchTo($any($event))" />
     </div>
   }
 </div>
@@ -42,12 +39,7 @@
         </div>
         <div>
           <label class="eti-label" for="org-country">{{ 'org.country' | transloco }}</label>
-          <select id="org-country" class="eti-input" formControlName="countryCode">
-            <option value="">{{ 'org.noCountry' | transloco }}</option>
-            @for (c of countries(); track c.code) {
-              <option [value]="c.code">{{ c.nameEn }}</option>
-            }
-          </select>
+          <eti-select inputId="org-country" formControlName="countryCode" [options]="countryOptions()" />
         </div>
         <div>
           <label class="eti-label" for="org-vat">{{ 'org.vatId' | transloco }}</label>
@@ -96,13 +88,10 @@
                 </th>
                 <td class="px-5 py-3">
                   @if (isAdmin()) {
-                    <select class="eti-input mt-0 h-8 w-auto" [value]="member.role" [disabled]="busy()"
-                            [attr.aria-label]="'org.changeRole' | transloco: { name: member.fullName }"
-                            (change)="changeRole(member, $event)">
-                      @for (role of roles; track role) {
-                        <option [value]="role" [selected]="role === member.role">{{ 'org.roles.' + role | transloco }}</option>
-                      }
-                    </select>
+                    <eti-select class="w-48" size="sm" [spaced]="false" [disabled]="busy()"
+                                [ariaLabel]="'org.changeRole' | transloco: { name: member.fullName }"
+                                [options]="roles | etiOptions: 'org.roles.'" [value]="member.role"
+                                (valueChange)="changeRole(member, $any($event))" />
                   } @else {
                     {{ 'org.roles.' + member.role | transloco }}
                   }
@@ -140,11 +129,7 @@
             </div>
             <div>
               <label class="eti-label" for="invite-role">{{ 'org.role' | transloco }}</label>
-              <select id="invite-role" class="eti-input" formControlName="role">
-                @for (role of roles; track role) {
-                  <option [value]="role">{{ 'org.roles.' + role | transloco }}</option>
-                }
-              </select>
+              <eti-select inputId="invite-role" formControlName="role" [options]="roles | etiOptions: 'org.roles.'" />
             </div>
             <button type="submit" class="eti-btn-primary" [disabled]="busy()">{{ 'org.inviteSubmit' | transloco }}</button>
           </form>

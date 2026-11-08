@@ -103,7 +103,13 @@
     "previous": "Poprzednia",
     "next": "Następna",
     "pageOf": "Strona {{page}} z {{pages}}",
-    "refresh": "Odśwież"
+    "refresh": "Odśwież",
+    "clearDate": "Wyczyść datę",
+    "chooseDate": "Wybierz datę",
+    "prevMonth": "Poprzedni miesiąc",
+    "nextMonth": "Następny miesiąc",
+    "today": "Dzisiaj",
+    "clear": "Wyczyść"
   },
   "auth": {
     "tagline": "Przetargi publiczne z całej Unii Europejskiej w jednym miejscu.",
@@ -440,7 +446,8 @@
     "clearSelection": "Wyczyść wybór",
     "showFilters": "Pokaż filtry",
     "hideFilters": "Ukryj filtry",
-    "nlNote": "Wyszukiwanie w języku naturalnym („budowlane w Niemczech powyżej 500 000 euro”) pojawi się razem z modułem AI."
+    "nlNote": "Wyszukiwanie w języku naturalnym („budowlane w Niemczech powyżej 500 000 euro”) pojawi się razem z modułem AI.",
+    "noMatches": "Brak pasujących pozycji"
   },
   "savedSearches": {
     "title": "Zapisane wyszukiwania",
@@ -494,7 +501,7 @@
     "dueSoonDesc": "Otwarte postępowania z terminem składania ofert.",
     "goodMatches": "Dopasowane do Twojej firmy",
     "goodMatchesDesc": "Otwarte przetargi z dopasowaniem 60 lub wyższym.",
-    "goodMatchesHint": "rozkład wyników 40–100",
+    "goodMatchesHint": "otwarte, wynik 60 lub wyższy",
     "watchedValueDesc": "Szacunkowa wartość aktywnych postępowań zespołu.",
     "byType": "Rodzaj zamówienia",
     "byTypeHint": "Otwarte przetargi według rodzaju zamówienia.",
