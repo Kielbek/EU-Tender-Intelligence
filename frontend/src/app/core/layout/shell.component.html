@@ -38,6 +38,7 @@
               @switch (item.icon) {
                 @case ('dashboard') { <svg lucideLayoutDashboard class="size-4" aria-hidden="true"></svg> }
                 @case ('search') { <svg lucideSearch class="size-4" aria-hidden="true"></svg> }
+                @case ('target') { <svg lucideTarget class="size-4" aria-hidden="true"></svg> }
                 @case ('star') { <svg lucideStar class="size-4" aria-hidden="true"></svg> }
                 @case ('bookmark') { <svg lucideBookmark class="size-4" aria-hidden="true"></svg> }
               }
@@ -54,6 +55,13 @@
              class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
             <svg lucideBuilding2 class="size-4" aria-hidden="true"></svg>
             {{ 'nav.organization' | transloco }}
+          </a>
+        </li>
+        <li>
+          <a routerLink="/company" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
+            <svg lucideBriefcase class="size-4" aria-hidden="true"></svg>
+            {{ 'nav.company' | transloco }}
           </a>
         </li>
         <li>

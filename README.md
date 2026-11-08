@@ -14,7 +14,8 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | 2 | Modele danych, migracje, uwierzytelnianie, RBAC, organizacje, audyt, rate limiting, słowniki (CPV, EBC), API przetargów | ✅ |
 | 3 | Integracja TED: pobieranie, normalizacja eForms, deduplikacja, wersje i historia zmian, harmonogram | ✅ |
 | 4 | Dashboard, wyszukiwarka z filtrami i CPV, szczegóły przetargu z historią zmian, obserwowane (zespół), zapisane wyszukiwania, eksport CSV/XLSX | ✅ |
-| 5 | Profil firmy, dopasowanie, dokumenty, AI, tłumaczenia | ⏳ następny |
+| 5a | Profil firmy, wyjaśnialne dopasowanie 0–100, lista dopasowanych przetargów, najlepsze przetargi na dashboardzie | ✅ |
+| 5b | Dokumenty przetargów, OCR, analiza AI z cytatami, tłumaczenia | ⏳ następny |
 | 6–8 | Powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
 
 Co działa teraz:
@@ -27,6 +28,8 @@ Co działa teraz:
 * **Prawdziwe przetargi z TED**: import co godzinę w godzinach publikacji (pn–sb), import początkowy z ostatnich dni,
   ręczny backfill z panelu admina; zmiany, anulowania i wyniki (zwycięzcy, wartości, liczba ofert) z pełną historią zmian.
   Test na żywo: ~18,8 tys. ogłoszeń z 5 dni, 0 błędów – szczegóły w [docs/ted-integration.md](docs/ted-integration.md).
+* **Profil firmy i dopasowanie 0–100** z uzasadnieniem (spełnione / niespełnione / brakujące informacje), przeliczane automatycznie
+  po zmianie profilu i po imporcie ogłoszeń. To wskaźnik zgodności, nie szansa na wygraną – reguły w [docs/matching.md](docs/matching.md).
 * API przetargów (filtry, CPV, wartość w EUR, pełnotekstowe bez polskich znaków, sortowanie, paginacja, historia zmian).
 * **Dashboard** z prawdziwymi danymi: otwarte i nowe przetargi, obserwowane i ich wartość, najbliższe terminy, ostatnie
   zmiany, wykres ogłoszeń dziennie, branże (CPV) i kraje – każdy wykres także jako tabela.

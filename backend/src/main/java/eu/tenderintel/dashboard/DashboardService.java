@@ -26,14 +26,21 @@ public class DashboardService {
     private final JdbcTemplate jdbc;
     private final OrganizationAccess access;
     private final TenderQueries tenders;
+    private final eu.tenderintel.matching.MatchingService matching;
 
-    DashboardService(JdbcTemplate jdbc, OrganizationAccess access, TenderQueries tenders) {
+    DashboardService(JdbcTemplate jdbc, OrganizationAccess access, TenderQueries tenders,
+            eu.tenderintel.matching.MatchingService matching) {
         this.jdbc = jdbc;
         this.access = access;
         this.tenders = tenders;
+        this.matching = matching;
     }
 
-    public record Summary(long openTenders, long openCountries, long dueWithin7Days, long newLast7Days,
+    /** Score from which a tender counts as a good fit on the dashboard. */
+    static final int GOOD_MATCH = 60;
+
+    public record Summary(boolean hasProfile, long goodMatches, List<eu.tenderintel.matching.MatchingService.MatchView> topMatches,
+            long openTenders, long openCountries, long dueWithin7Days, long newLast7Days,
             long watchedActive, BigDecimal watchedValueEur,
             long watchedWithoutValue, List<TenderSummary> upcomingDeadlines, List<Bucket> topCpvDivisions,
             List<Bucket> byCountry, List<DayCount> noticesPerDay, List<Update> recentUpdates, String updatesScope,
@@ -117,7 +124,11 @@ public class DashboardService {
                 where d.code = 'TED' and j.status in ('SUCCEEDED', 'PARTIAL')
                 """, rs -> rs.next() ? rs.getTimestamp(1) : null);
 
-        return new Summary(open, openCountries, dueSoon, newTenders, watchedCount, (BigDecimal) watched.get("v"),
+        boolean hasProfile = matching.hasProfile(orgId);
+        long good = hasProfile ? matching.countAtLeast(orgId, GOOD_MATCH) : 0;
+        List<eu.tenderintel.matching.MatchingService.MatchView> top = hasProfile
+                ? matching.list(orgId, userId, GOOD_MATCH, 0, 5, l).items() : List.of();
+        return new Summary(hasProfile, good, top, open, openCountries, dueSoon, newTenders, watchedCount, (BigDecimal) watched.get("v"),
                 ((Number) watched.get("no_value")).longValue(), upcoming, cpv, countries, perDay, updates, scope,
                 last == null ? null : last.toInstant());
     }

@@ -56,6 +56,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/watchlist/watchlist.page').then((m) => m.WatchlistPage),
       },
       {
+        path: 'matches',
+        loadComponent: () => import('./features/matching/matches.page').then((m) => m.MatchesPage),
+      },
+      {
+        path: 'company',
+        loadComponent: () => import('./features/company/company-profile.page').then((m) => m.CompanyProfilePage),
+      },
+      {
         path: 'saved-searches',
         loadComponent: () =>
           import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),

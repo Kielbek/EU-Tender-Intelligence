@@ -7,6 +7,8 @@ import { LucideArrowLeft, LucideExternalLink } from '@lucide/angular';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import { DiffEntry, SavedTender, TenderDetail, TenderVersion, WatchStatus } from '../../core/api/tender.model';
 import { TenderService, WorkspaceService } from '../../core/api/tender.service';
+import { MatchingService } from '../../core/api/company.service';
+import { MatchView } from '../../core/api/matching.model';
 import { WatchlistStore } from '../../core/api/watchlist.store';
 import { AuthService } from '../../core/auth/auth.service';
 import { dateTime, money } from '../../core/format/format';
@@ -15,6 +17,8 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
+import { MatchExplanationComponent } from '../../shared/ui/match-explanation.component';
+import { MatchScoreComponent } from '../../shared/ui/match-score.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { TenderStatusBadgeComponent } from '../../shared/ui/tender-status-badge.component';
 
@@ -29,6 +33,8 @@ export const WATCH_STATUSES: WatchStatus[] = ['WATCHING', 'PREPARING', 'SUBMITTE
     ...FORMAT_PIPES,
     ApiErrorAlertComponent,
     DeadlineComponent,
+    MatchExplanationComponent,
+    MatchScoreComponent,
     SkeletonComponent,
     TenderStatusBadgeComponent,
     LucideArrowLeft,
@@ -39,6 +45,7 @@ export const WATCH_STATUSES: WatchStatus[] = ['WATCHING', 'PREPARING', 'SUBMITTE
 export class TenderDetailPage implements OnInit {
   private readonly tenders = inject(TenderService);
   private readonly workspace = inject(WorkspaceService);
+  private readonly matching = inject(MatchingService);
   private readonly store = inject(WatchlistStore);
   private readonly transloco = inject(TranslocoService);
   private readonly location = inject(Location);
@@ -56,6 +63,12 @@ export class TenderDetailPage implements OnInit {
   protected readonly notesSaved = signal(false);
   protected readonly notes = signal('');
   protected readonly watchStatuses = WATCH_STATUSES;
+  /** Fit with the company profile: a result, 'noProfile', or null while loading / unavailable. */
+  protected readonly match = signal<MatchView | 'noProfile' | null>(null);
+  protected readonly matchView = computed(() => {
+    const m = this.match();
+    return m && m !== 'noProfile' ? m : null;
+  });
 
   protected readonly cpvList = computed(() => {
     const t = this.tender();
@@ -88,6 +101,20 @@ export class TenderDetailPage implements OnInit {
           this.notes.set(s.notes ?? '');
         },
         error: () => this.saved.set(null), // 404 = not watched
+      }),
+    );
+  });
+
+  private readonly loadMatch = effect(() => {
+    const orgId = this.org.currentId();
+    const lang = this.language.current();
+    if (!orgId) {
+      return;
+    }
+    untracked(() =>
+      this.matching.explain(orgId, this.id(), lang).subscribe({
+        next: (m) => this.match.set(m),
+        error: (err: unknown) => this.match.set(toApiError(err).code === 'profile_missing' ? 'noProfile' : null),
       }),
     );
   });

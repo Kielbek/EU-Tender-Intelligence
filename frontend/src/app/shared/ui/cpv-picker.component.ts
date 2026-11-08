@@ -22,8 +22,8 @@ let nextId = 0;
         @for (code of selected(); track code) {
           <li class="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs text-accent">
             <span class="font-mono">{{ code }}</span>
-            @if (labels()[code]) {
-              <span class="max-w-40 truncate">{{ labels()[code] }}</span>
+            @if (labels()[code] ?? knownLabels()[code]; as l) {
+              <span class="max-w-40 truncate">{{ l }}</span>
             }
             <button type="button" class="rounded hover:bg-accent/10"
                     [attr.aria-label]="'search.removeCpv' | transloco: { code }" (click)="remove(code)">
@@ -63,6 +63,8 @@ export class CpvPickerComponent {
   readonly label = input.required<string>();
   readonly lang = input.required<string>();
   readonly selected = model<string[]>([]);
+  /** Labels of codes selected before (e.g. returned by the API with a saved profile). */
+  readonly knownLabels = input<Record<string, string>>({});
   /** Known labels of selected codes (filled when picked). */
   protected readonly labels = signal<Record<string, string>>({});
   protected readonly query = signal('');

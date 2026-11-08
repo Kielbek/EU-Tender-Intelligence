@@ -1,0 +1,371 @@
+@let lang = language.current();
+<div class="flex flex-wrap items-end gap-4">
+  <div>
+    <p class="eti-eyebrow">{{ org.current()?.name }}</p>
+    <h1 class="eti-h1 mt-1">{{ 'company.title' | transloco }}</h1>
+    <p class="eti-subtitle mt-1.5 max-w-2xl">{{ 'company.subtitle' | transloco }}</p>
+  </div>
+  @if (profile()) {
+    <a routerLink="/matches" class="eti-btn-secondary ml-auto">{{ 'company.seeMatches' | transloco }}</a>
+  }
+</div>
+
+<div class="mt-6" aria-live="polite" [attr.aria-busy]="loading()">
+  @if (loadError()) {
+    <eti-api-error [error]="loadError()" />
+    <button type="button" class="eti-btn-secondary mt-3" (click)="load()">{{ 'common.retry' | transloco }}</button>
+  } @else if (loading() && !profile()) {
+    <p class="sr-only">{{ 'common.loading' | transloco }}</p>
+    <div class="eti-card space-y-3 p-5" aria-hidden="true">
+      <eti-skeleton size="h-5 w-48" />
+      <eti-skeleton size="h-10 w-full" />
+      <eti-skeleton size="h-10 w-full" />
+    </div>
+  } @else if (!profile() && !isAdmin()) {
+    <div class="eti-card px-6 py-10 text-center">
+      <p class="eti-h2">{{ 'company.emptyTitle' | transloco }}</p>
+      <p class="mt-1 text-sm text-ink-muted">{{ 'company.emptyMember' | transloco }}</p>
+    </div>
+  } @else {
+    <eti-api-error [error]="actionError()" />
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+      <form class="space-y-4 lg:col-span-2" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        @if (!isAdmin()) {
+          <p class="eti-note flex items-center gap-2"><svg lucideLock class="size-3.5" aria-hidden="true"></svg>{{ 'company.readOnly' | transloco }}</p>
+        }
+
+        <section class="eti-card p-5" aria-labelledby="scope-heading">
+          <h2 id="scope-heading" class="eti-h2">{{ 'company.scope' | transloco }}</h2>
+          <p class="eti-subtitle mt-0.5">{{ 'company.scopeHint' | transloco }}</p>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              @if (isAdmin()) {
+                <eti-cpv-picker [label]="'company.cpv' | transloco" [lang]="lang" [(selected)]="cpvCodes"
+                                [knownLabels]="profile()?.cpvLabels ?? {}" />
+                <p class="eti-hint">{{ 'company.cpvHint' | transloco }}</p>
+              } @else {
+                <p class="eti-label">{{ 'company.cpv' | transloco }}</p>
+                <ul class="mt-1 space-y-1 text-sm">
+                  @for (c of cpvCodes(); track c) {
+                    <li><span class="eti-num text-ink-muted">{{ c }}</span> {{ profile()?.cpvLabels?.[c] }}</li>
+                  } @empty {
+                    <li class="text-ink-muted">—</li>
+                  }
+                </ul>
+              }
+            </div>
+            <div class="sm:col-span-2">
+              <span class="eti-label">{{ 'company.countriesOfInterest' | transloco }}</span>
+              @if (isAdmin()) {
+                <eti-multi-check class="mt-1 block" [label]="'company.countries' | transloco" [options]="countryOptions()"
+                                 [allLabel]="'company.countriesNone' | transloco" [(selected)]="countriesOfInterest" />
+              } @else {
+                <p class="mt-1 text-sm text-ink-soft">
+                  @for (c of countriesOfInterest(); track c; let last = $last) {{{ c | country: lang }}@if (!last) {, }} @empty {—}
+                </p>
+              }
+              <p class="eti-hint">{{ 'company.countriesHint' | transloco }}</p>
+            </div>
+            <fieldset class="sm:col-span-2">
+              <legend class="eti-label">{{ 'company.contractTypes' | transloco }}</legend>
+              <div class="mt-1.5 flex flex-wrap gap-2">
+                @for (t of contractTypeOptions; track t) {
+                  <label class="inline-flex h-9 items-center gap-2 rounded-[10px] border border-border-strong px-3 text-sm text-ink-soft has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:text-accent">
+                    <input type="checkbox" class="size-4 accent-accent" [checked]="contractTypes().includes(t)"
+                           [disabled]="!isAdmin()" (change)="toggleType(t, $any($event.target).checked)" />
+                    {{ 'tender.contractType.' + t | transloco }}
+                  </label>
+                }
+              </div>
+            </fieldset>
+            <div>
+              <label class="eti-label" for="cp-min">{{ 'company.minValue' | transloco }}</label>
+              <input id="cp-min" type="number" min="0" step="1000" inputmode="numeric" class="eti-input eti-num"
+                     formControlName="minContractValueEur" [attr.aria-invalid]="invalidRange()" />
+            </div>
+            <div>
+              <label class="eti-label" for="cp-max">{{ 'company.maxValue' | transloco }}</label>
+              <input id="cp-max" type="number" min="0" step="1000" inputmode="numeric" class="eti-input eti-num"
+                     formControlName="maxContractValueEur" [attr.aria-invalid]="invalidRange()" />
+            </div>
+            @if (invalidRange()) {
+              <p class="eti-field-error sm:col-span-2" role="alert">{{ 'company.rangeError' | transloco }}</p>
+            }
+          </div>
+        </section>
+
+        <section class="eti-card p-5" aria-labelledby="basics-heading">
+          <h2 id="basics-heading" class="eti-h2">{{ 'company.basics' | transloco }}</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="eti-label" for="cp-name">{{ 'company.name' | transloco }}</label>
+              <input id="cp-name" class="eti-input" formControlName="name" autocomplete="organization"
+                     [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched" />
+              @if (form.controls.name.invalid && form.controls.name.touched) {
+                <p class="eti-field-error">{{ 'common.required' | transloco }}</p>
+              }
+            </div>
+            <div>
+              <label class="eti-label" for="cp-country">{{ 'company.registrationCountry' | transloco }}</label>
+              <select id="cp-country" class="eti-input" formControlName="registrationCountry">
+                <option value="">—</option>
+                @for (c of countryOptions(); track c.value) {
+                  <option [value]="c.value">{{ c.label }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="eti-label" for="cp-industry">{{ 'company.industry' | transloco }}</label>
+              <input id="cp-industry" class="eti-input" formControlName="industry" />
+            </div>
+            <div>
+              <label class="eti-label" for="cp-website">{{ 'company.website' | transloco }}</label>
+              <input id="cp-website" type="url" class="eti-input" formControlName="website" placeholder="https://"
+                     [attr.aria-invalid]="form.controls.website.invalid && form.controls.website.touched" />
+              @if (form.controls.website.invalid && form.controls.website.touched) {
+                <p class="eti-field-error">{{ 'company.websiteError' | transloco }}</p>
+              }
+            </div>
+            <div>
+              <label class="eti-label" for="cp-size">{{ 'company.size' | transloco }}</label>
+              <select id="cp-size" class="eti-input" formControlName="companySize">
+                <option value="">—</option>
+                @for (s of sizes; track s) {
+                  <option [value]="s">{{ 'company.sizes.' + s | transloco }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="eti-label" for="cp-employees">{{ 'company.employees' | transloco }}</label>
+              <input id="cp-employees" type="number" min="0" inputmode="numeric" class="eti-input eti-num" formControlName="employees" />
+            </div>
+            <div>
+              <label class="eti-label" for="cp-years">{{ 'company.yearsOfExperience' | transloco }}</label>
+              <input id="cp-years" type="number" min="0" max="300" inputmode="numeric" class="eti-input eti-num" formControlName="yearsOfExperience" />
+            </div>
+            <div>
+              <label class="eti-label" for="cp-revenue">{{ 'company.annualRevenue' | transloco }}</label>
+              <input id="cp-revenue" type="number" min="0" step="1000" inputmode="numeric" class="eti-input eti-num" formControlName="annualRevenue" />
+            </div>
+            <div>
+              <label class="eti-label" for="cp-revcur">{{ 'company.currency' | transloco }}</label>
+              <select id="cp-revcur" class="eti-input" formControlName="revenueCurrency">
+                @for (c of currencies(); track c.code) {
+                  <option [value]="c.code">{{ c.code }}</option>
+                }
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="eti-label" for="cp-desc">{{ 'company.description' | transloco }}</label>
+              <textarea id="cp-desc" rows="4" class="eti-input h-auto py-2" formControlName="description"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="eti-card p-5" aria-labelledby="resources-heading">
+          <h2 id="resources-heading" class="eti-h2">{{ 'company.resources' | transloco }}</h2>
+          <p class="eti-subtitle mt-0.5">{{ 'company.resourcesHint' | transloco }}</p>
+          <div class="mt-4 space-y-4">
+            <div>
+              <label class="eti-label" for="cp-tech">{{ 'company.technicalResources' | transloco }}</label>
+              <textarea id="cp-tech" rows="3" class="eti-input h-auto py-2" formControlName="technicalResources"></textarea>
+            </div>
+            <div>
+              <label class="eti-label" for="cp-staff">{{ 'company.staffResources' | transloco }}</label>
+              <textarea id="cp-staff" rows="3" class="eti-input h-auto py-2" formControlName="staffResources"></textarea>
+            </div>
+            <div>
+              <label class="eti-label" for="cp-fin">{{ 'company.financialCapacity' | transloco }}</label>
+              <textarea id="cp-fin" rows="3" class="eti-input h-auto py-2" formControlName="financialCapacity"></textarea>
+            </div>
+          </div>
+        </section>
+
+        @if (isAdmin()) {
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="submit" class="eti-btn-primary" [disabled]="busy()">
+              {{ (profile() ? 'common.save' : 'company.create') | transloco }}
+            </button>
+            @if (saved()) {
+              <span role="status" class="text-sm text-success">{{ 'company.saved' | transloco }}</span>
+            }
+          </div>
+        }
+      </form>
+
+      <aside class="space-y-4">
+        <section class="eti-card px-5 py-5" aria-labelledby="check-heading">
+          <div class="flex items-baseline justify-between gap-2">
+            <h2 id="check-heading" class="eti-h2">{{ 'company.checklist' | transloco }}</h2>
+            <span class="eti-num text-[13px] text-ink-muted">{{ checklistDone() }}/{{ checklist().length }}</span>
+          </div>
+          <ul class="mt-3 space-y-2 text-[13px]">
+            @for (i of checklist(); track i.key) {
+              <li class="flex items-center gap-2" [class.text-ink-soft]="i.done" [class.text-ink-muted]="!i.done">
+                @if (i.done) {
+                  <svg lucideCheck class="size-4 text-success" aria-hidden="true"></svg>
+                  <span class="sr-only">{{ 'company.done' | transloco }}:</span>
+                } @else {
+                  <svg lucideCircle class="size-4 text-ink-faint" aria-hidden="true"></svg>
+                  <span class="sr-only">{{ 'company.todo' | transloco }}:</span>
+                }
+                {{ 'company.check.' + i.key | transloco }}
+              </li>
+            }
+          </ul>
+          <p class="eti-note mt-4">{{ 'company.scoreDisclaimer' | transloco }}</p>
+        </section>
+        <section class="eti-card px-5 py-5">
+          <h2 class="eti-h2 flex items-center gap-2"><svg lucideLock class="size-4 text-ink-muted" aria-hidden="true"></svg>{{ 'company.privacyTitle' | transloco }}</h2>
+          <p class="mt-1.5 text-[13px] text-ink-muted">{{ 'company.privacy' | transloco }}</p>
+        </section>
+      </aside>
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+      <section class="eti-card p-5" aria-labelledby="refs-heading">
+        <h2 id="refs-heading" class="eti-h2">{{ 'company.references' | transloco }}</h2>
+        <p class="eti-subtitle mt-0.5">{{ 'company.referencesHint' | transloco }}</p>
+        @if (profile()?.references?.length) {
+          <ul class="mt-3 divide-y divide-track">
+            @for (r of profile()!.references; track r.id) {
+              <li class="flex items-start gap-3 py-3">
+                <div class="min-w-0 flex-1 text-[13px]">
+                  <p class="font-medium text-ink">{{ r.title }}</p>
+                  <p class="text-ink-muted">
+                    {{ r.client ?? '' }}@if (r.client && r.countryCode) { · }{{ r.countryCode ? (r.countryCode | country: lang) : '' }}
+                    @if (r.yearCompleted) { · {{ r.yearCompleted }} }
+                    @if (r.value != null) { · <span class="eti-num">{{ r.value | money: r.currency : lang }}</span> }
+                  </p>
+                  @if (r.cpvCode) {
+                    <p class="eti-num text-ink-faint">CPV {{ r.cpvCode }}</p>
+                  }
+                </div>
+                @if (isAdmin()) {
+                  <button type="button" class="eti-btn-ghost h-8 px-2 text-danger" [disabled]="busy()"
+                          [attr.aria-label]="'company.removeNamed' | transloco: { name: r.title }" (click)="removeReference(r.id)">
+                    <svg lucideTrash2 class="size-4" aria-hidden="true"></svg>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="mt-3 text-sm text-ink-muted">{{ 'company.referencesEmpty' | transloco }}</p>
+        }
+        @if (isAdmin()) {
+          @if (profile()) {
+            <form class="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2" [formGroup]="refForm" (ngSubmit)="addReference()" novalidate>
+              <h3 class="text-[13px] font-semibold text-ink sm:col-span-2">{{ 'company.addReference' | transloco }}</h3>
+              <div class="sm:col-span-2">
+                <label class="eti-label" for="ref-title">{{ 'company.refTitle' | transloco }}</label>
+                <input id="ref-title" class="eti-input" formControlName="title"
+                       [attr.aria-invalid]="refForm.controls.title.invalid && refForm.controls.title.touched" />
+                @if (refForm.controls.title.invalid && refForm.controls.title.touched) {
+                  <p class="eti-field-error">{{ 'common.required' | transloco }}</p>
+                }
+              </div>
+              <div>
+                <label class="eti-label" for="ref-client">{{ 'company.refClient' | transloco }}</label>
+                <input id="ref-client" class="eti-input" formControlName="client" />
+              </div>
+              <div>
+                <label class="eti-label" for="ref-country">{{ 'company.refCountry' | transloco }}</label>
+                <select id="ref-country" class="eti-input" formControlName="countryCode">
+                  <option value="">—</option>
+                  @for (c of countryOptions(); track c.value) {
+                    <option [value]="c.value">{{ c.label }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="eti-label" for="ref-value">{{ 'company.refValue' | transloco }}</label>
+                <div class="flex gap-2">
+                  <input id="ref-value" type="number" min="0" inputmode="numeric" class="eti-input eti-num" formControlName="value" />
+                  <select class="eti-input w-24" formControlName="currency" [attr.aria-label]="'company.currency' | transloco">
+                    @for (c of currencies(); track c.code) {
+                      <option [value]="c.code">{{ c.code }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="eti-label" for="ref-year">{{ 'company.refYear' | transloco }}</label>
+                <input id="ref-year" type="number" min="1950" max="2100" inputmode="numeric" class="eti-input eti-num" formControlName="yearCompleted" />
+              </div>
+              <div class="sm:col-span-2">
+                <eti-cpv-picker [label]="'company.refCpv' | transloco" [lang]="lang" [selected]="refCpv()"
+                                (selectedChange)="refCpv.set($event.slice(-1))" />
+                <p class="eti-hint">{{ 'company.refCpvHint' | transloco }}</p>
+              </div>
+              <div class="sm:col-span-2">
+                <button type="submit" class="eti-btn-secondary" [disabled]="busy()">{{ 'company.addReference' | transloco }}</button>
+              </div>
+            </form>
+          } @else {
+            <p class="eti-note mt-4">{{ 'company.saveFirst' | transloco }}</p>
+          }
+        }
+      </section>
+
+      <section class="eti-card p-5" aria-labelledby="certs-heading">
+        <h2 id="certs-heading" class="eti-h2">{{ 'company.certifications' | transloco }}</h2>
+        <p class="eti-subtitle mt-0.5">{{ 'company.certificationsHint' | transloco }}</p>
+        @if (profile()?.certifications?.length) {
+          <ul class="mt-3 divide-y divide-track">
+            @for (c of profile()!.certifications; track c.id) {
+              <li class="flex items-start gap-3 py-3">
+                <div class="min-w-0 flex-1 text-[13px]">
+                  <p class="font-medium text-ink">{{ c.name }}</p>
+                  <p class="text-ink-muted">
+                    {{ c.issuer ?? '' }}
+                    @if (c.validUntil) {
+                      @if (c.issuer) { · }{{ 'company.validUntil' | transloco: { date: (c.validUntil | userDate: lang) } }}
+                    }
+                  </p>
+                </div>
+                @if (isAdmin()) {
+                  <button type="button" class="eti-btn-ghost h-8 px-2 text-danger" [disabled]="busy()"
+                          [attr.aria-label]="'company.removeNamed' | transloco: { name: c.name }" (click)="removeCertification(c.id)">
+                    <svg lucideTrash2 class="size-4" aria-hidden="true"></svg>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="mt-3 text-sm text-ink-muted">{{ 'company.certificationsEmpty' | transloco }}</p>
+        }
+        @if (isAdmin()) {
+          @if (profile()) {
+            <form class="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2" [formGroup]="certForm" (ngSubmit)="addCertification()" novalidate>
+              <h3 class="text-[13px] font-semibold text-ink sm:col-span-2">{{ 'company.addCertification' | transloco }}</h3>
+              <div class="sm:col-span-2">
+                <label class="eti-label" for="cert-name">{{ 'company.certName' | transloco }}</label>
+                <input id="cert-name" class="eti-input" formControlName="name" placeholder="ISO 9001:2015"
+                       [attr.aria-invalid]="certForm.controls.name.invalid && certForm.controls.name.touched" />
+                @if (certForm.controls.name.invalid && certForm.controls.name.touched) {
+                  <p class="eti-field-error">{{ 'common.required' | transloco }}</p>
+                }
+              </div>
+              <div>
+                <label class="eti-label" for="cert-issuer">{{ 'company.certIssuer' | transloco }}</label>
+                <input id="cert-issuer" class="eti-input" formControlName="issuer" />
+              </div>
+              <div>
+                <label class="eti-label" for="cert-valid">{{ 'company.certValidUntil' | transloco }}</label>
+                <input id="cert-valid" type="date" class="eti-input" formControlName="validUntil" />
+              </div>
+              <div class="sm:col-span-2">
+                <button type="submit" class="eti-btn-secondary" [disabled]="busy()">{{ 'company.addCertification' | transloco }}</button>
+              </div>
+            </form>
+          } @else {
+            <p class="eti-note mt-4">{{ 'company.saveFirst' | transloco }}</p>
+          }
+        }
+      </section>
+    </div>
+  }
+</div>

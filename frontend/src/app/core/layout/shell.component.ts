@@ -4,10 +4,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import {
   LucideActivity,
   LucideBookmark,
+  LucideBriefcase,
   LucideBuilding2,
   LucideLayoutDashboard,
   LucideSearch,
   LucideStar,
+  LucideTarget,
   LucideLandmark,
   LucideLogOut,
   LucideMenu,
@@ -34,10 +36,12 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
     LanguageSwitcherComponent,
     LucideActivity,
     LucideBookmark,
+    LucideBriefcase,
     LucideBuilding2,
     LucideLayoutDashboard,
     LucideSearch,
     LucideStar,
+    LucideTarget,
     LucideLandmark,
     LucideLogOut,
     LucideMenu,
@@ -60,11 +64,12 @@ export class ShellComponent {
       .map((p) => p[0]!.toUpperCase())
       .join(''),
   );
-  protected readonly roadmap = ['company', 'ai', 'alerts'] as const;
+  protected readonly roadmap = ['ai', 'alerts'] as const;
 
   protected readonly workItems = [
     { path: '/', icon: 'dashboard', key: 'nav.dashboard', exact: true, query: null },
     { path: '/search', icon: 'search', key: 'nav.search', exact: false, query: { status: 'OPEN' } },
+    { path: '/matches', icon: 'target', key: 'nav.matches', exact: false, query: null },
     { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
     { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
   ] as const;

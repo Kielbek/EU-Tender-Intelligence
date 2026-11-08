@@ -13,13 +13,14 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
 import { BarItem, BarListComponent } from '../../shared/ui/bar-list.component';
 import { ColumnChartComponent, ColumnPoint } from '../../shared/ui/column-chart.component';
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
+import { MatchScoreComponent } from '../../shared/ui/match-score.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
 import { StatTileComponent } from '../../shared/ui/stat-tile.component';
 
 @Component({
   selector: 'eti-dashboard-page',
   imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, BarListComponent, ColumnChartComponent,
-    DeadlineComponent, SkeletonComponent, StatTileComponent],
+    DeadlineComponent, MatchScoreComponent, SkeletonComponent, StatTileComponent],
   templateUrl: './dashboard.page.html',
 })
 export class DashboardPage {

@@ -1,3 +1,4 @@
+import { MatchView } from './matching.model';
 /** Mirrors eu.tenderintel.tender.TenderDtos and workspace/dashboard DTOs. */
 export type TenderStatus = 'PLANNED' | 'OPEN' | 'CLOSED' | 'AWARDED' | 'CANCELLED' | 'UNKNOWN';
 export type ContractType = 'WORKS' | 'SUPPLIES' | 'SERVICES' | 'MIXED';
@@ -142,6 +143,9 @@ export interface Bucket {
 }
 
 export interface DashboardSummary {
+  hasProfile: boolean;
+  goodMatches: number;
+  topMatches: MatchView[];
   openTenders: number;
   openCountries: number;
   dueWithin7Days: number;

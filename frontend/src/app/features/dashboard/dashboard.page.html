@@ -52,6 +52,42 @@
       </a>
     </section>
 
+
+    <section class="eti-card mt-4 overflow-hidden" aria-labelledby="matches-heading">
+      <div class="flex flex-wrap items-baseline gap-3 px-[22px] pt-5 pb-3">
+        <h2 id="matches-heading" class="eti-h2">{{ 'dashboard.bestMatches' | transloco }}</h2>
+        @if (d.hasProfile) {
+          <span class="eti-subtitle">{{ 'dashboard.bestMatchesHint' | transloco: { n: d.goodMatches } }}</span>
+          <a routerLink="/matches" class="eti-link ml-auto text-[13px]">{{ 'dashboard.seeAll' | transloco }}</a>
+        }
+      </div>
+      @if (!d.hasProfile) {
+        <div class="flex flex-wrap items-center gap-4 border-t border-border px-[22px] py-5">
+          <p class="min-w-0 flex-1 text-sm text-ink-muted">{{ 'dashboard.noProfile' | transloco }}</p>
+          <a routerLink="/company" class="eti-btn-primary">{{ 'match.createProfile' | transloco }}</a>
+        </div>
+      } @else if (d.topMatches.length === 0) {
+        <div class="border-t border-border px-[22px] py-6 text-center">
+          <p class="text-sm text-ink-muted">{{ 'dashboard.noGoodMatches' | transloco }}</p>
+          <a routerLink="/matches" class="eti-btn-secondary mt-3">{{ 'dashboard.lowerMatches' | transloco }}</a>
+        </div>
+      } @else {
+        <ul class="divide-y divide-track border-t border-border">
+          @for (m of d.topMatches; track m.tender.id) {
+            <li class="flex items-center gap-4 px-[22px] py-3">
+              <eti-match-score [score]="m.score" />
+              <div class="min-w-0 flex-1 text-[13px]">
+                <a [routerLink]="['/tenders', m.tender.id]" class="line-clamp-1 font-medium text-ink hover:text-accent">{{ m.tender.title }}</a>
+                <span class="block truncate text-ink-muted">{{ m.tender.authorityName }} · {{ m.tender.countryCode | country: lang }}</span>
+              </div>
+              <span class="eti-num hidden text-right text-[13px] whitespace-nowrap sm:block">{{ m.tender.estimatedValue | money: m.tender.currency : lang }}</span>
+              <span class="hidden w-32 text-[13px] whitespace-nowrap md:block"><eti-deadline [iso]="m.tender.submissionDeadline" [locale]="lang" /></span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
       <section class="eti-card px-[22px] py-5 lg:col-span-2" aria-labelledby="perday-heading">
         <h2 id="perday-heading" class="eti-h2">{{ 'dashboard.noticesPerDay' | transloco }}</h2>
@@ -147,7 +183,5 @@
         </ul>
       }
     </section>
-
-    <p class="eti-note mt-4">{{ 'dashboard.matchingPending' | transloco }}</p>
   }
 </div>

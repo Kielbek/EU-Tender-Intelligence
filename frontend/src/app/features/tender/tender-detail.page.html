@@ -207,6 +207,27 @@
     </div>
 
     <aside class="min-w-0 space-y-6">
+      @if (matchView(); as m) {
+        <section class="eti-card p-5" aria-labelledby="match-heading">
+          <div class="flex items-center gap-4">
+            <eti-match-score [score]="m.score" size="lg" />
+            <div class="min-w-0">
+              <h2 id="match-heading" class="eti-h2">{{ 'match.panelTitle' | transloco }}</h2>
+              <p class="eti-subtitle mt-0.5">{{ 'match.panelHint' | transloco }}</p>
+            </div>
+          </div>
+          <div class="mt-5">
+            <eti-match-explanation [breakdown]="m.breakdown" [lang]="language.current()" />
+          </div>
+          <a routerLink="/company" class="eti-link mt-4 inline-block text-[13px]">{{ 'match.editProfile' | transloco }}</a>
+        </section>
+      } @else if (match() === 'noProfile') {
+        <section class="eti-card p-5" aria-labelledby="match-heading">
+          <h2 id="match-heading" class="eti-h2">{{ 'match.panelTitle' | transloco }}</h2>
+          <p class="mt-1 text-[13px] text-ink-muted">{{ 'match.noProfile' | transloco }}</p>
+          <a routerLink="/company" class="eti-btn-secondary mt-3">{{ 'match.createProfile' | transloco }}</a>
+        </section>
+      }
       @if (org.currentId()) {
         <section class="eti-card p-5" aria-labelledby="team-heading">
           <h2 id="team-heading" class="eti-h2">{{ saved() ? ('watch.watched' | transloco) : ('watch.teamHeading' | transloco) }}</h2>

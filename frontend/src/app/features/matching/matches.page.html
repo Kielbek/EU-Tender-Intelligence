@@ -1,0 +1,105 @@
+@let lang = language.current();
+<div class="flex flex-wrap items-end gap-4">
+  <div>
+    <p class="eti-eyebrow">{{ org.current()?.name }}</p>
+    <h1 class="eti-h1 mt-1">{{ 'match.title' | transloco }}</h1>
+    <p class="eti-subtitle mt-1.5 max-w-2xl">{{ 'match.subtitle' | transloco }}</p>
+  </div>
+  <a routerLink="/company" class="eti-btn-secondary ml-auto">{{ 'match.editProfile' | transloco }}</a>
+</div>
+
+<div class="mt-5 flex flex-wrap items-center gap-2" role="group" [attr.aria-label]="'match.minScore' | transloco">
+  <span class="text-[13px] text-ink-muted">{{ 'match.minScore' | transloco }}</span>
+  @for (t of thresholds; track t) {
+    <button type="button" class="h-8 rounded-[10px] border px-3 text-[13px] font-medium transition-colors"
+            [class]="minScore() === t ? 'border-accent bg-accent-soft text-accent' : 'border-border-strong text-ink-soft hover:bg-canvas'"
+            [attr.aria-pressed]="minScore() === t" (click)="setMin(t)">
+      {{ t }}+
+    </button>
+  }
+  @if (data(); as d) {
+    <span class="eti-num ml-auto text-[13px] text-ink-muted" role="status">{{ 'match.count' | transloco: { n: d.totalItems } }}</span>
+  }
+</div>
+
+<div class="mt-4" aria-live="polite" [attr.aria-busy]="loading()">
+  @if (error()) {
+    @if (error()!.code === 'profile_missing') {
+      <div class="eti-card px-6 py-10 text-center">
+        <p class="eti-h2">{{ 'match.noProfileTitle' | transloco }}</p>
+        <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">{{ 'match.noProfile' | transloco }}</p>
+        <a routerLink="/company" class="eti-btn-primary mt-4">{{ 'match.createProfile' | transloco }}</a>
+      </div>
+    } @else {
+      <eti-api-error [error]="error()" />
+      <button type="button" class="eti-btn-secondary mt-3" (click)="load()">{{ 'common.retry' | transloco }}</button>
+    }
+  } @else if (!data()) {
+    <p class="sr-only">{{ 'common.loading' | transloco }}</p>
+    <div class="eti-card divide-y divide-track" aria-hidden="true">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="flex gap-4 px-5 py-4"><eti-skeleton size="size-10 rounded-full" /><div class="flex-1 space-y-2"><eti-skeleton size="h-4 w-2/3" /><eti-skeleton size="h-3 w-1/3" /></div></div>
+      }
+    </div>
+  } @else if (data(); as d) {
+    @if (d.items.length === 0) {
+      <div class="eti-card px-6 py-10 text-center">
+        <p class="eti-h2">{{ 'match.emptyTitle' | transloco }}</p>
+        <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">{{ 'match.empty' | transloco }}</p>
+        <div class="mt-4 flex justify-center gap-2">
+          @if (minScore() > 40) {
+            <button type="button" class="eti-btn-secondary" (click)="setMin(40)">{{ 'match.lowerThreshold' | transloco }}</button>
+          }
+          <a routerLink="/company" class="eti-btn-secondary">{{ 'match.editProfile' | transloco }}</a>
+        </div>
+      </div>
+    } @else {
+      <ul class="eti-card divide-y divide-track overflow-hidden">
+        @for (m of d.items; track m.tender.id) {
+          <li>
+            <div class="flex items-start gap-4 px-5 py-4">
+              <eti-match-score [score]="m.score" />
+              <div class="min-w-0 flex-1">
+                <a [routerLink]="['/tenders', m.tender.id]" class="line-clamp-2 text-sm font-medium text-ink hover:text-accent">{{ m.tender.title }}</a>
+                <p class="mt-0.5 truncate text-[13px] text-ink-muted">
+                  {{ m.tender.authorityName }} · {{ m.tender.countryCode | country: lang }}
+                  @if (m.tender.mainCpv) { · <span class="eti-num">{{ m.tender.mainCpv }}</span> }
+                </p>
+                @if (topReasons().get(m.tender.id)?.length) {
+                  <ul class="mt-2 flex flex-wrap gap-1.5">
+                    @for (r of topReasons().get(m.tender.id); track $index) {
+                      <li class="rounded-md bg-canvas px-2 py-0.5 text-xs text-ink-soft">{{ r }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+              <div class="hidden shrink-0 text-right text-[13px] sm:block">
+                <p class="eti-num text-ink">{{ m.tender.estimatedValue | money: m.tender.currency : lang }}</p>
+                <p class="mt-0.5"><eti-deadline [iso]="m.tender.submissionDeadline" [locale]="lang" /></p>
+              </div>
+            </div>
+            <div class="px-5 pb-3">
+              <button type="button" class="eti-link text-[13px]" [attr.aria-expanded]="expanded() === m.tender.id"
+                      [attr.aria-controls]="'why-' + m.tender.id" (click)="toggle(m.tender.id)">
+                {{ (expanded() === m.tender.id ? 'match.hideWhy' : 'match.why') | transloco }}
+              </button>
+              @if (expanded() === m.tender.id) {
+                <div [id]="'why-' + m.tender.id" class="mt-3 max-w-xl pb-2">
+                  <eti-match-explanation [breakdown]="m.breakdown" [lang]="lang" />
+                </div>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      @if (d.totalPages > 1) {
+        <nav class="mt-4 flex items-center justify-between" [attr.aria-label]="'common.pageOf' | transloco: { page: page() + 1, pages: d.totalPages }">
+          <button type="button" class="eti-btn-secondary" [disabled]="page() === 0" (click)="page.set(page() - 1)">{{ 'common.previous' | transloco }}</button>
+          <span class="text-[13px] text-ink-muted">{{ 'common.pageOf' | transloco: { page: page() + 1, pages: d.totalPages } }}</span>
+          <button type="button" class="eti-btn-secondary" [disabled]="page() + 1 >= d.totalPages" (click)="page.set(page() + 1)">{{ 'common.next' | transloco }}</button>
+        </nav>
+      }
+    }
+    <p class="eti-note mt-4">{{ 'match.disclaimer' | transloco }}</p>
+  }
+</div>

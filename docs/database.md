@@ -173,6 +173,11 @@ Przy dużym wolumenie: partycjonowanie `tender_versions` po roku publikacji.
 
 ### 3.5 Prywatne dane organizacji (RLS)
 
+> Etap 5a (migracja `V9`) wdrożył `company_profiles`, `company_cpv`, `company_certifications`, `company_references`
+> i `tender_matches` w uproszczonej postaci: zakres wartości `min/max_contract_value_eur`, `contract_types text[]`,
+> jeden kod CPV na referencję, a w `tender_matches` całe wyjaśnienie w `breakdown jsonb` (składowe, met, unmet, missing).
+> Embeddingi profilu i `company_documents` przyjdą w etapie 5b. Reguły dopasowania opisuje [matching.md](matching.md).
+
 * **company_profiles** – `organization_id UNIQUE`, `name`, `registration_country`, `industry`, `description`, `website`, `countries_of_interest char(2)[]`,
   `size` (`MICRO`/`SMALL`/`MEDIUM`/`LARGE`), `annual_revenue`, `revenue_currency`, `years_of_experience`, `technical_resources`, `staff_resources`,
   `financial_capacity jsonb`, `embedding vector` (profil do dopasowań semantycznych).
