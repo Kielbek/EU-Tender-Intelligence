@@ -56,9 +56,18 @@ public final class TenderDtos {
     }
 
     public record TenderSummary(UUID id, String title, String countryCode, String city, String authorityName,
-            String mainCpv, String contractType, String procedureType, BigDecimal estimatedValue, String currency,
-            BigDecimal estimatedValueEur, Instant publishedAt, Instant submissionDeadline, String status,
-            String originalUrl) {
+            String mainCpv, String mainCpvLabel, String contractType, String procedureType, BigDecimal estimatedValue,
+            String currency, BigDecimal estimatedValueEur, Instant publishedAt, Instant submissionDeadline,
+            String status, String originalUrl) {
+    }
+
+    public record LotView(String lotNumber, String title, BigDecimal estimatedValue, String currency,
+            Instant submissionDeadline) {
+    }
+
+    /** Award data as published; {@code awardedValue} is null when the notice did not link a value to the winner. */
+    public record ResultView(String winnerName, String winnerCountry, String winnerSize, BigDecimal awardedValue,
+            String currency, BigDecimal awardedValueEur, Integer tendersReceived, java.time.LocalDate awardDate) {
     }
 
     public record SourceView(String dataSource, String externalId, String externalUrl, String noticeType,
@@ -71,11 +80,12 @@ public final class TenderDtos {
 
     public record TenderDetail(UUID id, String title, String titleLang, String description, String countryCode,
             String nutsCode, String city, AuthorityView authority, String referenceNumber, String contractType,
-            String procedureType, String mainCpv, List<String> cpvCodes, BigDecimal estimatedValue, String currency,
+            String procedureType, String mainCpv, List<String> cpvCodes, java.util.Map<String, String> cpvLabels,
+            BigDecimal estimatedValue, String currency,
             BigDecimal estimatedValueEur, Instant publishedAt, Instant submissionDeadline, String submissionDeadlineTz,
             Instant openingAt, String status, String noticeLanguage, String originalUrl, String documentsUrl,
             Object participationConditions, Object awardCriteria, int currentVersionNo, Instant lastChangedAt,
-            List<SourceView> sources) {
+            List<SourceView> sources, List<LotView> lots, List<ResultView> results) {
     }
 
     public record VersionView(int versionNo, String changeKind, String noticeType, Instant publishedAt, Object diff) {

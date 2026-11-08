@@ -32,7 +32,8 @@ import tools.jackson.databind.json.JsonMapper;
 public class TenderQueries {
 
     private static final String SUMMARY_COLUMNS = """
-            t.id, t.title, t.country_code, t.city, ca.name as authority_name, t.main_cpv, t.contract_type,
+            t.id, t.title, t.country_code, t.city, ca.name as authority_name, t.main_cpv,
+            coalesce(cpv.labels->>:lang, cpv.labels->>'en') as main_cpv_label, t.contract_type,
             t.procedure_type, t.estimated_value, t.currency, t.estimated_value_eur, t.published_at,
             t.submission_deadline, t.status, t.original_url
             """;
@@ -45,10 +46,13 @@ public class TenderQueries {
         this.json = json;
     }
 
-    public PageResponse<TenderSummary> search(TenderSearchCriteria c) {
-        MapSqlParameterSource p = new MapSqlParameterSource();
+    static final String FROM = " from tenders t left join contracting_authorities ca on ca.id = t.contracting_authority_id "
+            + "left join cpv_codes cpv on cpv.code = t.main_cpv ";
+
+    public PageResponse<TenderSummary> search(TenderSearchCriteria c, String lang) {
+        MapSqlParameterSource p = new MapSqlParameterSource("lang", lang(lang));
         String where = where(c, p);
-        String from = " from tenders t left join contracting_authorities ca on ca.id = t.contracting_authority_id ";
+        String from = FROM;
         Long total = jdbc.queryForObject("select count(*)" + from + where, p, Long.class);
         int size = c.sizeOrDefault();
         int page = c.pageOrDefault();
@@ -58,15 +62,49 @@ public class TenderQueries {
         return PageResponse.of(items, page, size, total == null ? 0 : total);
     }
 
+    /** Up to {@code limit} rows matching the criteria, in the requested order (used by exports). */
+    public List<TenderSummary> list(TenderSearchCriteria c, String lang, int limit) {
+        MapSqlParameterSource p = new MapSqlParameterSource("lang", lang(lang)).addValue("limit", limit);
+        String where = where(c, p);
+        return jdbc.query("select " + SUMMARY_COLUMNS + FROM + where + orderBy(c) + " limit :limit", p,
+                (rs, i) -> summary(rs));
+    }
+
+    public long count(TenderSearchCriteria c) {
+        MapSqlParameterSource p = new MapSqlParameterSource();
+        String where = where(c, p);
+        Long n = jdbc.queryForObject("select count(*)" + FROM + where, p, Long.class);
+        return n == null ? 0 : n;
+    }
+
+    /** Summaries of the given tenders, keyed by id (missing ids are simply absent). */
+    public java.util.Map<UUID, TenderSummary> summaries(java.util.Collection<UUID> ids, String lang) {
+        if (ids.isEmpty()) {
+            return java.util.Map.of();
+        }
+        MapSqlParameterSource p = new MapSqlParameterSource("lang", lang(lang)).addValue("ids", ids);
+        java.util.Map<UUID, TenderSummary> out = new java.util.LinkedHashMap<>();
+        jdbc.query("select " + SUMMARY_COLUMNS + FROM + " where t.id in (:ids)", p,
+                rs -> {
+                    TenderSummary s = summary(rs);
+                    out.put(s.id(), s);
+                });
+        return out;
+    }
+
     public TenderDetail get(UUID id) {
-        MapSqlParameterSource p = new MapSqlParameterSource("id", id);
+        return get(id, "en");
+    }
+
+    public TenderDetail get(UUID id, String lang) {
+        MapSqlParameterSource p = new MapSqlParameterSource("id", id).addValue("lang", lang(lang));
         List<TenderDetail> rows = jdbc.query("""
                 select t.*, ca.id as ca_id, ca.name as ca_name, ca.national_id as ca_national_id,
                        ca.country_code as ca_country, ca.city as ca_city, ca.website as ca_website,
                        t.participation_conditions::text as pc_text, t.award_criteria::text as ac_text
                 from tenders t left join contracting_authorities ca on ca.id = t.contracting_authority_id
                 where t.id = :id
-                """, p, (rs, i) -> detail(rs, id));
+                """, p, (rs, i) -> detail(rs, id, lang(lang)));
         if (rows.isEmpty()) {
             throw ApiException.notFound("Tender");
         }
@@ -181,8 +219,33 @@ public class TenderQueries {
         }
     }
 
-    private TenderDetail detail(ResultSet rs, UUID id) throws SQLException {
-        MapSqlParameterSource p = new MapSqlParameterSource("id", id);
+    private TenderDetail detail(ResultSet rs, UUID id, String lang) throws SQLException {
+        MapSqlParameterSource p = new MapSqlParameterSource("id", id).addValue("lang", lang);
+        java.util.Map<String, String> cpvLabels = new java.util.LinkedHashMap<>();
+        jdbc.query("""
+                select tc.cpv_code, coalesce(c.labels->>:lang, c.labels->>'en') from tender_cpv tc
+                left join cpv_codes c on c.code = tc.cpv_code where tc.tender_id = :id
+                union
+                select t.main_cpv, coalesce(c.labels->>:lang, c.labels->>'en') from tenders t
+                left join cpv_codes c on c.code = t.main_cpv where t.id = :id and t.main_cpv is not null
+                """, p, r -> {
+            if (r.getString(2) != null) {
+                cpvLabels.put(r.getString(1), r.getString(2));
+            }
+        });
+        List<TenderDtos.LotView> lots = jdbc.query("""
+                select lot_number, title, estimated_value, currency, submission_deadline from tender_lots
+                where tender_id = :id order by lot_number
+                """, p, (r, i) -> new TenderDtos.LotView(r.getString(1), r.getString(2), r.getBigDecimal(3),
+                r.getString(4), instant(r, 5)));
+        List<TenderDtos.ResultView> results = jdbc.query("""
+                select o.name, o.country_code, r.winner_size, r.awarded_value, r.currency, r.awarded_value_eur,
+                       r.tenders_received, r.award_date
+                from tender_results r left join economic_operators o on o.id = r.winner_id
+                where r.tender_id = :id order by r.award_date nulls last, o.name
+                """, p, (r, i) -> new TenderDtos.ResultView(r.getString(1), r.getString(2), r.getString(3),
+                r.getBigDecimal(4), r.getString(5), r.getBigDecimal(6), (Integer) r.getObject(7),
+                r.getObject(8, java.time.LocalDate.class)));
         List<String> cpv = jdbc.queryForList(
                 "select cpv_code from tender_cpv where tender_id = :id order by is_main desc, cpv_code", p,
                 String.class);
@@ -199,18 +262,18 @@ public class TenderQueries {
         return new TenderDetail(id, rs.getString("title"), rs.getString("title_lang"), rs.getString("description"),
                 rs.getString("country_code"), rs.getString("nuts_code"), rs.getString("city"), authority,
                 rs.getString("reference_number"), rs.getString("contract_type"), rs.getString("procedure_type"),
-                rs.getString("main_cpv"), cpv, rs.getBigDecimal("estimated_value"), rs.getString("currency"),
+                rs.getString("main_cpv"), cpv, cpvLabels, rs.getBigDecimal("estimated_value"), rs.getString("currency"),
                 rs.getBigDecimal("estimated_value_eur"), instant(rs, "published_at"),
                 instant(rs, "submission_deadline"), rs.getString("submission_deadline_tz"), instant(rs, "opening_at"),
                 rs.getString("status"), rs.getString("notice_language"), rs.getString("original_url"),
                 rs.getString("documents_url"), readJson(rs.getString("pc_text")), readJson(rs.getString("ac_text")),
-                rs.getInt("current_version_no"), instant(rs, "last_changed_at"), sources);
+                rs.getInt("current_version_no"), instant(rs, "last_changed_at"), sources, lots, results);
     }
 
     private static TenderSummary summary(ResultSet rs) throws SQLException {
         return new TenderSummary(rs.getObject("id", UUID.class), rs.getString("title"), rs.getString("country_code"),
                 rs.getString("city"), rs.getString("authority_name"), rs.getString("main_cpv"),
-                rs.getString("contract_type"), rs.getString("procedure_type"), rs.getBigDecimal("estimated_value"),
+                rs.getString("main_cpv_label"), rs.getString("contract_type"), rs.getString("procedure_type"), rs.getBigDecimal("estimated_value"),
                 rs.getString("currency"), rs.getBigDecimal("estimated_value_eur"), instant(rs, "published_at"),
                 instant(rs, "submission_deadline"), rs.getString("status"), rs.getString("original_url"));
     }
@@ -227,6 +290,10 @@ public class TenderQueries {
     private static Instant instant(ResultSet rs, int column) throws SQLException {
         Timestamp ts = rs.getTimestamp(column);
         return ts == null ? null : ts.toInstant();
+    }
+
+    static String lang(String lang) {
+        return lang != null && lang.matches("[a-z]{2}") ? lang : "en";
     }
 
     private static String escapeLike(String s) {
