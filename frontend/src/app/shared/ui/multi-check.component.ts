@@ -14,10 +14,16 @@ let nextId = 0;
   selector: 'eti-multi-check',
   imports: [TranslocoPipe, LucideChevronDown],
   template: `
+    @if (stacked()) {
+      <span class="eti-label" aria-hidden="true">{{ label() }}</span>
+    }
     <details class="group" [attr.open]="startOpen() ? '' : null">
-      <summary class="eti-input flex cursor-pointer list-none items-center justify-between">
+      <summary class="eti-input flex cursor-pointer list-none items-center justify-between" [class.mt-2]="stacked()"
+               [attr.aria-label]="stacked() ? label() + ': ' + summary() : null">
         <span class="truncate">
-          <span class="text-ink-muted">{{ label() }}:</span>
+          @if (!stacked()) {
+            <span class="text-ink-muted">{{ label() }}:</span>
+          }
           {{ summary() }}
         </span>
         <svg lucideChevronDown class="size-4 shrink-0 text-ink-muted transition-transform group-open:rotate-180" aria-hidden="true"></svg>
@@ -52,6 +58,8 @@ export class MultiCheckComponent {
   readonly options = input.required<CheckOption[]>();
   readonly allLabel = input.required<string>();
   readonly startOpen = input(false);
+  /** Label above the control (filter panels) instead of inside it. */
+  readonly stacked = input(false);
   readonly selected = model<string[]>([]);
   protected readonly filter = signal('');
   protected readonly filterId = `mc-${nextId++}`;

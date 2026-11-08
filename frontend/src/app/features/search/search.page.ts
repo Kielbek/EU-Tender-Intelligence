@@ -68,7 +68,8 @@ export class SearchPage {
   protected readonly results = signal<Page<TenderSummary> | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<ApiError | null>(null);
-  protected readonly filtersOpen = signal(false);
+  /** Filter panel: shown next to the results on wide screens, toggled with the "Filters" button. */
+  protected readonly filtersOpen = signal(typeof window !== 'undefined' && window.matchMedia('(min-width: 1280px)').matches);
   protected readonly exportBusy = signal(false);
   protected readonly exportNote = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);

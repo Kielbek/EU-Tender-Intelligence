@@ -12,7 +12,7 @@
 
   <aside
     id="eti-sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-[250px] shrink-0 flex-col border-r border-border bg-sidebar transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0 lg:data-[collapsed=true]:hidden"
+    class="fixed inset-y-0 left-0 z-40 flex w-[250px] shrink-0 flex-col border-r border-border bg-sidebar transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0"
     [class.-translate-x-full]="!menuOpen()"
     [class.shadow-xl]="menuOpen()"
     [attr.data-collapsed]="sidebarHidden()"
@@ -90,8 +90,8 @@
     </nav>
 
     @if (auth.user(); as user) {
-      <div class="border-t border-border p-4">
-        <a routerLink="/account" class="flex items-center gap-3 rounded-lg p-2 hover:bg-canvas" (click)="closeMenu()">
+      <div class="flex items-center gap-1 border-t border-border p-4">
+        <a routerLink="/account" class="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-2 hover:bg-canvas" (click)="closeMenu()">
           <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent" aria-hidden="true">{{ initials() }}</span>
           <span class="min-w-0 flex-1">
             <span class="block truncate text-xs font-semibold text-ink">{{ user.fullName }}</span>
@@ -99,8 +99,11 @@
               <span class="mt-0.5 block truncate text-[10px] text-ink-muted">{{ current.name }} · {{ 'nav.plan' | transloco: { plan: ('billing.plan.' + current.planCode | transloco) } }}</span>
             }
           </span>
-          <svg lucideChevronRight class="size-4 text-ink-muted" aria-hidden="true"></svg>
         </a>
+        <button type="button" class="eti-icon-btn shrink-0" [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco"
+                (click)="logout()">
+          <svg lucideLogOut class="size-4" aria-hidden="true"></svg>
+        </button>
       </div>
     }
   </aside>
@@ -109,7 +112,7 @@
     <header class="sticky top-0 z-20 flex h-[70px] items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-5 lg:px-9">
       <button
         type="button"
-        class="eti-icon-btn"
+        class="eti-icon-btn lg:hidden"
         [attr.aria-label]="(menuOpen() ? 'nav.closeMenu' : 'nav.openMenu') | transloco"
         [attr.aria-expanded]="menuOpen() || !sidebarHidden()"
         aria-controls="eti-sidebar"
@@ -127,7 +130,7 @@
         <div class="relative w-full max-w-[340px]">
           <svg lucideSearch class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-faint" aria-hidden="true"></svg>
           <input #globalSearch id="global-search" name="q" type="search" [(ngModel)]="globalQuery" maxlength="200"
-                 class="h-10 w-full rounded-[var(--radius-control)] border border-transparent bg-[#fafbfd] pr-14 pl-9 text-[13px] text-ink placeholder:text-ink-faint focus:border-accent focus:bg-surface focus:ring-[3px] focus:ring-accent/10 focus:outline-none"
+                 class="h-10 w-full rounded-[var(--radius-control)] border border-border-strong bg-[#fafbfd] pr-14 pl-9 text-[13px] text-ink placeholder:text-ink-faint focus:border-accent focus:bg-surface focus:ring-[3px] focus:ring-accent/10 focus:outline-none"
                  [placeholder]="'nav.globalSearchPlaceholder' | transloco" aria-keyshortcuts="Control+K Meta+K" />
           <kbd class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 font-sans text-[10px] text-ink-faint" aria-hidden="true">{{ shortcutLabel }}</kbd>
         </div>
@@ -148,10 +151,6 @@
               <span class="absolute top-1.5 right-1.5 size-2 rounded-full border border-surface bg-accent" aria-hidden="true"></span>
             }
           </a>
-          <button type="button" class="eti-icon-btn" [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco"
-                  (click)="logout()">
-            <svg lucideLogOut class="size-[18px]" aria-hidden="true"></svg>
-          </button>
           <a routerLink="/account" class="inline-flex size-8 items-center justify-center rounded-full bg-navy-900 text-[10px] font-semibold text-white hover:ring-4 hover:ring-accent-soft"
              [title]="user.fullName" [attr.aria-label]="('nav.account' | transloco) + ': ' + user.fullName">{{ initials() }}</a>
         }
@@ -161,11 +160,10 @@
     <main id="main" tabindex="-1" class="mx-auto w-full max-w-[1500px] flex-1 px-4 pt-8 pb-10 sm:px-5 lg:px-9 lg:pt-9">
       @if (crumbs().length) {
         <nav class="mb-3 flex items-center gap-2 text-[11px] text-ink-muted" [attr.aria-label]="'nav.breadcrumbs' | transloco">
-          <a routerLink="/" class="hover:text-accent" [attr.aria-label]="'nav.dashboard' | transloco">
-            <svg lucideHouse class="size-3.5" aria-hidden="true"></svg>
-          </a>
-          @for (c of crumbs(); track $index; let last = $last) {
-            <svg lucideChevronRight class="size-3 text-ink-faint" aria-hidden="true"></svg>
+          @for (c of crumbs(); track $index; let last = $last; let first = $first) {
+            @if (!first) {
+              <svg lucideChevronRight class="size-3" aria-hidden="true"></svg>
+            }
             @if (c.link && !last) {
               <a [routerLink]="c.link" class="hover:text-accent">{{ c.key | transloco }}</a>
             } @else {

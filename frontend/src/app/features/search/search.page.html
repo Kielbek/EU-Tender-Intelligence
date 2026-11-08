@@ -72,10 +72,10 @@
       <p class="mt-1 text-[11px] text-ink-muted">{{ 'search.allTendersHint' | transloco }}</p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <eti-select class="w-56" inputId="sort" name="sort" [spaced]="false" [ariaLabel]="'search.sort' | transloco"
+      <eti-select class="w-44" inputId="sort" name="sort" [spaced]="false" [ariaLabel]="'search.sort' | transloco"
                   [options]="form.q ? sortSelect().withQuery : sortSelect().withoutQuery"
                   [(ngModel)]="form.sort" (ngModelChange)="submit()" />
-      <button type="button" class="eti-btn-secondary xl:hidden" [attr.aria-expanded]="filtersOpen()"
+      <button type="button" class="eti-btn-secondary" [attr.aria-expanded]="filtersOpen()"
               aria-controls="filters" (click)="filtersOpen.set(!filtersOpen())">
         <svg lucideSlidersHorizontal class="size-3.5" aria-hidden="true"></svg>{{ 'search.filters' | transloco }}
         @if (activeFilters()) {
@@ -85,10 +85,10 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-5 xl:grid-cols-[240px_minmax(0,1fr)]">
+  <div class="grid grid-cols-1 gap-5 xl:data-[filters=true]:grid-cols-[225px_minmax(0,1fr)]" [attr.data-filters]="filtersOpen()">
     <!-- Filters -->
     <div class="min-w-0">
-      <section id="filters" class="eti-card space-y-5 self-start p-4 xl:block" [class.hidden]="!filtersOpen()" aria-labelledby="filters-heading">
+      <section id="filters" class="eti-card space-y-5 self-start p-4" [class.hidden]="!filtersOpen()" aria-labelledby="filters-heading">
         <div class="flex items-center justify-between">
           <h2 id="filters-heading" class="text-[13px] font-semibold">{{ 'search.filters' | transloco }}</h2>
           @if (activeFilters()) {
@@ -96,14 +96,14 @@
           }
         </div>
 
-        <eti-multi-check class="block" [label]="'search.status' | transloco" [allLabel]="'search.allStatuses' | transloco"
+        <eti-multi-check class="block" [stacked]="true" [label]="'search.status' | transloco" [allLabel]="'search.allStatuses' | transloco"
                          [options]="statusOptions()" [(selected)]="form.status" />
-        <eti-multi-check class="block" [label]="'search.countries' | transloco" [allLabel]="'search.allCountries' | transloco"
+        <eti-multi-check class="block" [stacked]="true" [label]="'search.countries' | transloco" [allLabel]="'search.allCountries' | transloco"
                          [options]="countryOptions()" [(selected)]="form.country" />
         <eti-cpv-picker class="block" [label]="'search.cpv' | transloco" [lang]="language.current()" [(selected)]="form.cpv" />
-        <eti-multi-check class="block" [label]="'search.contractType' | transloco" [allLabel]="'search.allTypes' | transloco"
+        <eti-multi-check class="block" [stacked]="true" [label]="'search.contractType' | transloco" [allLabel]="'search.allTypes' | transloco"
                          [options]="typeOptions()" [(selected)]="form.contractType" />
-        <eti-multi-check class="block" [label]="'search.procedureType' | transloco" [allLabel]="'search.allProcedures' | transloco"
+        <eti-multi-check class="block" [stacked]="true" [label]="'search.procedureType' | transloco" [allLabel]="'search.allProcedures' | transloco"
                          [options]="procedureOptions()" [(selected)]="form.procedureType" />
 
         <fieldset class="grid grid-cols-2 gap-2">
@@ -213,7 +213,7 @@
               </p>
               <span class="text-[10px] text-ink-muted">{{ 'search.sourceNote' | transloco }}</span>
             </div>
-            <div class="eti-table-head hidden grid-cols-[minmax(0,1fr)_8rem_8.5rem_9rem_7rem_2.5rem] gap-3 px-4 py-3 lg:grid" aria-hidden="true">
+            <div class="eti-table-head hidden grid-cols-[minmax(0,1fr)_9rem_7.5rem_7.5rem_6.5rem_2.5rem] gap-3 px-4 py-3 lg:grid" aria-hidden="true">
               <span>{{ 'search.columns.tender' | transloco }}</span>
               <span>{{ 'search.columns.country' | transloco }}</span>
               <span>{{ 'search.columns.value' | transloco }}</span>
@@ -224,9 +224,9 @@
             <ul class="divide-y divide-border">
               @for (t of r.items; track t.id) {
                 @let lang = language.current();
-                <li class="grid grid-cols-[minmax(0,1fr)_2.5rem] gap-3 px-4 py-4 text-xs hover:bg-subtle lg:grid-cols-[minmax(0,1fr)_8rem_8.5rem_9rem_7rem_2.5rem] lg:items-center">
+                <li class="grid grid-cols-[minmax(0,1fr)_2.5rem] gap-3 px-4 py-4 text-xs hover:bg-subtle lg:grid-cols-[minmax(0,1fr)_9rem_7.5rem_7.5rem_6.5rem_2.5rem] lg:items-center">
                   <div class="min-w-0">
-                    <h3 class="line-clamp-2 text-[13px] leading-snug font-semibold break-words text-ink" [title]="t.title">
+                    <h3 class="line-clamp-2 text-xs leading-snug font-semibold break-words text-ink" [title]="t.title">
                       <a [routerLink]="['/tenders', t.id]" class="hover:text-accent">{{ t.title }}</a>
                     </h3>
                     <p class="mt-1 truncate text-[11px] text-ink-muted">
