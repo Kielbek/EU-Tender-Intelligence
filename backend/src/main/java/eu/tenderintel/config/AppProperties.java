@@ -24,6 +24,7 @@ public record AppProperties(
         @Valid @NotNull Security security,
         @Valid @NotNull Mail mail,
         @Valid @NotNull Reference reference,
+        @Valid @NotNull Ted ted,
         @Valid @NotNull Integrations integrations) {
 
     public record Cors(@NotNull List<String> allowedOrigins) {
@@ -52,6 +53,16 @@ public record AppProperties(
             @NotBlank String ecbDailyUrl,
             @NotBlank String ecbHistory90dUrl,
             @DefaultValue("false") boolean importOnStartup) {
+    }
+
+    public record Ted(
+            @NotBlank String searchUrl,
+            /* Fields x page size must not exceed 10 000 (TED API limit). */
+            @DefaultValue("200") int pageSize,
+            @DefaultValue("3") int initialBackfillDays,
+            @DefaultValue("31") int maxBackfillDays,
+            @DefaultValue("true") boolean scheduleEnabled,
+            @DefaultValue("PT0.3S") Duration pauseBetweenPages) {
     }
 
     /**

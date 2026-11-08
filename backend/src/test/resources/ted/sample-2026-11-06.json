@@ -1,0 +1,1456 @@
+{
+ "cn_pl_single": {
+  "deadline-receipt-tender-date-lot": [
+   "2026-12-08+01:00"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771400-2026",
+  "main-classification-proc": [
+   "30199700"
+  ],
+  "procedure-identifier": "3cd92e09-232d-4bfb-bd55-08c952779087",
+  "place-of-performance-country-proc": [
+   "POL"
+  ],
+  "document-url-lot": [
+   "https://ezamowienia.gov.pl/mp-client/tenders/ocds-148610-992ea309-1fa0-4c0e-b31a-5423e9ad04d8"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "estimated-value-proc": "367994.72",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771400-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771400-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Warszawa"
+   ]
+  },
+  "place-of-performance": [
+   "PL911",
+   "POL",
+   "PL911",
+   "POL"
+  ],
+  "title-proc": {
+   "pol": "Druk i dystrybucja publikacji wybranych wzorów matematycznych oraz wybranych wzorów i stałych fizykochemicznych"
+  },
+  "estimated-value-lot": [
+   "367994.72"
+  ],
+  "estimated-value-cur-lot": [
+   "PLN"
+  ],
+  "estimated-value-cur-proc": "PLN",
+  "buyer-country": [
+   "POL"
+  ],
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "09:00:00+01:00"
+  ],
+  "classification-cpv": [
+   "30199700",
+   "30197630",
+   "79800000",
+   "79820000",
+   "79823000",
+   "79824000",
+   "30199700",
+   "30197630",
+   "79800000",
+   "79820000",
+   "79823000",
+   "79824000"
+  ],
+  "buyer-name": {
+   "pol": [
+    "Centralna Komisja Egzaminacyjna"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://bip.cke.gov.pl/"
+  ],
+  "title-lot": {
+   "pol": [
+    "Druk i dystrybucja publikacji wybranych wzorów matematycznych oraz wybranych wzorów i stałych fizykochemicznych"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "CKE/7/2026",
+  "description-proc": {
+   "pol": "1. Przedmiotem zamówienia jest: 1) przygotowanie do druku 2) druk 3) konfekcjonowanie 4) pakowanie i zabezpieczenie paczek 5) dystrybucja do szkół, 8 okręgowych komisji egzaminacyjnych (OKE) w: Gdańsku, Jaworznie, Krakowie, Łomży, Łodzi, Poznaniu, Warszawie i we Wrocławiu oraz do Centralnej Komisji Egzaminacyjnej w Warszawie (CKE) dwóch publikacji (w Formule 2023), tj.: a) Wybrane wzory matematyczne na egzamin maturalny z matematyki b) Wybrane wzory i stałe fizykochemiczne na egzamin maturalny z biologii, chemii i fizyki. 2. Publikacje posiadają następujące numery ISBN: 1) Wybrane wzory matematyczne na egzamin maturalny z matematyki - ISBN 978-83-66725-01-0 2) Wybrane wzory i stałe fizykochemiczne na egzamin maturalny z biologii, chemii i fizyki - ISBN 978-83-66725-02-7. 3. Szczegółowy opis przedmiotu zamówienia (OPZ) określa załącznik nr 1 do SWZ."
+  },
+  "buyer-identifier": [
+   "527 22 16 679"
+  ]
+ },
+ "cn_multilot": {
+  "change-reason-code": "info-release",
+  "deadline-receipt-tender-date-lot": [
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-13+02:00",
+   "2026-11-06+02:00"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771647-2026",
+  "main-classification-proc": [
+   "33100000"
+  ],
+  "procedure-identifier": "cb15a1c9-b4be-4c6e-9e0e-676f194a88c9",
+  "place-of-performance-country-proc": [
+   "ROU"
+  ],
+  "document-url-lot": [
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415",
+   "https://e-licitatie.ro/pub/notices/c-notice/v2/view/100213415"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "estimated-value-proc": "3651239.67",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771647-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771647-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0001",
+   "LOT-0002",
+   "LOT-0003",
+   "LOT-0004",
+   "LOT-0005",
+   "LOT-0006",
+   "LOT-0007",
+   "LOT-0008",
+   "LOT-0009",
+   "LOT-0010",
+   "LOT-0011",
+   "LOT-0012",
+   "LOT-0013",
+   "LOT-0014",
+   "LOT-0015",
+   "LOT-0016",
+   "LOT-0017",
+   "LOT-0018",
+   "LOT-0019",
+   "LOT-0020",
+   "LOT-0021",
+   "LOT-0022",
+   "LOT-0023",
+   "LOT-0024",
+   "LOT-0025",
+   "LOT-0026",
+   "LOT-0027",
+   "LOT-0028",
+   "LOT-0029"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Azuga"
+   ]
+  },
+  "place-of-performance": [
+   "RO316",
+   "ROU",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "RO316",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU",
+   "ROU"
+  ],
+  "title-proc": {
+   "ron": "Dotarea Spitalului de Ortopedie și Traumatologie Azuga cu aparatură medicală și accesorii 2026"
+  },
+  "estimated-value-lot": [
+   "147933.88",
+   "396694.21",
+   "111570.25",
+   "18181.82",
+   "19834.71",
+   "14876.03",
+   "129752.07",
+   "223966.94",
+   "114049.59",
+   "37190.08",
+   "16528.93",
+   "148760.33",
+   "34710.74",
+   "91735.54",
+   "304958.68",
+   "29752.07",
+   "94214.88",
+   "89256.2",
+   "648760.33",
+   "33057.85",
+   "233884.3",
+   "8264.46",
+   "14876.03",
+   "28925.62",
+   "20661.16",
+   "535537.19",
+   "47933.88",
+   "26446.28",
+   "28925.62"
+  ],
+  "estimated-value-cur-lot": [
+   "RON"
+  ],
+  "estimated-value-cur-proc": "RON",
+  "buyer-country": [
+   "ROU"
+  ],
+  "change-notice-version-identifier": "cc7f75e7-1213-4485-a144-81293d9ce9ca-01",
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00",
+   "15:00:00+02:00"
+  ],
+  "classification-cpv": [
+   "33100000",
+   "31110000",
+   "33192150",
+   "33172000",
+   "33194110",
+   "33194100",
+   "42122411",
+   "33123200",
+   "33182100",
+   "33121100",
+   "33162000",
+   "33186200",
+   "33112200",
+   "33195100",
+   "33172000",
+   "33171000",
+   "33157800",
+   "38434520",
+   "38434520",
+   "33191100",
+   "33192150",
+   "33100000",
+   "39713430",
+   "39713430",
+   "33169000",
+   "33169000",
+   "33111600",
+   "33158200",
+   "33155000",
+   "33169000"
+  ],
+  "buyer-name": {
+   "ron": [
+    "SPITALUL DE ORTOPEDIE SI TRAUMATOLOGIE AZUGA"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://www.ortopedieazuga.ro"
+  ],
+  "title-lot": {
+   "ron": [
+    "MOTOR ORTOPEDIC / SISTEM DE MOTOARE CHIRURGICALE",
+    "Pat de terapie intensivă prevăzut cu cântar și spătar",
+    "Aparat de ventilație mecanică",
+    "INJECTOMATE",
+    "Infuzomat",
+    "NUTRIPOMPĂ",
+    "APARAT EKG",
+    "Defribilator",
+    "APARAT EEG",
+    "Sistem de încălzire externă a pacientului",
+    "Sistem de încălzire a lichidelor perfuzabile",
+    "Ecograf multifunctional",
+    "MONITOR DE TRANSPORT",
+    "Ventilator de transport",
+    "SISTEM DE VIDEOBRONHOSCOPIE",
+    "BRANCARD CU BUTELIE DE OXIGEN",
+    "APARAT DE MĂSURARE A GAZELOR SANGUINE",
+    "APARAT DE MĂSURARE A COAGULĂRII",
+    "STAȚIE DE STERILIZARE",
+    "ECHIPAMENT DE ELONGARE/TRAȚIUNE",
+    "MAȘINĂ DE SPĂLAT ȘI DEZINFECTAT INSTRUMENTAR",
+    "ASPIRATOR CHIRURGICAL",
+    "ASPIRATOR NAZAL / ASPIRATOR DE SECREȚII",
+    "Trusă de instrumentar",
+    "Trusă chirurgicală",
+    "APARAT DE RADIOLOGIE MOBIL",
+    "APARAT TECAR DE RADIOFRECVENȚĂ",
+    "APARAT PENTRU MIȘCARE PASIVĂ ȘI RECUPERARE ȘOLD-GENUNCHI-GLEZNĂ",
+    "Trusă de instrumentar"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "2845125_2026_PAAPD1643668",
+  "description-proc": {
+   "ron": "Obiectul achiziției îl constituie furnizarea de aparatură, echipamente, dispozitive medicale și accesorii necesare dotării Spitalului de Ortopedie și Traumatologie Azuga, în vederea desfășurării în condiții de siguranță, continuitate și eficiență a activităților de diagnostic, monitorizare, tratament, intervenție medicală, sterilizare, recuperare și transport al pacienților. Achiziția se realizează sub forma unui contract de achiziție publică de produse, având cod CPV principal 33100000-1 – Echipamente medicale (Rev. 2), și este împărțită în 28 de loturi, în funcție de natura, destinația și caracteristicile funcționale ale produselor solicitate. Contractul va include, cu titlu accesoriu, toate operațiunile necesare pentru livrarea și utilizarea corespunzătoare a produselor, respectiv transportul, descărcarea, manipularea, instalarea, montajul, amplasarea, configurarea, punerea în funcțiune, testarea funcțională, instruirea personalului medical și tehnic, precum și acordarea garanției și asigurarea suportului tehnic în perioada de garanție. Aceste operațiuni sunt accesorii furnizării produselor și nu constituie obiecte autonome de servicii. Potrivit art. 3 lit. n) din Legea nr. 98/2016, un contract de achiziție publică de produse poate include, cu titlu accesoriu, lucrări sau operațiuni de amplasare și instalare. Documentația standard pentru achiziția de produse prevede, de asemenea, includerea în obiectul contractului atât a produselor, cât și a operațiunilor accesorii necesare realizării acestuia. Operatorii economici vor putea solicita clarificari sau informatii suplimentare în legatura cu documentatia de atribuire cu 10 zile inainte de data limita de depunere a ofertelor. Autoritatea contractanta va raspunde solicitarilor de clarificari înainte cu 5 zile de data limită de depunere a ofertelor."
+  },
+  "buyer-identifier": [
+   "2845125"
+  ]
+ },
+ "cn_change": {
+  "change-reason-code": "info-release",
+  "deadline-receipt-tender-date-lot": [
+   "2026-11-23+01:00"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771355-2026",
+  "main-classification-proc": [
+   "48000000"
+  ],
+  "procedure-identifier": "85842265-ccf3-48ee-9065-0a4abe5804ab",
+  "place-of-performance-country-proc": [
+   "DEU"
+  ],
+  "document-url-lot": [
+   "https://www.dtvp.de/Satellite/notice/CXP4Y04M1Y2/documents"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771355-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771355-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Leipzig"
+   ]
+  },
+  "place-of-performance": [
+   "DED51",
+   "DEU",
+   "DED51",
+   "DEU"
+  ],
+  "title-proc": {
+   "deu": "048 26_Erneuerung VMware Umgebung"
+  },
+  "place-of-performance-city-proc": [
+   "Leipzig"
+  ],
+  "buyer-country": [
+   "DEU"
+  ],
+  "change-notice-version-identifier": "86b489b3-333e-4984-86d9-e46a6b9723d1-01",
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "11:00:00+01:00"
+  ],
+  "classification-cpv": [
+   "48000000",
+   "72268000",
+   "72260000",
+   "48000000",
+   "72268000",
+   "72260000"
+  ],
+  "buyer-name": {
+   "deu": [
+    "Klinikum St. Georg gGmbH"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://www.sanktgeorg.de"
+  ],
+  "title-lot": {
+   "deu": [
+    "048 26_Erneuerung VMware Umgebung"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "048 26",
+  "description-proc": {
+   "deu": "Erneuerung VMware Umgebung für 5 Jahre inkl. Support"
+  },
+  "buyer-identifier": [
+   "23114400076"
+  ]
+ },
+ "cn_cancel": {
+  "change-reason-code": "cancel",
+  "deadline-receipt-tender-date-lot": [
+   "2026-11-23+02:00"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771463-2026",
+  "main-classification-proc": [
+   "60000000"
+  ],
+  "procedure-identifier": "ad29682e-3f0e-4ffd-a627-6c1c1cb24a39",
+  "place-of-performance-country-proc": [
+   "FIN"
+  ],
+  "document-url-lot": [
+   "https://www.hankintailmoitukset.fi/sv/public/procedure/39636/enotice/61302"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771463-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771463-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "services",
+  "identifier-lot": [
+   "LOT-0000"
+  ],
+  "buyer-city": {
+   "mul": [
+    "KORSHOLM"
+   ]
+  },
+  "place-of-performance": [
+   "FI19A",
+   "FIN",
+   "FI19A",
+   "FIN"
+  ],
+  "title-proc": {
+   "swe": "Avbryten, Mattransporter",
+   "fin": "Keskeytetty, Ruokakuljetukset"
+  },
+  "buyer-country": [
+   "FIN"
+  ],
+  "change-notice-version-identifier": "6bfa641f-3428-49b9-b014-879dbac8ca1a-01",
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "12:00:00+02:00"
+  ],
+  "classification-cpv": [
+   "60000000",
+   "60000000"
+  ],
+  "buyer-name": {
+   "swe": [
+    "Korsholms kommun"
+   ],
+   "fin": [
+    "Mustasaaren Kunta"
+   ]
+  },
+  "buyer-internet-address": [
+   "http://www.korsholm.fi"
+  ],
+  "title-lot": {
+   "swe": [
+    "Avbryten, Mattransporter"
+   ],
+   "fin": [
+    "Keskeytetty, Ruokakuljetukset"
+   ]
+  },
+  "form-type": "competition",
+  "description-proc": {
+   "swe": "Upphandling av Mattransporter, avtalstid 1.1.2027-31.12.2027 + 1 options år. Mattransporterna är uppdelade i olika områden. Maten transporteras från tillredningskök till utdelningskök enligt bifogad transportlista. Priset ges per område och avtal ingås med det företag som gett det totalekonomiskt mest fördelaktiga anbudet per område. Maten transporteras i beställarens egna värmelådor, i framtiden kommer ma-ten att transporteras i värmekärra/värmekärror.",
+   "fin": "Ruokakuljetuksien hankinta, hankinta, sopimuskausi 1.1.2027-31.12.2027 + 1 optiovuosi. Ruokakuljetukset on jaettu alueisiin. Ruoka kuljetetaan valmistuskeittiöistä jakelukeittiöihin liitteenä olevan kuljetus-listan mukaisesti. Hinta annetaan alueittain, ja sopimus tehdään alueittain kokonaistaloudellisesti edullisimman tar-jouksen tehneen yrityksen kanssa. Ruoka kuljetetaan tilaajan omissa lämpölaatikoissa, tulevaisuudessa ruoka kulje-tetaan lämpövaunussa/lämpövaunuissa."
+  },
+  "buyer-identifier": [
+   "0181101-6"
+  ]
+ },
+ "can_aligned": {
+  "change-reason-code": "update-add",
+  "notice-type": "can-standard",
+  "publication-number": "771353-2026",
+  "winner-country": [
+   "ESP"
+  ],
+  "main-classification-proc": [
+   "71311100"
+  ],
+  "procedure-identifier": "061c2be2-c495-4670-8db5-87a810791050",
+  "place-of-performance-country-proc": [
+   "ESP"
+  ],
+  "winner-identifier": [
+   "A39074877"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "received-submissions-type-code": [
+   "t-sme",
+   "tenders"
+  ],
+  "winner-decision-date": [
+   "2025-11-27+01:00"
+  ],
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771353-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771353-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "services",
+  "identifier-lot": [
+   "LOT-0000"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Madrid"
+   ]
+  },
+  "place-of-performance": [
+   "ES709",
+   "ESP",
+   "ES709",
+   "ESP"
+  ],
+  "title-proc": {
+   "spa": "Servicios de asistencia técnica a la dirección facultativa en la supervisión y control de la ejecución, en la coordinación de seguridad y salud y en la supervisión y control medioambiental de las obras del proyecto de Construcción de la incorporación de Palm-Mar al Sistema Comarcal de la EDAR de Montaña de Reverón. Cofinanciado por Fondo Europeo de Desarrollo Regional."
+  },
+  "winner-size": [
+   "large"
+  ],
+  "buyer-country": [
+   "ESP"
+  ],
+  "change-notice-version-identifier": "f5b142d4-1c57-44d3-aecf-54ed5f2ff32f-01",
+  "received-submissions-type-val": [
+   "1",
+   "3"
+  ],
+  "tender-value-cur": [
+   "EUR"
+  ],
+  "tender-value": [
+   "201070.03"
+  ],
+  "procedure-type": "open",
+  "classification-cpv": [
+   "71311100",
+   "71318000",
+   "71540000",
+   "71311100",
+   "71318000",
+   "71540000"
+  ],
+  "buyer-name": {
+   "spa": [
+    "Consejo de Administración de Sociedad Mercantil Estatal Aguas de las Cuencas de España, S.A. (ACUAES)"
+   ]
+  },
+  "buyer-internet-address": [
+   "http://www.acuaes.com"
+  ],
+  "winner-name": {
+   "spa": [
+    "WSP SPAIN-APIA S.A.U."
+   ]
+  },
+  "title-lot": {
+   "spa": [
+    "Servicios de asistencia técnica a la dirección facultativa en la supervisión y control de la ejecución, en la coordinación de seguridad y salud y en la supervisión y control medioambiental de las obras del proyecto de Construcción de la incorporación de Palm-Mar al Sistema Comarcal de la EDAR de Montaña de Reverón. Cofinanciado por Fondo Europeo de Desarrollo Regional."
+   ]
+  },
+  "form-type": "result",
+  "internal-identifier-proc": "ACE/102.06/25/ATDO/02",
+  "description-proc": {
+   "spa": "Procedimiento abierto para la contratación de los Servicios de asistencia técnica a la dirección facultativa en la supervisión y control de la ejecución, en la coordinación de seguridad y salud y en la supervisión y control medioambiental de las obras del proyecto de construcción de la incorporación de Palm-Mar al Sistema Comarcal de la EDAR de Montaña de Reverón. Cofinanciado por el Programa Plurirregional de España FEDER 2021-2027."
+  },
+  "buyer-identifier": [
+   "50370410070281",
+   "A50736784"
+  ]
+ },
+ "can_mismatch": {
+  "notice-type": "can-standard",
+  "publication-number": "771372-2026",
+  "winner-country": [
+   "SWE",
+   "SWE",
+   "SWE"
+  ],
+  "main-classification-proc": [
+   "71000000"
+  ],
+  "procedure-identifier": "a1c4d1f5-9974-42bd-9e24-4bbb30aa9d82",
+  "place-of-performance-country-proc": [
+   "SWE"
+  ],
+  "winner-identifier": [
+   "5561947986",
+   "5565551701",
+   "5566137385"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "received-submissions-type-code": [
+   "tenders",
+   "t-no-eea",
+   "t-oth-eea",
+   "t-esubm",
+   "t-sme"
+  ],
+  "estimated-value-proc": "1200000000",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771372-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771372-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "services",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Södertälje"
+   ]
+  },
+  "place-of-performance": [
+   "SE110",
+   "SWE",
+   "SE110",
+   "SWE"
+  ],
+  "title-proc": {
+   "swe": "87942 Processtöd med trafikkompetens inom SUMP (Sustainable Urban Mobility Plan)"
+  },
+  "place-of-performance-city-proc": [
+   "Södertälje"
+  ],
+  "estimated-value-cur-proc": "SEK",
+  "winner-size": [
+   "small"
+  ],
+  "buyer-country": [
+   "SWE"
+  ],
+  "received-submissions-type-val": [
+   "3",
+   "0",
+   "0",
+   "0",
+   "0"
+  ],
+  "tender-value-cur": [
+   "SEK"
+  ],
+  "tender-value": [
+   "0",
+   "0",
+   "0"
+  ],
+  "procedure-type": "oth-mult",
+  "classification-cpv": [
+   "71000000",
+   "71200000",
+   "71300000",
+   "71310000",
+   "71311000",
+   "71311300",
+   "71313000",
+   "71313100",
+   "71314000",
+   "71314100",
+   "71317000",
+   "71317100",
+   "71320000",
+   "71321000",
+   "71321300",
+   "71322100",
+   "71630000",
+   "90490000",
+   "90700000",
+   "71000000",
+   "71200000",
+   "71300000",
+   "71310000",
+   "71311000",
+   "71311300",
+   "71313000",
+   "71313100",
+   "71314000",
+   "71314100",
+   "71317000",
+   "71317100",
+   "71320000",
+   "71321000",
+   "71321300",
+   "71322100",
+   "71630000",
+   "90490000",
+   "90700000"
+  ],
+  "buyer-name": {
+   "swe": [
+    "Telge Inköp AB"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://www.telge.se/"
+  ],
+  "winner-name": {
+   "swe": [
+    "Trivector Mobility AB"
+   ]
+  },
+  "title-lot": {
+   "swe": [
+    "87942 Processtöd med trafikkompetens inom SUMP (Sustainable Urban Mobility Plan)"
+   ]
+  },
+  "form-type": "result",
+  "description-proc": {
+   "swe": "Telge Inköp AB inbjuder härmed till att lämna ansökan om att få delta i ett dynamiskt inköpssystem (DIS) avseende tekniska konsulter. Teknikområden som ingår och kan komma att avropas framgår i upphandlingsdokumenten."
+  },
+  "buyer-identifier": [
+   "556770-1437"
+  ]
+ },
+ "can_no_winner": {
+  "notice-type": "can-standard",
+  "publication-number": "771357-2026",
+  "main-classification-proc": [
+   "34144210"
+  ],
+  "procedure-identifier": "5829b445-f196-4bb4-823b-9926ad42f3ff",
+  "place-of-performance-country-proc": [
+   "POL"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "received-submissions-type-code": [
+   "tenders"
+  ],
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771357-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771357-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Kamienica Polska"
+   ]
+  },
+  "place-of-performance": [
+   "PL224",
+   "POL",
+   "PL224",
+   "POL"
+  ],
+  "title-proc": {
+   "pol": "Zakup średniego wozu ratowniczo-gaśniczego dla Ochotniczej Straży Pożarnej w Kamienicy Polskiej"
+  },
+  "buyer-country": [
+   "POL"
+  ],
+  "received-submissions-type-val": [
+   "0"
+  ],
+  "procedure-type": "open",
+  "classification-cpv": [
+   "34144210",
+   "35110000",
+   "34144200",
+   "34144210",
+   "35110000",
+   "34144200"
+  ],
+  "buyer-name": {
+   "pol": [
+    "OCHOTNICZA STRAŻ POŻARNA W KAMIENICY POLSKIEJ"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://www.facebook.com/share/19dWBgzMyb/"
+  ],
+  "title-lot": {
+   "pol": [
+    "Zakup średniego wozu ratowniczo-gaśniczego dla Ochotniczej Straży Pożarnej w Kamienicy Polskiej"
+   ]
+  },
+  "form-type": "result",
+  "internal-identifier-proc": "OSPKP.1.2026",
+  "description-proc": {
+   "pol": "Przedmiotem zamówienia jest dostawa w ramach zadania pn. „Zakup średniego wozu ratowniczo-gaśniczego dla Ochotniczej Straży Pożarnej w Kamienicy Polskiej”. W ramach realizacji przedmiotu zamówienia należy wykonać dostawę zabudowanego i wyposażonego, fabrycznie nowego (rok produkcji 2026) średniego, uterenowionego specjalnego samochodu ratowniczo - gaśniczego z układem napędowym 4x4, o minimalnych parametrach techniczno-użytkowych określonych w Załączniku nr 1 do SWZ – Opisie Przedmiotu Zamówienia."
+  },
+  "buyer-identifier": [
+   "NIP: 5732516326",
+   "REGON: 150545105"
+  ]
+ },
+ "can_modif": {
+  "notice-type": "can-modif",
+  "publication-number": "771348-2026",
+  "main-classification-proc": [
+   "50842000"
+  ],
+  "procedure-identifier": "7b94e321-f1ad-48cd-a7cb-33b3a1a2069f",
+  "publication-date": "2026-11-06+01:00",
+  "winner-decision-date": [
+   "2025-11-03+01:00"
+  ],
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771348-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771348-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "services",
+  "identifier-lot": [
+   "LOT-0000"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Madrid"
+   ]
+  },
+  "place-of-performance": [
+   "ES300",
+   "ESP"
+  ],
+  "title-proc": {
+   "spa": "Acuerdo Marco para Desarrollo de Actividades de Sostenimiento y Apoyo al Ciclo de Vida de Sistemas, Equipos y Componentes del Sistema de Combate de las Fragatas clase \"F-100\" de la Armada"
+  },
+  "buyer-country": [
+   "ESP"
+  ],
+  "tender-value-cur": [
+   "EUR"
+  ],
+  "tender-value": [
+   "7700000"
+  ],
+  "classification-cpv": [
+   "50842000",
+   "35511000",
+   "50842000",
+   "35511000"
+  ],
+  "buyer-name": {
+   "spa": [
+    "Dirección de Gestión Económica de la Jefatura de Apoyo Logístico de la Armada"
+   ]
+  },
+  "title-lot": {
+   "spa": [
+    "Acuerdo Marco para Desarrollo de Actividades de Sostenimiento y Apoyo al Ciclo de Vida de Sistemas, Equipos y Componentes del Sistema de Combate de las Fragatas clase \"F-100\" de la Armada"
+   ]
+  },
+  "form-type": "cont-modif",
+  "internal-identifier-proc": "2025/AR40U/00001461E",
+  "description-proc": {
+   "spa": "Acuerdo Marco para Desarrollo de Actividades de Sostenimiento y Apoyo al Ciclo de Vida de Sistemas, Equipos y Componentes del Sistema de Combate de las Fragatas clase \"F-100\" de la Armada"
+  },
+  "buyer-identifier": [
+   "10000140000581",
+   "S2815004C"
+  ]
+ },
+ "veat": {
+  "notice-type": "veat",
+  "publication-number": "771362-2026",
+  "main-classification-proc": [
+   "34630000"
+  ],
+  "procedure-identifier": "4a03d283-c768-4512-b58b-94e884e7d31f",
+  "place-of-performance-country-proc": [
+   "ITA"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771362-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771362-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Roma"
+   ]
+  },
+  "place-of-performance": [
+   "ITI43",
+   "ITA",
+   "ITI43",
+   "ITA"
+  ],
+  "title-proc": {
+   "ita": "PN 10349 fornitura e riparazione di materiali DAKO"
+  },
+  "place-of-performance-city-proc": [
+   "Roma"
+  ],
+  "winner-size": [
+   "sme"
+  ],
+  "buyer-country": [
+   "ITA"
+  ],
+  "tender-value-cur": [
+   "EUR"
+  ],
+  "tender-value": [
+   "631929.02"
+  ],
+  "procedure-type": "neg-wo-call",
+  "classification-cpv": [
+   "34630000",
+   "34630000"
+  ],
+  "buyer-name": {
+   "ita": [
+    "Trenitalia S.p.A. Direzione Logistica Industriale Acquisti Tecnici"
+   ]
+  },
+  "title-lot": {
+   "ita": [
+    "PN 10349 fornitura e riparazione di materiali DAKO"
+   ]
+  },
+  "form-type": "dir-awa-pre",
+  "internal-identifier-proc": "PN 10349 fornitura e riparazione di materiali DAKO",
+  "description-proc": {
+   "ita": "PN 10349 fornitura e riparazione di materiali DAKO"
+  },
+  "buyer-identifier": [
+   "05403151003"
+  ]
+ },
+ "pin": {
+  "place-of-performance": [
+   "NO081",
+   "NOR",
+   "NO081",
+   "NOR"
+  ],
+  "title-proc": {
+   "eng": "Market survey (RFI) for the procurement of a Computer module/ferry data bank."
+  },
+  "notice-type": "pin-only",
+  "publication-number": "771913-2026",
+  "main-classification-proc": [
+   "72000000"
+  ],
+  "buyer-country": [
+   "NOR"
+  ],
+  "place-of-performance-country-proc": [
+   "NOR"
+  ],
+  "classification-cpv": [
+   "72000000",
+   "72200000",
+   "72220000",
+   "72300000",
+   "72000000",
+   "72200000",
+   "72220000",
+   "72300000"
+  ],
+  "buyer-name": {
+   "eng": [
+    "Statens vegvesen"
+   ]
+  },
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771913-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771913-2026/xml"
+   }
+  },
+  "buyer-internet-address": [
+   "https://www.vegvesen.no"
+  ],
+  "contract-nature-main-proc": "services",
+  "buyer-city": {
+   "mul": [
+    "Oslo"
+   ]
+  },
+  "form-type": "planning",
+  "internal-identifier-proc": "10889",
+  "description-proc": {
+   "eng": "The Norwegian Public Roads Administration would like to carry out a market survey in order to get a better understanding of the market participants and the services within data module/ferry data bank. The contracting authority would like input from the market to the attached requirement specifications before the competition is announced."
+  },
+  "buyer-identifier": [
+   "971032081"
+  ]
+ },
+ "norway": {
+  "deadline-receipt-tender-date-lot": [
+   "2027-01-04Z"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771351-2026",
+  "main-classification-proc": [
+   "45000000"
+  ],
+  "procedure-identifier": "85941e1f-f0fd-4182-95fa-7446e2a6d47e",
+  "place-of-performance-country-proc": [
+   "NOR"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771351-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771351-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "works",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Oslo"
+   ]
+  },
+  "place-of-performance": [
+   "NO081",
+   "NOR",
+   "NO081",
+   "NOR"
+  ],
+  "title-proc": {
+   "eng": "Project 1250901 AHO - Ventilation and ENØK K201 Turnkey contract"
+  },
+  "buyer-country": [
+   "NOR"
+  ],
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "11:00:00Z"
+  ],
+  "classification-cpv": [
+   "45000000",
+   "45331000",
+   "45331200",
+   "45000000",
+   "45331000",
+   "45331200"
+  ],
+  "buyer-name": {
+   "eng": [
+    "Statsbygg"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://statsbygg.no"
+  ],
+  "title-lot": {
+   "eng": [
+    "Project 1250901 AHO - Ventilation and ENØK K201 Turnkey contract"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "10793",
+  "description-proc": {
+   "eng": "The Directorate of Public Construction and Property [Statsbygg) requests, in connection with project: no.: 1250901 name: AHO – Ventilation and ENØK tenders for a turnkey contract for replacing and upgrading the ventilation system as well as the implementation of energy efficiency measures (ENØK) at the Oslo School of Architecture and Design (AHO) in Oslo. The aim is to improve the indoor climate, operational security and energy efficiency in the existing teaching and administration building. The contracting authority is the Ministry of Education and Research at Statsbygg. The building is approx. 15,700 m2 and is located in Maridalsveien 29 in the centre of Oslo. A site inspection will be held for all tenderers 25.11.26, 08:00, at Maridalsveien 29, 0175 Oslo."
+  },
+  "buyer-identifier": [
+   "971278374"
+  ]
+ },
+ "no_procedure_id": {
+  "place-of-performance": [
+   "NLD",
+   "NLD"
+  ],
+  "title-proc": {
+   "nld": "Marktconsultatie: Dagelijkse zorgadministratieve controle en verantwoording"
+  },
+  "notice-type": "pmc",
+  "publication-number": "771579-2026",
+  "main-classification-proc": [
+   "48441000"
+  ],
+  "buyer-country": [
+   "NLD",
+   "NLD"
+  ],
+  "place-of-performance-country-proc": [
+   "NLD"
+  ],
+  "document-url-lot": [
+   "https://www.tenderned.nl/aankondigingen/overzicht/447933"
+  ],
+  "classification-cpv": [
+   "48441000",
+   "48482000",
+   "48441000",
+   "48482000"
+  ],
+  "buyer-name": {
+   "nld": [
+    "Stichting Amsterdam UMC",
+    "Maastricht UMC+"
+   ]
+  },
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771579-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771579-2026/xml"
+   }
+  },
+  "buyer-internet-address": [
+   "https://www.amsterdamumc.nl/",
+   "https://www.mumc.nl/"
+  ],
+  "contract-nature-main-proc": "supplies",
+  "identifier-lot": [
+   "LOT-0000"
+  ],
+  "buyer-city": {
+   "mul": [
+    "AMSTERDAM",
+    "MAASTRICHT"
+   ]
+  },
+  "title-lot": {
+   "nld": [
+    "Marktconsultatie: Dagelijkse zorgadministratieve controle en verantwoording"
+   ]
+  },
+  "form-type": "consultation",
+  "description-proc": {
+   "nld": "Het leveren van een volledig functionerende SAAS tool voor registratie controle en -ondersteuning, inclusief implementatie, integratie, datamigratie, opleiding en beheer, waarmee de datakwaliteit van registraties binnen UMC structureel wordt verbeterd en geautomatiseerd. n.t.b."
+  },
+  "buyer-identifier": [
+   "31644435",
+   "56698522"
+  ]
+ },
+ "cop_currency": {
+  "deadline-receipt-tender-date-lot": [
+   "2026-12-14-05:00"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "774054-2026",
+  "main-classification-proc": [
+   "63510000"
+  ],
+  "procedure-identifier": "85dc623b-0aef-4a5c-b829-69eba31ad603",
+  "place-of-performance-country-proc": [
+   "COL"
+  ],
+  "document-url-lot": [
+   "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/tender-details/85dc623b-0aef-4a5c-b829-69eba31ad603-CN?#anchorDocuments"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "estimated-value-proc": "1680000000",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/774054-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/774054-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "services",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Bogota",
+    "Brussels"
+   ]
+  },
+  "place-of-performance": [
+   "COL",
+   "COL"
+  ],
+  "title-proc": {
+   "spa": "Servicios de agencia de viajes para la Delegación de la Unión Europea en Colombia"
+  },
+  "estimated-value-lot": [
+   "1680000000"
+  ],
+  "estimated-value-cur-lot": [
+   "COP"
+  ],
+  "estimated-value-cur-proc": "COP",
+  "buyer-country": [
+   "COL",
+   "BEL"
+  ],
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "09:00:59-05:00"
+  ],
+  "classification-cpv": [
+   "63510000",
+   "63510000"
+  ],
+  "buyer-name": {
+   "spa": [
+    "European External Action Service (EEAS)",
+    "Comisión Europea, DG ECHO - European Civil Protection and Humanitarian Aid Operations (ECHO)"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://eeas.europa.eu/",
+   "https://ec.europa.eu/echo/"
+  ],
+  "title-lot": {
+   "spa": [
+    "Servicios de agencia de viajes para la Delegación de la Unión Europea en Colombia"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "EEAS/DELCOLS/2026/OP/0070",
+  "description-proc": {
+   "spa": "El órgano de contratación tiene la intención de firmar un contrato marco para la prestación de servicios de agencia de viajes, de conformidad con las especificaciones establecidas en los documentos de contratación."
+  },
+  "buyer-identifier": [
+   "EEAS",
+   "COM"
+  ]
+ },
+ "utc_deadline": {
+  "deadline-receipt-tender-date-lot": [
+   "2027-01-04Z"
+  ],
+  "notice-type": "cn-standard",
+  "publication-number": "771351-2026",
+  "main-classification-proc": [
+   "45000000"
+  ],
+  "procedure-identifier": "85941e1f-f0fd-4182-95fa-7446e2a6d47e",
+  "place-of-performance-country-proc": [
+   "NOR"
+  ],
+  "publication-date": "2026-11-06+01:00",
+  "links": {
+   "html": {
+    "ENG": "https://ted.europa.eu/en/notice/-/detail/771351-2026"
+   },
+   "xml": {
+    "MUL": "https://ted.europa.eu/en/notice/771351-2026/xml"
+   }
+  },
+  "contract-nature-main-proc": "works",
+  "identifier-lot": [
+   "LOT-0001"
+  ],
+  "buyer-city": {
+   "mul": [
+    "Oslo"
+   ]
+  },
+  "place-of-performance": [
+   "NO081",
+   "NOR",
+   "NO081",
+   "NOR"
+  ],
+  "title-proc": {
+   "eng": "Project 1250901 AHO - Ventilation and ENØK K201 Turnkey contract"
+  },
+  "buyer-country": [
+   "NOR"
+  ],
+  "procedure-type": "open",
+  "deadline-receipt-tender-time-lot": [
+   "11:00:00Z"
+  ],
+  "classification-cpv": [
+   "45000000",
+   "45331000",
+   "45331200",
+   "45000000",
+   "45331000",
+   "45331200"
+  ],
+  "buyer-name": {
+   "eng": [
+    "Statsbygg"
+   ]
+  },
+  "buyer-internet-address": [
+   "https://statsbygg.no"
+  ],
+  "title-lot": {
+   "eng": [
+    "Project 1250901 AHO - Ventilation and ENØK K201 Turnkey contract"
+   ]
+  },
+  "form-type": "competition",
+  "internal-identifier-proc": "10793",
+  "description-proc": {
+   "eng": "The Directorate of Public Construction and Property [Statsbygg) requests, in connection with project: no.: 1250901 name: AHO – Ventilation and ENØK tenders for a turnkey contract for replacing and upgrading the ventilation system as well as the implementation of energy efficiency measures (ENØK) at the Oslo School of Architecture and Design (AHO) in Oslo. The aim is to improve the indoor climate, operational security and energy efficiency in the existing teaching and administration building. The contracting authority is the Ministry of Education and Research at Statsbygg. The building is approx. 15,700 m2 and is located in Maridalsveien 29 in the centre of Oslo. A site inspection will be held for all tenderers 25.11.26, 08:00, at Maridalsveien 29, 0175 Oslo."
+  },
+  "buyer-identifier": [
+   "971278374"
+  ]
+ }
+}

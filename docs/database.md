@@ -1,8 +1,12 @@
 # Model bazy danych – PostgreSQL 16 + pgvector
 
-> Status (Etap 2): **zaimplementowane** migracje `V1`–`V6` – rozszerzenia, kraje, tożsamość, organizacje, zaproszenia,
+> Status (Etap 3): **zaimplementowane** migracje `V1`–`V7` – rozszerzenia, kraje, tożsamość, organizacje, zaproszenia,
 > audyt, outbox e-maili, waluty, kursy EBC, CPV, pełny schemat przetargów i ingestion, rejestr źródeł danych.
 > Tabele prywatne firm (3.5), powiadomienia (3.6) i płatności (3.7) powstaną w etapach 5–6.
+>
+> `V7` (na podstawie prawdziwych danych TED): kraje spoza UE dodawane na żądanie, brak kluczy obcych do walut i CPV w tabelach
+> przetargów (źródło jest autorytatywne, format pilnują CHECK-i), `latest_order_key`/`order_key` (kolejność ogłoszeń),
+> rodzaje zmian `PRIOR_INFORMATION/COMPETITION/CHANGE/CANCELLATION/AWARD/MODIFICATION/OTHER`, jedno aktywne zadanie na źródło.
 >
 > Różnice względem projektu: kody CPV przechowywane jako 8 cyfr **bez cyfry kontrolnej** (tak jak w TED/eForms);
 > `refresh_tokens.family_id` grupuje rotacje jednej sesji; `email_outbox` (transakcyjna kolejka e-maili) i

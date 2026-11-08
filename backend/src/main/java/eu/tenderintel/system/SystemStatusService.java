@@ -42,8 +42,8 @@ public class SystemStatusService {
     List<IntegrationStatus> integrations() {
         AppProperties.Integrations i = props.integrations();
         return List.of(
-                // TED Search API is anonymous for search – no credentials needed, only the client (Stage 3).
-                integration("TED_SEARCH_API", false, true, 3),
+                // TED Search API is anonymous – no credentials needed.
+                integration("TED_SEARCH_API", true, true, 3),
                 integration("OBJECT_STORAGE_S3", false,
                         all(i.s3Endpoint(), i.s3AccessKey(), i.s3SecretKey(), i.s3Bucket()), 5),
                 integration("LLM_PROVIDER", false, all(i.llmProvider(), i.llmApiKey()), 5),

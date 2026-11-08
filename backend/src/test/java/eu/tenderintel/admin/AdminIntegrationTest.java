@@ -41,7 +41,7 @@ class AdminIntegrationTest {
 
         mvc.perform(get("/api/v1/admin/data-sources").with(admin.bearer()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.code=='TED')].status").value("INACTIVE"))
+                .andExpect(jsonPath("$[?(@.code=='TED')].status").value("ACTIVE"))
                 .andExpect(jsonPath("$[?(@.code=='PL_EZAMOWIENIA')].status").value("PENDING_CONFIGURATION"));
         mvc.perform(get("/api/v1/admin/audit-logs").param("action", "PLATFORM_ADMIN_GRANTED").with(admin.bearer()))
                 .andExpect(jsonPath("$.totalItems", greaterThanOrEqualTo(1)));

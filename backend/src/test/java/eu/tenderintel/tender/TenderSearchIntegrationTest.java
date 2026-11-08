@@ -69,8 +69,8 @@ class TenderSearchIntegrationTest {
         jdbc.update("insert into tender_cpv (tender_id, cpv_code, is_main) values (?::uuid, '45200000', true)", T1);
         jdbc.update("""
                 insert into tender_versions (id, tender_id, version_no, change_kind, snapshot, diff, published_at)
-                values ('00000000-0000-7000-8000-00000000b001', ?::uuid, 1, 'INITIAL', '{}', '[]', '2026-11-01T08:00:00Z'),
-                       ('00000000-0000-7000-8000-00000000b002', ?::uuid, 2, 'CORRIGENDUM', '{}',
+                values ('00000000-0000-7000-8000-00000000b001', ?::uuid, 1, 'COMPETITION', '{}', '[]', '2026-11-01T08:00:00Z'),
+                       ('00000000-0000-7000-8000-00000000b002', ?::uuid, 2, 'CHANGE', '{}',
                         '[{"field":"submissionDeadline","old":"2026-12-03T11:00:00Z","new":"2026-12-10T11:00:00Z"}]',
                         '2026-11-04T08:00:00Z')
                 """, T1, T1);
@@ -141,7 +141,7 @@ class TenderSearchIntegrationTest {
                 .andExpect(jsonPath("$.authority.name").value("Stadt Testhausen"))
                 .andExpect(jsonPath("$.cpvCodes", contains("45200000")));
         mvc.perform(get("/api/v1/tenders/" + T1 + "/versions").with(session.bearer()))
-                .andExpect(jsonPath("$[0].changeKind").value("CORRIGENDUM"))
+                .andExpect(jsonPath("$[0].changeKind").value("CHANGE"))
                 .andExpect(jsonPath("$[0].diff[0].field").value("submissionDeadline"));
         mvc.perform(get("/api/v1/tenders/00000000-0000-7000-8000-0000000fffff").with(session.bearer()))
                 .andExpect(status().isNotFound());

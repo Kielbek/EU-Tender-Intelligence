@@ -22,7 +22,11 @@ docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 
 Migracje Flyway uruchamiają się automatycznie przy starcie backendu. Przy pierwszym starcie (puste tabele) backend
 importuje w tle słownik CPV (Urząd Publikacji UE, ~1–2 min) i kursy EBC z 90 dni – postęp w `GET /api/v1/admin/ingestion-jobs`.
-Wymaga dostępu do `publications.europa.eu` i `www.ecb.europa.eu`.
+Następnie startuje import TED z ostatnich `TED_INITIAL_BACKFILL_DAYS` dni (domyślnie 3; ok. 3 800 ogłoszeń na dzień
+roboczy, ~1 min/dzień), a potem import przyrostowy co godzinę. Starsze dane: `POST /api/v1/admin/ted/ingest?from=&to=`
+(maks. 31 dni na zadanie). Wymaga dostępu do `publications.europa.eu`, `www.ecb.europa.eu` i `api.ted.europa.eu`.
+
+Szacunek miejsca: ~3 KB surowego JSON + ~3 KB danych przetargu na ogłoszenie → ok. 6–8 GB rocznie (z indeksami).
 
 **Pierwszy administrator:** wpisz swój adres w `PLATFORM_ADMIN_EMAILS`, zarejestruj się i kliknij link aktywacyjny (w Mailpit) –
 konto otrzyma rolę `PLATFORM_ADMIN` po potwierdzeniu adresu.

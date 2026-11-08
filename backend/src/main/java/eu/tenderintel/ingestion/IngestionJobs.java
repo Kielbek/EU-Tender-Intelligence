@@ -27,9 +27,19 @@ public class IngestionJobs {
         if (sourceId == null) {
             throw ApiException.notFound("Data source " + sourceCode);
         }
+        // Jobs left RUNNING by a crashed instance must not block the source forever.
+        jdbc.update("""
+                update ingestion_jobs set status = 'FAILED', finished_at = now(),
+                       errors = errors || '["abandoned: no progress for 6 hours"]'::jsonb
+                where data_source_id = ? and status in ('QUEUED', 'RUNNING') and created_at < now() - interval '6 hours'
+                """, sourceId);
         UUID id = Ids.newId();
-        jdbc.update("insert into ingestion_jobs (id, data_source_id, type, status, triggered_by) "
-                + "values (?, ?, ?, 'QUEUED', ?)", id, sourceId, type.name(), triggeredBy);
+        try {
+            jdbc.update("insert into ingestion_jobs (id, data_source_id, type, status, triggered_by) "
+                    + "values (?, ?, ?, 'QUEUED', ?)", id, sourceId, type.name(), triggeredBy);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            throw ApiException.conflict("job_already_running", "A job for " + sourceCode + " is already running");
+        }
         return id;
     }
 
@@ -49,6 +59,60 @@ public class IngestionJobs {
                 update data_sources set last_success_at = now(), updated_at = now()
                 where id = (select data_source_id from ingestion_jobs where id = ?)
                 """, jobId);
+    }
+
+    /** Live progress, so admins can follow long backfills; the cursor allows resuming. */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void progress(UUID jobId, int fetched, int created, int updated, int skipped, int failed, String cursor) {
+        jdbc.update("""
+                update ingestion_jobs set fetched_count = ?, created_count = ?, updated_count = ?, skipped_count = ?,
+                       error_count = ?, cursor = ?
+                where id = ?
+                """, fetched, created, updated, skipped, failed, cursor, jobId);
+    }
+
+    /** Finished, but some records failed: errors keeps a sample for diagnosis. */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markFinished(UUID jobId, int fetched, int created, int updated, int skipped, int failed,
+            String errorsJson) {
+        jdbc.update("""
+                update ingestion_jobs set status = ?, finished_at = now(), fetched_count = ?, created_count = ?,
+                       updated_count = ?, skipped_count = ?, error_count = ?, errors = ?::jsonb, cursor = null
+                where id = ?
+                """, failed == 0 ? "SUCCEEDED" : "PARTIAL", fetched, created, updated, skipped, failed, errorsJson,
+                jobId);
+        jdbc.update("""
+                update data_sources set last_success_at = now(), status = 'ACTIVE', updated_at = now()
+                where id = (select data_source_id from ingestion_jobs where id = ?)
+                """, jobId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markWindow(UUID jobId, java.time.Instant from, java.time.Instant to) {
+        jdbc.update("update ingestion_jobs set window_from = ?, window_to = ? where id = ?",
+                java.sql.Timestamp.from(from), java.sql.Timestamp.from(to), jobId);
+    }
+
+    /** Number of consecutive failed jobs of a source, newest first (used to flag the source as ERROR). */
+    public int consecutiveFailures(String sourceCode) {
+        java.util.List<String> statuses = jdbc.queryForList("""
+                select j.status from ingestion_jobs j join data_sources d on d.id = j.data_source_id
+                where d.code = ? and j.status in ('SUCCEEDED', 'PARTIAL', 'FAILED')
+                order by j.created_at desc limit 10
+                """, String.class, sourceCode);
+        int n = 0;
+        for (String s : statuses) {
+            if (!"FAILED".equals(s)) {
+                break;
+            }
+            n++;
+        }
+        return n;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markSourceStatus(String sourceCode, String status) {
+        jdbc.update("update data_sources set status = ?, updated_at = now() where code = ?", status, sourceCode);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

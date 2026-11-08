@@ -7,6 +7,7 @@ import eu.tenderintel.admin.AdminDtos.EmailOutboxStats;
 import eu.tenderintel.admin.AdminDtos.IngestionJobView;
 import eu.tenderintel.admin.AdminDtos.JobStarted;
 import eu.tenderintel.common.api.PageResponse;
+import eu.tenderintel.ingestion.ted.TedIngestionJobs;
 import eu.tenderintel.reference.ReferenceImportJobs;
 import eu.tenderintel.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,10 +37,12 @@ class AdminController {
 
     private final AdminService admin;
     private final ReferenceImportJobs referenceJobs;
+    private final TedIngestionJobs tedJobs;
 
-    AdminController(AdminService admin, ReferenceImportJobs referenceJobs) {
+    AdminController(AdminService admin, ReferenceImportJobs referenceJobs, TedIngestionJobs tedJobs) {
         this.admin = admin;
         this.referenceJobs = referenceJobs;
+        this.tedJobs = tedJobs;
     }
 
     @GetMapping("/users")
@@ -95,6 +98,23 @@ class AdminController {
     @Operation(summary = "Import kursów EBC (domyślnie ostatnie 90 dni)")
     JobStarted importRates(@RequestParam(defaultValue = "true") boolean last90Days) {
         return new JobStarted(referenceJobs.startExchangeRatesImport("admin", CurrentUser.id(), last90Days));
+    }
+
+    @PostMapping("/ted/ingest")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Import ogłoszeń TED z zakresu dat publikacji (zadanie w tle, maks. 31 dni)")
+    JobStarted ingestTed(@RequestParam @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to) {
+        return new JobStarted(tedJobs.startWindow(from, to, "admin:" + CurrentUser.id()));
+    }
+
+    @PostMapping("/ingestion-jobs/{id}/retry")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Ponowienie zadania importu TED dla tego samego zakresu dat")
+    JobStarted retryJob(@PathVariable UUID id) {
+        return new JobStarted(tedJobs.retry(id));
     }
 
     @GetMapping("/email-outbox")

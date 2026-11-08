@@ -32,7 +32,7 @@ class SystemStatusIntegrationTest {
                         .value(hasItem(containsString("EU countries: 27"))))
                 .andExpect(jsonPath("$.dependencies[?(@.name=='redis')].status").value("UP"))
                 .andExpect(jsonPath("$.integrations", hasSize(5)))
-                .andExpect(jsonPath("$.integrations[?(@.code=='TED_SEARCH_API')].status").value("NOT_IMPLEMENTED"))
+                .andExpect(jsonPath("$.integrations[?(@.code=='TED_SEARCH_API')].status").value("READY"))
                 .andExpect(jsonPath("$.integrations[?(@.code=='EMAIL_SMTP')].status")
                         .value("PENDING_CONFIGURATION"));
     }

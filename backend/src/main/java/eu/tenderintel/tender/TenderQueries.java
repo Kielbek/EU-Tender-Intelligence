@@ -77,7 +77,7 @@ public class TenderQueries {
         get(tenderId);
         return jdbc.query("""
                 select version_no, change_kind, notice_type, published_at, diff::text from tender_versions
-                where tender_id = :id order by version_no desc
+                where tender_id = :id order by order_key desc, version_no desc
                 """, new MapSqlParameterSource("id", tenderId), (rs, i) -> new VersionView(rs.getInt(1),
                 rs.getString(2), rs.getString(3), instant(rs, 4), readJson(rs.getString(5))));
     }

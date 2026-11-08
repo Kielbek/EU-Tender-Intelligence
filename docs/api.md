@@ -34,10 +34,16 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/tenders` | zalogowany | filtry: `q, country[], cpv[], status[], contractType[], procedureType[], authority, city, nuts, currency, language, valueMinEur, valueMaxEur, publishedFrom/To, deadlineFrom/To, sort, direction, page, size≤100` |
 | GET | `/api/v1/tenders/{id}`, `/{id}/versions` | zalogowany | szczegóły, źródła, historia zmian |
 | GET/POST | `/api/v1/admin/users`, `/users/{id}/lock`, `/unlock`, `/audit-logs`, `/data-sources`, `/ingestion-jobs`, `/email-outbox`, `/reference/cpv/import`, `/reference/exchange-rates/import` | `PLATFORM_ADMIN` | |
+| POST | `/api/v1/admin/ted/ingest?from=YYYY-MM-DD&to=YYYY-MM-DD` | `PLATFORM_ADMIN` | import TED z okna dat (≤ 31 dni), 202 + `jobId`; 409 `job_already_running` |
+| POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania TED dla tego samego okna |
 
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
 `too_many_attempts`, `rate_limited` (+ `Retry-After`), `email_not_verified`, `account_disabled`, `invalid_token`, `invalid_session`,
-`weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `internal_error`.
+`weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `job_already_running`,
+`invalid_window`, `window_too_large`, `not_retryable`, `internal_error`.
+
+Wartości `changeKind` w historii zmian: `PRIOR_INFORMATION`, `COMPETITION`, `CHANGE`, `CANCELLATION`, `AWARD`, `MODIFICATION`, `OTHER`.
+Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call`, `neg-wo-call`, `comp-dial`, `innovation`, `oth-single`, `oth-mult`.
 
 ## Plan endpointów (Etapy 3–7)
 
@@ -52,5 +58,5 @@ Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, 
 | AI | `POST /tenders/{id}/analyses`, `GET /analyses/{id}`, `POST /translations`, `POST /assistant/messages` (SSE) |
 | Powiadomienia | `GET /notifications`, `POST /notifications/{id}/read`, `GET/PUT /notification-preferences` |
 | Płatności | `GET /plans`, `POST /billing/checkout-session`, `POST /billing/portal-session`, `GET /billing/usage`, `POST /webhooks/stripe` (podpis) |
-| Admin | `/admin/organizations`, `/admin/ingestion-jobs/{id}/retry`, `/admin/ai-usage` |
+| Admin | `/admin/organizations`, `/admin/ai-usage` |
 | Growth | `/admin/crm/*`, `/admin/campaigns/*`, `/public/reports/subscribe`, `/partners/me/*`, `/referrals/me` – patrz [growth-system.md](growth-system.md) |

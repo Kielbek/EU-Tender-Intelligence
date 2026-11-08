@@ -9,3 +9,7 @@ app:
     import-on-startup: false
   scheduling:
     enabled: false
+  ted:
+    schedule-enabled: false
+    initial-backfill-days: 0
+    pause-between-pages: PT0S

@@ -1,99 +1,116 @@
 # Integracja z TED i portalami krajowymi
 
-> Status: **projekt** (Etap 3). Implementacja jeszcze nie istnieje.
-> **Zweryfikowane na żywo (Etap 2, 2026-11-08):** `POST https://api.ted.europa.eu/v3/notices/search` działa anonimowo.
-> Pola `publication-number`, `notice-type` (np. `cn-standard`), `buyer-name` (mapa język → lista), `classification-cpv`
-> (8 cyfr, bez cyfry kontrolnej), `deadline-receipt-tender-date-lot` (format `2026-11-13+01:00`), `procedure-identifier`
-> (UUID – BT-04, klucz deduplikacji) i `links` (XML/PDF/HTML) istnieją. Pozostałe nazwy pól – do potwierdzenia testem kontraktowym w Etapie 3.
+> Status: **Etap 3 – zaimplementowane i przetestowane na prawdziwych danych.**
+> Kod: `backend/src/main/java/eu/tenderintel/ingestion/` (wspólny zapis przetargów) i `.../ingestion/ted/` (adapter TED).
 
-## 1. Źródła TED
+## 1. Źródło: TED Search API v3
 
-| Źródło | Do czego | Uwagi |
+* `POST https://api.ted.europa.eu/v3/notices/search` – anonimowo, bez klucza.
+* Zapytanie: `publication-date>=YYYYMMDD AND publication-date<=YYYYMMDD`, `scope: ALL`, paginacja `ITERATION`
+  (`iterationNextToken` – bez limitu głębokości, w przeciwieństwie do numerów stron).
+* **Limit API: liczba pól × rozmiar strony ≤ 10 000.** Pobieramy 44 pola (`TedNoticeParser.FIELDS`), strona = 200
+  ogłoszeń (rozmiar wyliczany automatycznie, żeby nigdy nie przekroczyć limitu).
+* Ponawianie: 429 i 5xx – do 5 prób z wykładniczym odstępem (2, 4, 8, 16 s); inne 4xx – błąd od razu (ponowienie
+  błędnego zapytania nic nie da). Pauza 0,3 s między stronami.
+* Warunki ponownego wykorzystania: dokumentacja dla deweloperów TED opisuje API jako służące do „pobierania ogłoszeń do
+  analizy lub ponownego wykorzystania”. Formalna nota prawna TED nie była możliwa do odczytania automatycznie –
+  **operator musi ją zweryfikować** i ustawić `data_sources.terms_verified_at`. Każdy przetarg pokazuje źródło i link do oryginału.
+
+### Zweryfikowane na danych (dzień 2026-11-06, 3 799 ogłoszeń)
+
+| Obserwacja | Konsekwencja w kodzie |
+|---|---|
+| Ok. 3 800 ogłoszeń dziennie (dni robocze); soboty/niedziele – brak publikacji | 4 dni = 15 tys. ogłoszeń w ~3,5 min |
+| eForms **nie ma osobnego sprostowania**: zmiana to ogłoszenie tej samej formy z `change-reason-code` / `change-notice-version-identifier` (558 z 1 924 ogłoszeń o zamówieniu) | `ChangeKind.CHANGE` |
+| Anulowanie: `change-reason-code = cancel` lub `cancel-intent` | status `CANCELLED` |
+| `form-type`: `planning`, `competition`, `result`, `dir-awa-pre` (VEAT), `cont-modif` | mapowanie na `FormType` |
+| Pola-listy powtarzają wartości (po jednej na część/sekcję) | deduplikacja (CPV), zachowanie kolejności tam, gdzie liczy się wyrównanie (części, zwycięzcy) |
+| Teksty to mapy `język ISO 639-2/T → wartość`; ogłoszenia dwujęzyczne (np. `swe` + `fin`) | język pierwszego tytułu; opis i zamawiający w tym samym języku |
+| Termin = data `2026-11-13+02:00` + osobno godzina `15:00:00+02:00`, per część | `OffsetDateTime`, bez godziny → początek dnia (nigdy później niż prawdziwy termin) |
+| Ogłoszenia wieloczęściowe z różnymi terminami (część już zamknięta w dniu publikacji) | termin efektywny = najbliższy przyszły termin części; po jego upływie automatycznie następny |
+| Kraje spoza UE (NOR, CHE, ISL, MKD, MDA, COL, EGY, …) | kraj dodawany na żądanie z tablic ISO w JDK (`is_eu = false`) |
+| Waluty spoza słownika (COP, MDL) | wartość zapisana, `estimated_value_eur` = null (brak kursu EBC) – bez zgadywania |
+| 56 ogłoszeń bez `procedure-identifier` (BT-04) | klucz zapasowy `ted:<numer publikacji>` |
+| Listy zwycięzców i kwot różnej długości (242 z ~1 500 ogłoszeń o wyniku) | zwycięzca zapisany **bez kwoty** – nigdy nie przypisujemy kwoty na ślepo |
+| Wszystkie kody CPV z ogłoszeń (4 dni) istnieją w oficjalnym słowniku | — |
+
+## 2. Potok
+
+```
+TedSearchClient (strona po stronie)
+  → raw_notices (surowy JSON, dedup po hash – ponowna normalizacja po poprawkach parsera bez pobierania)
+  → TedNoticeParser → NormalizedNotice (format niezależny od źródła)
+  → TenderUpsertService (transakcja per ogłoszenie):
+       pominięcie, jeśli (źródło, numer publikacji) już przetworzone
+       rozpoznanie postępowania: procedure_key = eforms:<BT-04>
+       zamawiający / wykonawcy: po identyfikatorze krajowym w kraju, inaczej po znormalizowanej nazwie
+       przeliczenie na EUR kursem EBC z dnia publikacji (kurs nie starszy niż 10 dni)
+       nowy przetarg  → tenders + wersja 1
+       kolejne ogłoszenie → wersja n+1 z diffem pól; stan kanoniczny tylko jeśli ogłoszenie nowsze
+       wyniki → tender_results + economic_operators
+  → TenderIngestedEvent (dla dopasowań i powiadomień – Etapy 5–6)
+```
+
+* **Kolejność ogłoszeń:** numery publikacji TED są rosnące w roku (`771348-2026` → klucz `2026_00771348`). Stan
+  przetargu odpowiada najnowszemu ogłoszeniu, także gdy starsze zostanie zaimportowane później (backfill) – wtedy trafia
+  tylko do historii.
+* **Scalanie:** nowe ogłoszenie nadpisuje pola, które zawiera; brakujących nie kasuje (ogłoszenie o wyniku nie ma terminu
+  składania ofert – zostaje termin z ogłoszenia o zamówieniu).
+* **Diff** (historia zmian): tytuł, opis (tylko fakt zmiany, bez kopiowania treści), status, termin, wartość, waluta,
+  CPV (jako zbiór – kolejność nie jest zmianą), tryb, rodzaj, link do dokumentów, numer referencyjny.
+* **Błędy izolowane:** wadliwe ogłoszenie nie zatrzymuje zadania – liczone w `error_count`, próbka w `errors`, zadanie
+  kończy się jako `PARTIAL`.
+
+## 3. Harmonogram i zadania
+
+| Zadanie | Kiedy | Zakres |
 |---|---|---|
-| **TED Search API v3** `POST https://api.ted.europa.eu/v3/notices/search` | pobieranie przyrostowe, wyszukiwanie po polach | anonimowe (bez klucza) dla wyszukiwania; zapytanie w składni *expert query*; wybór zwracanych pól (`fields`) |
-| **TED bulk download** (dzienne paczki XML, eForms) | backfill historii, pełne dane XML | pełna treść ogłoszenia, w tym pola niedostępne w Search API |
-| **Pojedyncze ogłoszenie** (XML/PDF/HTML przez `links` w odpowiedzi) | pełny XML eForms do normalizacji | |
-| Słownik CPV, kody NUTS, listy kodowe eForms (EU Vocabularies) | słowniki | |
+| Przyrostowe | `0 20 6-21 * * MON-SAT` (czas brukselski), konfigurowalne `app.ted.cron` | od końca ostatniego udanego okna − 1 dzień do dziś |
+| Początkowe | przy pierwszym starcie | ostatnie `TED_INITIAL_BACKFILL_DAYS` dni (domyślnie 3) |
+| Ręczne | `POST /api/v1/admin/ted/ingest?from=&to=` | maks. 31 dni na zadanie |
+| Ponowienie | `POST /api/v1/admin/ingestion-jobs/{id}/retry` | to samo okno dat |
+| Zamykanie po terminie | co godzinę | OPEN → następny termin części lub CLOSED; bez terminu → CLOSED po 90 dniach |
 
-Warunki: dane TED są udostępniane zgodnie z polityką ponownego wykorzystania informacji Komisji (decyzja 2011/833/UE) –
-dopuszczone wykorzystanie komercyjne z podaniem źródła. Każde ogłoszenie w aplikacji pokazuje „Źródło: TED” i link do oryginału.
-**Do zrobienia przed produkcją:** potwierdzić aktualne warunki i limity (fair use) na stronie TED i zapisać datę weryfikacji w `data_sources.terms_verified_at`.
+* **Jedno aktywne zadanie na źródło** – unikalny indeks w bazie (działa także przy wielu instancjach); zadanie
+  „zawieszone” > 6 h (np. po awarii) jest oznaczane jako FAILED.
+* Status źródła: sukces → `ACTIVE`; 3 kolejne nieudane zadania → `ERROR` (widoczne w panelu admina).
+* Postęp długich zadań widoczny na bieżąco w `GET /api/v1/admin/ingestion-jobs`.
 
-## 2. Zapytanie przyrostowe
+### Wyniki testu na żywo (2026-11-08)
 
-```json
-POST /v3/notices/search
-{
-  "query": "publication-date>=20261106 AND publication-date<=20261107",
-  "fields": ["publication-number", "notice-type", "publication-date", "notice-title",
-             "buyer-name", "buyer-country", "classification-cpv", "procedure-type",
-             "deadline-receipt-tender-date-lot", "estimated-value-lot", "links"],
-  "limit": 250,
-  "paginationMode": "ITERATION",
-  "scope": "ALL"
-}
-```
+| Okno | Ogłoszenia | Utworzone | Zaktualizowane | Błędy | Czas |
+|---|---|---|---|---|---|
+| 2026-11-06 | 3 799 | 3 688 | 111 | 0 | 49 s |
+| 2026-11-02 – 05 | 14 975 | 13 855 | 1 120 | 0 | 3 min 23 s |
+| 2026-11-06 (ponownie) | 3 799 | 0 (3 799 pominiętych) | 0 | 0 | ~50 s |
 
-* Okno czasowe = od ostatniej udanej daty publikacji (z zakładką 1 dnia, bo TED publikuje partiami) – idempotentne dzięki `UNIQUE(data_source_id, external_id)`.
-* Paginacja: tryb `ITERATION` z tokenem `iterationNextToken` (tryb numerów stron ma limit głębokości). Token zapisywany w `ingestion_jobs.cursor`, więc przerwane zadanie wznawia się od miejsca przerwania.
-* Dokładne nazwy pól (`fields`) i operatory należy zweryfikować z listą pól w dokumentacji / „Expert search” na ted.europa.eu – nazwy w przykładzie są do potwierdzenia testem kontraktowym.
-* Klient HTTP: Spring `RestClient` z timeoutami, retry (Resilience4j) dla 429/5xx z wykładniczym backoffem i jitterem, limit współbieżności 1–2 żądań, nagłówek `User-Agent` identyfikujący aplikację.
+Wyszukiwanie na 17,5 tys. przetargów: 24–170 ms (filtry, CPV, pełny tekst, sortowanie).
 
-## 3. Potok przetwarzania
+## 4. Znane ograniczenia
 
-```
-fetch (Search API / XML)  →  raw_notices (surowe, hash)  →  parse (eForms XML / JSON)
-  →  normalize (NormalizedNotice)  →  resolve procedure (dedup, §4 database.md)
-  →  upsert tenders + tender_versions(diff) + tender_sources  →  events (nowy / zmiana / anulowanie / wynik)
-  →  queue DocumentFetchJob (BT-15 documents URL)
-```
-
-* Parser eForms (UBL 2.3, SDK eForms) dla ogłoszeń od 10.2023; parser starego formatu (TED XML R2.0.9) tylko jeśli potrzebny backfill historii.
-* Mapowanie typów ogłoszeń: Contract Notice → `INITIAL`, Corrigendum/Change → `CORRIGENDUM`, Contract Award Notice → `AWARD` (zasila `tender_results`),
-  ogłoszenie o anulowaniu / brak udzielenia → `CANCELLATION`.
-* Status: `OPEN` gdy termin w przyszłości, `CLOSED` po terminie, `AWARDED` po ogłoszeniu wyniku, `CANCELLED` – z ogłoszenia.
-
-## 4. Dokumenty przetargowe
-
-* TED zwykle **nie hostuje** dokumentacji – ogłoszenie zawiera URL (BT-15) do platformy zamawiającego.
-* Pobieramy tylko dokumenty **publicznie dostępne bez logowania**, z poszanowaniem `robots.txt` i limitów; nie omijamy CAPTCHA,
-  logowania ani innych zabezpieczeń. Gdy wymagane jest logowanie → `fetch_status = REQUIRES_LOGIN` i link dla użytkownika.
-* Funkcja dodatkowa: użytkownik może sam wgrać dokumenty pobrane z platformy zamawiającego (prywatne dla jego organizacji) – to ścieżka główna dla portali wymagających rejestracji.
+* **Przypisanie zwycięzców do części** w ogłoszeniach wieloczęściowych jest niejednoznaczne w płaskich polach Search API.
+  Dokładne powiązanie wymaga parsowania XML eForms (`links.xml`) – planowane razem z analizą konkurencji (Etap 7).
+* **Dokumenty przetargowe** nie są pobierane w tym etapie (tylko link `document-url-lot`); pobieranie publicznie
+  dostępnych dokumentów, OCR i analiza – Etap 5. Nie omijamy logowania ani CAPTCHA na platformach zamawiających.
+* Opisy z TED to zwykły tekst; Angular zawsze je escapuje przy wyświetlaniu.
+* Bułgaria (euro od 2026-01-01): EBC nie publikuje już kursu BGN; starsze ogłoszenia w BGN pozostają bez przeliczenia na EUR,
+  dopóki nie dodamy stałego kursu wymiany (do potwierdzenia w oficjalnym źródle przed wdrożeniem).
 
 ## 5. Adaptery krajowe
 
-Interfejs (Java):
+`TenderUpsertService` i `NormalizedNotice` są niezależne od źródła – adapter krajowy musi tylko pobrać ogłoszenia
+i zamienić je na `NormalizedNotice`. Rejestr źródeł (`data_sources`) zawiera 10 krajów priorytetowych ze statusem
+`PENDING_CONFIGURATION`; żaden nie jest jeszcze zweryfikowany (licencja danych, API/feed, limity).
 
-```java
-public interface TenderSourceAdapter {
-    String sourceCode();                       // np. "PL_EZAMOWIENIA"
-    AdapterReadiness readiness();              // READY / PENDING_CONFIGURATION / NOT_IMPLEMENTED
-    FetchResult fetch(FetchWindow window, Cursor cursor);   // strona surowych ogłoszeń + następny kursor
-    NormalizedNotice normalize(RawNotice raw);
-}
-```
-
-Adapter bez potwierdzonego, legalnego dostępu do danych istnieje tylko jako wpis w `data_sources` ze statusem `PENDING_CONFIGURATION`
-i **nie** udaje działania. Wiele ogłoszeń krajowych powyżej progów UE i tak trafia do TED – krajowe adaptery dają głównie zamówienia podprogowe.
-
-| Priorytet | Kraj | Kandydat na źródło (do weryfikacji ToS i API) | Status startowy |
-|---|---|---|---|
-| 1 | PL | Platforma e-Zamówienia / Biuletyn Zamówień Publicznych (UZP) | PENDING_CONFIGURATION |
-| 2 | DE | Datenservice Öffentlicher Einkauf (oeffentlichevergabe.de) – otwarte dane eForms-DE | PENDING_CONFIGURATION |
-| 3 | CZ | Věstník veřejných zakázek / NEN – otwarte dane ISVZ | PENDING_CONFIGURATION |
-| 4 | FR | BOAMP – otwarte dane (DILA) | PENDING_CONFIGURATION |
-| 5 | NL | TenderNed – otwarte dane | PENDING_CONFIGURATION |
-| 6 | AT | data.gv.at – Kerndaten öffentlicher Ausschreibungen | PENDING_CONFIGURATION |
-| 7 | SK | ÚVO – Vestník verejného obstarávania | PENDING_CONFIGURATION |
-| 8 | SE | brak centralnego portalu publicznego; ogłoszenia w prywatnych bazach (licencje komercyjne) | PENDING_CONFIGURATION (prawdopodobnie tylko TED) |
-| 9 | ES | Plataforma de Contratación del Sector Público – kanały ATOM open data | PENDING_CONFIGURATION |
-| 10 | IT | ANAC – Banca Dati Nazionale dei Contratti Pubblici (open data) | PENDING_CONFIGURATION |
-
-Kandydaci wynikają z wiedzy o rynku – **żaden nie został jeszcze zweryfikowany w tym projekcie**. Dla każdego przed implementacją:
-licencja danych, dostępność API/feedu, limity, format, czy zawiera dokumenty, częstotliwość aktualizacji.
-
-## 6. Monitorowanie
-
-* `data_sources.status` przechodzi w `ERROR` po N kolejnych nieudanych zadaniach; alert do admina.
-* Metryki: `ingestion_notices_total{source,result}`, opóźnienie świeżości (czas od publikacji w TED do pojawienia się w aplikacji), liczba błędów parsowania.
-* Próbki nieparsowalnych ogłoszeń zapisywane do analizy (bez danych osobowych poza tym, co jest w publicznym ogłoszeniu).
+| Priorytet | Kraj | Kandydat na źródło (do weryfikacji) |
+|---|---|---|
+| 1 | PL | Platforma e-Zamówienia / Biuletyn Zamówień Publicznych |
+| 2 | DE | Datenservice Öffentlicher Einkauf (oeffentlichevergabe.de) |
+| 3 | CZ | Věstník veřejných zakázek / NEN |
+| 4 | FR | BOAMP (DILA) |
+| 5 | NL | TenderNed |
+| 6 | AT | data.gv.at |
+| 7 | SK | ÚVO |
+| 8 | SE | brak centralnego portalu publicznego – prawdopodobnie tylko TED |
+| 9 | ES | Plataforma de Contratación del Sector Público |
+| 10 | IT | ANAC – BDNCP |
