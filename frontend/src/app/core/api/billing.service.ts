@@ -12,6 +12,8 @@ export interface PlanLimits {
   aiAnalysesPerMonth: number;
   exportsPerMonth: number | null;
   instantEmails: boolean;
+  marketHistoryMonths: number;
+  watchedCompetitors: number;
 }
 
 /** As configured in Stripe; amounts in minor units (grosze/cents). taxBehavior "exclusive" = net + VAT. */

@@ -71,6 +71,7 @@ export interface TenderDetail {
   lots: { lotNumber: string; title?: string; estimatedValue?: number; currency?: string; submissionDeadline?: string }[];
   results: {
     winnerName?: string;
+    winnerId?: string;
     winnerCountry?: string;
     winnerSize?: string;
     awardedValue?: number;

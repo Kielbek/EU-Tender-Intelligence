@@ -58,10 +58,11 @@ public class NotificationService {
         List<NotificationView> items = jdbc.query("""
                 select n.id, n.type, n.created_at, n.read_at, n.payload::text,
                        t.id, t.title, t.country_code, t.submission_deadline, t.status,
-                       s.id, s.name, s.filters::text
+                       s.id, s.name, s.filters::text, o.id, o.name
                 from notifications n
                 left join tenders t on t.id = n.tender_id
                 left join saved_searches s on s.id = n.saved_search_id
+                left join economic_operators o on o.id = n.operator_id
                 where n.user_id = ? and n.organization_id = ? and n.in_app
                 """ + filter + " order by n.created_at desc, n.id limit ? offset ?",
                 (rs, i) -> view(rs), userId, orgId, size, (long) page * size);
@@ -185,8 +186,10 @@ public class NotificationService {
                 rs.getTimestamp(9) == null ? null : rs.getTimestamp(9).toInstant(), rs.getString(10));
         SavedSearchRef search = rs.getObject(11) == null ? null : new SavedSearchRef(rs.getObject(11, UUID.class),
                 rs.getString(12), json.readValue(rs.getString(13), MAP));
+        NotificationDtos.CompanyRef company = rs.getObject(14) == null ? null
+                : new NotificationDtos.CompanyRef(rs.getObject(14, UUID.class), rs.getString(15));
         return new NotificationView(rs.getObject(1, UUID.class), rs.getString(2), rs.getTimestamp(3).toInstant(),
-                rs.getTimestamp(4) == null ? null : rs.getTimestamp(4).toInstant(), tender, search,
+                rs.getTimestamp(4) == null ? null : rs.getTimestamp(4).toInstant(), tender, search, company,
                 json.readValue(rs.getString(5), MAP));
     }
 }

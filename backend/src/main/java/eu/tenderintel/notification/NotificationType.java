@@ -11,6 +11,8 @@ public enum NotificationType {
     WATCHED_CHANGED(true, "INSTANT", null),
     /** The submission deadline of a watched tender is near. */
     DEADLINE_APPROACHING(true, "INSTANT", null),
+    /** A followed competitor won a contract (new award notice). */
+    COMPETITOR_WON(true, "DAILY", null),
     /** New tenders for a saved search with an alert. */
     SAVED_SEARCH(true, null, null);
 

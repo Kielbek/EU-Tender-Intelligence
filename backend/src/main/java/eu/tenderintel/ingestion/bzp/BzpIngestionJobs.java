@@ -67,9 +67,44 @@ public class BzpIngestionJobs {
         return jobId;
     }
 
+    /**
+     * Re-runs a failed window, continuing where it stopped: notice types finished before the failure are not
+     * requested again, the interrupted type resumes at its cursor (thousands of pages are not re-downloaded – the
+     * BZP API blocks clients that request too much).
+     */
     public UUID retry(UUID previousJobId) {
         LocalDate[] w = jobs.retryWindow(previousJobId, BzpNoticeParser.WARSAW);
-        return startWindow(w[0], w[1], "retry:" + previousJobId);
+        String cursor = jdbc.queryForObject("select cursor from ingestion_jobs where id = ?", String.class,
+                previousJobId);
+        Map<String, Instant> resumeAt = resumePoints(cursor, w[1]);
+        UUID jobId = jobs.create(BzpIngestionService.SOURCE_CODE, IngestionJobs.Type.BACKFILL,
+                "retry:" + previousJobId);
+        executor.execute(() -> run(jobId, w[0], w[1], resumeAt));
+        return jobId;
+    }
+
+    /** {@code "TenderResultNotice@2026-10-20T08:00:00Z"} → earlier types done, that type from that moment. */
+    static Map<String, Instant> resumePoints(String cursor, LocalDate windowEnd) {
+        if (cursor == null || !cursor.contains("@")) {
+            return Map.of();
+        }
+        String type = cursor.substring(0, cursor.indexOf('@'));
+        Instant at;
+        try {
+            at = Instant.parse(cursor.substring(cursor.indexOf('@') + 1));
+        } catch (RuntimeException e) {
+            return Map.of();
+        }
+        Map<String, Instant> out = new java.util.HashMap<>();
+        Instant end = windowEnd.plusDays(1).atStartOfDay(BzpNoticeParser.WARSAW).toInstant();
+        for (String t : BzpNoticeParser.TYPES) {
+            if (t.equals(type)) {
+                out.put(t, at);
+                break;
+            }
+            out.put(t, end);
+        }
+        return out.containsKey(type) ? out : Map.of();
     }
 
     /** Incremental: from the day of the last successful window end up to today (re-processing is skipped cheaply). */

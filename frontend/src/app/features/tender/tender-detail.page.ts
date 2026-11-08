@@ -16,6 +16,7 @@ import { dateTime, money } from '../../core/format/format';
 import { FORMAT_PIPES } from '../../core/format/format.pipes';
 import { LanguageService } from '../../core/i18n/language.service';
 import { OrgContextService } from '../../core/org/org-context.service';
+import { TenderMarketComponent } from '../market/tender-market.component';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { DeadlineComponent } from '../../shared/ui/deadline.component';
 import { MatchExplanationComponent } from '../../shared/ui/match-explanation.component';
@@ -42,6 +43,7 @@ export const WATCH_STATUSES: WatchStatus[] = ['WATCHING', 'PREPARING', 'SUBMITTE
     SkeletonComponent,
     TenderStatusBadgeComponent,
     TenderAnalysisComponent,
+    TenderMarketComponent,
     SelectComponent,
     OptionsPipe,
     LucideArrowLeft,

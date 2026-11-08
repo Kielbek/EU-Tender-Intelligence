@@ -96,7 +96,7 @@ public record AppProperties(
             @DefaultValue("3") int initialBackfillDays,
             @DefaultValue("31") int maxBackfillDays,
             @DefaultValue("true") boolean scheduleEnabled,
-            @DefaultValue("PT0.5S") Duration pauseBetweenPages) {
+            @DefaultValue("PT1.5S") Duration pauseBetweenPages) {
     }
 
     /**

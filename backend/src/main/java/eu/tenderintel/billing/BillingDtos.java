@@ -15,11 +15,11 @@ public final class BillingDtos {
     }
 
     public record Limits(Integer seats, int savedSearchesPerUser, int aiAnalysesPerMonth, Integer exportsPerMonth,
-            boolean instantEmails) {
+            boolean instantEmails, int marketHistoryMonths, int watchedCompetitors) {
 
         static Limits of(Plan p) {
             return new Limits(p.seats(), p.savedSearchesPerUser(), p.aiAnalysesPerMonth(), p.exportsPerMonth(),
-                    p.instantEmails());
+                    p.instantEmails(), p.marketHistoryMonths(), p.watchedCompetitors());
         }
     }
 

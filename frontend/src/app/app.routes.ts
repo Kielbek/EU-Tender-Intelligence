@@ -96,6 +96,21 @@ export const routes: Routes = [
           import('./features/saved-searches/saved-searches.page').then((m) => m.SavedSearchesPage),
       },
       {
+        path: 'competitors',
+        data: { section: 'nav.workspace', crumb: 'nav.competitors' },
+        loadComponent: () => import('./features/market/competitors.page').then((m) => m.CompetitorsPage),
+      },
+      {
+        path: 'authorities/:id',
+        data: { section: 'nav.workspace', parent: { key: 'nav.competitors', link: '/competitors' }, crumb: 'market.authority.crumb' },
+        loadComponent: () => import('./features/market/authority.page').then((m) => m.AuthorityPage),
+      },
+      {
+        path: 'companies/:id',
+        data: { section: 'nav.workspace', parent: { key: 'nav.competitors', link: '/competitors' }, crumb: 'market.company.crumb' },
+        loadComponent: () => import('./features/market/company.page').then((m) => m.CompanyPage),
+      },
+      {
         path: 'notifications',
         data: { section: 'nav.workspace', crumb: 'nav.notifications' },
         loadComponent: () => import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),

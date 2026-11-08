@@ -69,8 +69,8 @@ public class NotificationScanner {
                 jdbc.update("update notification_cursors set position = ? where name = ?", Timestamp.from(to), CURSOR);
                 if (c.total() > 0) {
                     log.info("Notifications created: {} new matches, {} watch-list changes, {} deadlines, "
-                            + "{} saved-search alerts", c.newMatches(), c.watchedChanges(), c.deadlines(),
-                            c.savedSearches());
+                            + "{} saved-search alerts, {} competitor wins", c.newMatches(), c.watchedChanges(),
+                            c.deadlines(), c.savedSearches(), c.competitorWins());
                 }
             }
             int deleted = jdbc.update("delete from notifications where created_at < now() - make_interval(days => ?)",

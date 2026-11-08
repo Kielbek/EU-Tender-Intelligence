@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LucideBell, LucideCalendarClock, LucideCheckCheck, LucideFilePen, LucideSearch, LucideTarget } from '@lucide/angular';
+import { LucideBell, LucideCalendarClock, LucideCheckCheck, LucideFilePen, LucideSearch, LucideTarget, LucideTrophy } from '@lucide/angular';
 import { map } from 'rxjs';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import { AppNotification, NotificationService } from '../../core/api/notification.service';
@@ -24,7 +24,7 @@ const PAGE_SIZE = 20;
   selector: 'eti-notifications-page',
   imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, SkeletonComponent,
     NotificationSettingsComponent, LucideBell, LucideCalendarClock, LucideCheckCheck, LucideFilePen, LucideSearch,
-    LucideTarget],
+    LucideTarget, LucideTrophy],
   template: `
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -102,6 +102,7 @@ const PAGE_SIZE = 20;
                       @case ('WATCHED_CHANGED') { <svg lucideFilePen class="size-4 text-warning"></svg> }
                       @case ('DEADLINE_APPROACHING') { <svg lucideCalendarClock class="size-4 text-danger"></svg> }
                       @case ('SAVED_SEARCH') { <svg lucideSearch class="size-4 text-accent"></svg> }
+                      @case ('COMPETITOR_WON') { <svg lucideTrophy class="size-4 text-warning"></svg> }
                     }
                   </span>
                   <div class="min-w-0 flex-1">
@@ -271,6 +272,12 @@ export class NotificationsPage {
         return [
           this.t('notifications.item.match', { score: n.payload.score ?? 0 }),
           ...(n.tender?.submissionDeadline ? [this.t('notifications.item.deadline', { date: fmt(n.tender.submissionDeadline) })] : []),
+        ];
+      case 'COMPETITOR_WON':
+        return [
+          this.t('notifications.item.competitor', { name: n.company?.name ?? n.payload.operatorName ?? '' }),
+          ...(n.payload.valueEur ? [this.t('notifications.item.awardValue', { value: money(n.payload.valueEur, 'EUR', lang) })] : []),
+          ...(n.payload.offers ? [this.t('market.offersN', { n: n.payload.offers })] : []),
         ];
       case 'DEADLINE_APPROACHING':
         return [this.t('notifications.item.deadline', { date: fmt(n.payload.deadline ?? n.tender?.submissionDeadline) })];

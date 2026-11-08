@@ -263,13 +263,18 @@ public class TenderQueries {
                 """, p, (r, i) -> new TenderDtos.LotView(r.getString(1), r.getString(2), r.getBigDecimal(3),
                 r.getString(4), instant(r, 5)));
         List<TenderDtos.ResultView> results = jdbc.query("""
-                select o.name, o.country_code, r.winner_size, r.awarded_value, r.currency, r.awarded_value_eur,
-                       r.tenders_received, r.award_date
-                from tender_results r left join economic_operators o on o.id = r.winner_id
-                where r.tender_id = :id order by r.award_date nulls last, o.name
+                select * from (
+                    -- The same award published by several notices (TED + BZP, corrections) is shown once.
+                    select distinct on (r.winner_id, r.awarded_value, r.currency)
+                           o.name, o.country_code, r.winner_size, r.awarded_value, r.currency, r.awarded_value_eur,
+                           r.tenders_received, r.award_date, o.id
+                    from tender_results r left join economic_operators o on o.id = r.winner_id
+                    where r.tender_id = :id
+                    order by r.winner_id, r.awarded_value, r.currency, r.created_at desc
+                ) x order by x.award_date nulls last, x.name
                 """, p, (r, i) -> new TenderDtos.ResultView(r.getString(1), r.getString(2), r.getString(3),
                 r.getBigDecimal(4), r.getString(5), r.getBigDecimal(6), (Integer) r.getObject(7),
-                r.getObject(8, java.time.LocalDate.class)));
+                r.getObject(8, java.time.LocalDate.class), r.getObject(9, UUID.class)));
         List<String> cpv = jdbc.queryForList(
                 "select cpv_code from tender_cpv where tender_id = :id order by is_main desc, cpv_code", p,
                 String.class);

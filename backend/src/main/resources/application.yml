@@ -111,6 +111,8 @@ app:
     search-url: ${BZP_SEARCH_URL:https://ezamowienia.gov.pl/mo-board/api/v1/notice}
     initial-backfill-days: ${BZP_INITIAL_BACKFILL_DAYS:3}
     schedule-enabled: ${BZP_SCHEDULE_ENABLED:true}
+    # The BZP API blocks clients that request too fast (403); keep a pause between pages.
+    pause-between-pages: ${BZP_PAUSE_BETWEEN_PAGES:PT1.5S}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   ai:

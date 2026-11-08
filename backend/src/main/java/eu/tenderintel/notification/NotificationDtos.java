@@ -17,7 +17,10 @@ public final class NotificationDtos {
 
     /** {@code tender}/{@code savedSearch} – what the notification is about (null when not applicable). */
     public record NotificationView(UUID id, String type, Instant createdAt, Instant readAt, TenderRef tender,
-            SavedSearchRef savedSearch, Map<String, Object> payload) {
+            SavedSearchRef savedSearch, CompanyRef company, Map<String, Object> payload) {
+    }
+
+    public record CompanyRef(UUID id, String name) {
     }
 
     public record TenderRef(UUID id, String title, String countryCode, Instant submissionDeadline, String status) {
@@ -40,7 +43,7 @@ public final class NotificationDtos {
     }
 
     public record PreferenceUpdate(
-            @NotNull @Pattern(regexp = "NEW_MATCH|WATCHED_CHANGED|DEADLINE_APPROACHING") String type,
+            @NotNull @Pattern(regexp = "NEW_MATCH|WATCHED_CHANGED|DEADLINE_APPROACHING|COMPETITOR_WON") String type,
             boolean inApp,
             @NotNull @Pattern(regexp = "INSTANT|DAILY|WEEKLY|OFF") String emailFrequency,
             @Min(40) @Max(100) Integer minScore) {

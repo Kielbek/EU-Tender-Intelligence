@@ -121,6 +121,13 @@ class NotificationIntegrationTest {
         scanner.run();
         assertThat(inbox(ann, org).get("totalItems").asInt()).isEqualTo(2);
 
+        // A backfill imports older notices now: published 10 days ago is not news either.
+        UUID backfilled = tender("Przebudowa mostu z archiwum", "PL", "45000000", "2026-12-22T10:00:00Z");
+        jdbc.update("update tenders set published_at = now() - interval '10 days' where id = ?", backfilled);
+        match(org, backfilled, 99);
+        scanner.run();
+        assertThat(inbox(ann, org).get("totalItems").asInt()).isEqualTo(2);
+
         // A profile change re-scores old tenders: that is not news (they are on the matches page).
         UUID old = tender("Remont starej szkoły", "PL", "45000000", "2026-12-22T10:00:00Z");
         jdbc.update("update tenders set created_at = now() - interval '2 days' where id = ?", old);

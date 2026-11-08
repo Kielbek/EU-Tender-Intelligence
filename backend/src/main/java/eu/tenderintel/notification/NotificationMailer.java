@@ -229,6 +229,8 @@ class NotificationMailer {
             case DEADLINE_APPROACHING -> msg("notif.mail.deadlineSoon", loc, title);
             case SAVED_SEARCH -> msg("notif.mail.search", loc, i.payload().path("name").asString(""),
                     i.payload().path("count").asLong());
+            case COMPETITOR_WON -> msg("notif.mail.competitor", loc, i.payload().path("operatorName").asString(""),
+                    title);
         };
     }
 
@@ -238,6 +240,9 @@ class NotificationMailer {
                     : msg("notif.mail.deadline", loc, dates.format(i.deadline()));
             case WATCHED_CHANGED -> changes(i.payload(), loc, dates);
             case SAVED_SEARCH -> null;
+            case COMPETITOR_WON -> i.payload().path("valueEur").isNumber()
+                    ? msg("notif.mail.awardValue", loc, eur(i.payload().path("valueEur").decimalValue(), loc))
+                    : null;
         };
     }
 
@@ -269,6 +274,13 @@ class NotificationMailer {
             }
         }
         return parts.isEmpty() ? null : String.join("; ", parts);
+    }
+
+    private static String eur(BigDecimal v, Locale loc) {
+        NumberFormat f = NumberFormat.getCurrencyInstance(loc);
+        f.setCurrency(java.util.Currency.getInstance("EUR"));
+        f.setMaximumFractionDigits(0);
+        return f.format(v);
     }
 
     private String date(JsonNode v, DateTimeFormatter dates, Locale loc) {

@@ -149,6 +149,8 @@ export class BillingPage {
       t('ai', l.aiAnalysesPerMonth),
       l.exportsPerMonth === null ? t('exportsUnlimited') : t('exports', l.exportsPerMonth),
       l.instantEmails ? t('instant') : t('digest'),
+      t('market', l.marketHistoryMonths),
+      t('competitors', l.watchedCompetitors),
     ];
   }
 

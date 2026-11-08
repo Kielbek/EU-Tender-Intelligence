@@ -39,6 +39,7 @@ const KNOWN_CODES = new Set([
   'cancel_subscription_first',
   'price_not_configured',
   'invalid_plan',
+  'competitor_limit_reached',
 ]);
 
 /** Errors caused by the plan: the UI offers a link to the billing page. */

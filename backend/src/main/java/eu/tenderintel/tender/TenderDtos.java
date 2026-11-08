@@ -67,7 +67,8 @@ public final class TenderDtos {
 
     /** Award data as published; {@code awardedValue} is null when the notice did not link a value to the winner. */
     public record ResultView(String winnerName, String winnerCountry, String winnerSize, BigDecimal awardedValue,
-            String currency, BigDecimal awardedValueEur, Integer tendersReceived, java.time.LocalDate awardDate) {
+            String currency, BigDecimal awardedValueEur, Integer tendersReceived, java.time.LocalDate awardDate,
+            UUID winnerId) {
     }
 
     public record SourceView(String dataSource, String externalId, String externalUrl, String noticeType,

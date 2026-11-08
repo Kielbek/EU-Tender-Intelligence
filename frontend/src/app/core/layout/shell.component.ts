@@ -6,6 +6,7 @@ import {
   LucideActivity,
   LucideBell,
   LucideBookmark,
+  LucideUsers,
   LucideBriefcase,
   LucideBuilding2,
   LucideChevronDown,
@@ -36,6 +37,7 @@ type Icon =
   | 'star'
   | 'bookmark'
   | 'bell'
+  | 'users'
   | 'briefcase'
   | 'building'
   | 'card'
@@ -81,6 +83,7 @@ const COLLAPSE_KEY = 'eti.sidebar.collapsed';
     LucideActivity,
     LucideBell,
     LucideBookmark,
+    LucideUsers,
     LucideBriefcase,
     LucideBuilding2,
     LucideChevronDown,
@@ -150,6 +153,7 @@ export class ShellComponent {
         { path: '/matches', icon: 'target', key: 'nav.matches', exact: false, query: null },
         { path: '/watchlist', icon: 'star', key: 'nav.watchlist', exact: false, query: null },
         { path: '/saved-searches', icon: 'bookmark', key: 'nav.savedSearches', exact: false, query: null },
+        { path: '/competitors', icon: 'users', key: 'nav.competitors', exact: false, query: null },
         { path: '/notifications', icon: 'bell', key: 'nav.notifications', exact: false, query: null },
       ],
     },

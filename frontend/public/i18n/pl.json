@@ -33,7 +33,8 @@
     "dataSource": "Dane o przetargach: TED (Urząd Publikacji UE) i BZP (Urząd Zamówień Publicznych)",
     "notifications": "Powiadomienia",
     "billing": "Plan i płatności",
-    "tagline": "Zamówienia publiczne UE"
+    "tagline": "Zamówienia publiczne UE",
+    "competitors": "Konkurencja"
   },
   "language": {
     "label": "Język interfejsu",
@@ -281,7 +282,8 @@
     "no_billing_account": "Organizacja nie ma jeszcze konta rozliczeniowego – najpierw wybierz plan.",
     "cancel_subscription_first": "Najpierw anuluj subskrypcję organizacji (Plan i płatności → Zarządzaj płatnościami), potem usuń konto.",
     "price_not_configured": "Ten plan nie jest dostępny w wybranym okresie rozliczeniowym.",
-    "invalid_plan": "Tego planu nie można kupić online."
+    "invalid_plan": "Tego planu nie można kupić online.",
+    "competitor_limit_reached": "Osiągnięto limit obserwowanych konkurentów w planie ({{limit}})."
   },
   "charts": {
     "showTable": "Pokaż jako tabelę"
@@ -891,7 +893,8 @@
       "NEW_MATCH": "Nowe dopasowanie",
       "WATCHED_CHANGED": "Zmiana w obserwowanym",
       "DEADLINE_APPROACHING": "Zbliża się termin",
-      "SAVED_SEARCH": "Alert wyszukiwania"
+      "SAVED_SEARCH": "Alert wyszukiwania",
+      "COMPETITOR_WON": "Konkurent wygrał"
     },
     "item": {
       "match": "Dopasowanie {{score}}% do profilu firmy",
@@ -904,7 +907,9 @@
       "estimatedValue": "Wartość szacunkowa: {{old}} → {{new}}",
       "documentsUrl": "Zmieniono adres dokumentacji",
       "changed": "Zaktualizowano ogłoszenie",
-      "none": "brak"
+      "none": "brak",
+      "competitor": "Wygrana: {{name}}",
+      "awardValue": "Wartość zamówienia: {{value}}"
     },
     "settings": {
       "intro": "Ustawienia dotyczą Ciebie w organizacji {{org}}. Powiadomienia w aplikacji widzisz pod dzwonkiem; e-maile wysyłamy na {{email}}.",
@@ -920,7 +925,8 @@
       "desc": {
         "NEW_MATCH": "Opublikowano otwarty przetarg dopasowany do profilu firmy co najmniej w wybranym stopniu.",
         "WATCHED_CHANGED": "Zmienił się termin, wartość, dokumentacja lub status obserwowanego przetargu, unieważniono go albo opublikowano wynik.",
-        "DEADLINE_APPROACHING": "Do terminu składania ofert w obserwowanym przetargu zostały 3 dni."
+        "DEADLINE_APPROACHING": "Do terminu składania ofert w obserwowanym przetargu zostały 3 dni.",
+        "COMPETITOR_WON": "Obserwowany konkurent wygrał przetarg (nowe ogłoszenie o wyniku)."
       }
     },
     "frequency": {
@@ -1006,7 +1012,9 @@
       "exports": "Eksporty CSV/XLSX: {{n}} / mies.",
       "exportsUnlimited": "Eksporty CSV/XLSX: bez limitu",
       "instant": "E-maile natychmiastowe",
-      "digest": "E-maile w podsumowaniu dziennym/tygodniowym"
+      "digest": "E-maile w podsumowaniu dziennym/tygodniowym",
+      "market": "Wyniki i ceny: {{n}} mies. historii",
+      "competitors": "Obserwowani konkurenci: {{n}}"
     },
     "choose": "Wybierz {{plan}}",
     "change": "Zmień plan",
@@ -1035,5 +1043,88 @@
       "void": "Anulowana",
       "uncollectible": "Nieściągalna"
     }
+  },
+  "market": {
+    "tooLittle": "Za mało danych",
+    "noAwards": "Brak rozstrzygnięć w tym zakresie.",
+    "offersN": "ofert: {{n}}",
+    "scope": "Na podstawie ogłoszeń o wyniku z TED i BZP od {{since}}",
+    "dataSince": "większość rozstrzygnięć w bazie od {{date}}",
+    "freeWindow": "w planie Free 3 ostatnie miesiące, w płatnych 24.",
+    "stats": {
+      "awarded": "Rozstrzygnięte postępowania",
+      "offers": "Mediana liczby ofert",
+      "singleBid": "z jedną ofertą: {{p}}",
+      "ratio": "Cena wygrywająca / wartość szacunkowa",
+      "ratioRange": "połowa w przedziale {{from}}–{{to}} (z {{n}} postępowań)",
+      "medianValue": "Mediana wartości zamówienia"
+    },
+    "col": {
+      "company": "Firma",
+      "wins": "Wygrane",
+      "total": "Łączna wartość",
+      "lastWin": "Ostatnia wygrana"
+    },
+    "panel": {
+      "title": "Rynek i konkurencja",
+      "subtitle": "Rozstrzygnięte podobne zamówienia: kto wygrywa, za ile i z iloma konkurentami.",
+      "ratioHint": "W podobnych przetargach zwycięska oferta wynosiła zwykle ok. {{p}} wartości szacunkowej.",
+      "topWinners": "Najczęściej wygrywają",
+      "recent": "Ostatnie rozstrzygnięcia",
+      "atAuthority": "U zamawiającego: {{name}}",
+      "authorityProfile": "Profil zamawiającego",
+      "authorityLine": "Rozstrzygnięte postępowania: {{n}}",
+      "authorityOffers": "mediana ofert: {{n}}",
+      "mostOften": "Najczęściej wygrywają"
+    },
+    "authority": {
+      "crumb": "Zamawiający",
+      "kicker": "Zamawiający",
+      "website": "strona",
+      "allTenders": "Wszystkie przetargi",
+      "activity": "Aktywność zamawiającego",
+      "published": "Ogłoszone postępowania",
+      "open": "Otwarte teraz",
+      "cancelled": "Unieważnione",
+      "competition": "Konkurencja u tego zamawiającego",
+      "winners": "Kto wygrywa",
+      "openTenders": "Otwarte przetargi",
+      "noOpen": "Brak otwartych przetargów.",
+      "buys": "Co kupuje",
+      "recent": "Ostatnie rozstrzygnięcia"
+    },
+    "company": {
+      "crumb": "Firma",
+      "kicker": "Wykonawca",
+      "sme": "MŚP",
+      "watch": "Obserwuj",
+      "unwatch": "Przestań obserwować",
+      "watchedNote": "Obserwujesz tę firmę – dostaniesz powiadomienie, gdy wygra nowy przetarg.",
+      "wins": "Wygrane postępowania",
+      "total": "Łączna wartość wygranych",
+      "offers": "Mediana liczby ofert",
+      "recent": "Ostatnie wygrane",
+      "authorities": "Główni zamawiający",
+      "industries": "Branże",
+      "countries": "Kraje"
+    },
+    "competitors": {
+      "title": "Konkurencja",
+      "subtitle": "Sprawdź, kto wygrywa przetargi w Twojej branży, i obserwuj konkurentów – powiadomimy Cię o ich nowych wygranych.",
+      "find": "Szukaj firm i zamawiających",
+      "placeholder": "Nazwa firmy lub zamawiającego, NIP…",
+      "companies": "Firmy",
+      "authorities": "Zamawiający",
+      "searchHint": "Firmy to wykonawcy, którzy wygrali przetargi opublikowane w TED lub BZP.",
+      "wins": "wygrane: {{n}}",
+      "tenders": "przetargi: {{n}}",
+      "watched": "Obserwowani konkurenci",
+      "watchedHint": "Wspólna lista dla całej organizacji.",
+      "usage": "{{used}} z {{limit}} w planie",
+      "empty": "Nie obserwujesz jeszcze żadnej firmy. Znajdź ją wyszukiwarką powyżej albo na stronie przetargu.",
+      "winsIn": "Wygrane ({{m}} mies.)",
+      "searchHintAuthorities": "Zamawiający to instytucje publikujące przetargi – wpisz pełną nazwę (bez skrótów) albo NIP/REGON."
+    },
+    "vatNote": "Kwoty: TED – netto, BZP – ceny ofert brutto (z VAT); stosunek ceny do wartości szacunkowej liczymy tylko z ogłoszeń TED (netto do netto)."
   }
 }

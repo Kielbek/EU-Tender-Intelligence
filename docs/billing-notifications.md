@@ -10,6 +10,7 @@ pozycja zapisana w `notification_cursors`; pierwsze uruchomienie zaczyna od „t
 | `NEW_MATCH` | nowy (od ostatniego skanu) otwarty przetarg, opublikowany w ostatnich 14 dniach, z dopasowaniem ≥ progu osoby | w aplikacji + e-mail dziennie, próg 70 |
 | `WATCHED_CHANGED` | nowa wersja obserwowanego przetargu (status WATCHING/PREPARING/SUBMITTED) ze zmianą terminu, wartości, waluty, adresu dokumentacji, statusu albo unieważnienie / wynik | w aplikacji + e-mail natychmiast |
 | `DEADLINE_APPROACHING` | termin obserwowanego (WATCHING/PREPARING) otwartego przetargu za ≤ 3 dni (przesunięcie terminu = nowe przypomnienie) | w aplikacji + e-mail natychmiast |
+| `COMPETITOR_WON` | obserwowany konkurent wygrał (nowe ogłoszenie o wyniku z ostatnich 30 dni) | w aplikacji + e-mail dziennie |
 | `SAVED_SEARCH` | zapisane wyszukiwanie z włączonym alertem znalazło przetargi dodane od ostatniego sprawdzenia | w aplikacji; e-mail wg częstotliwości alertu |
 
 * Odbiorcy: aktywni członkowie organizacji (obserwowane są wspólne dla zespołu; zapisane wyszukiwania – osobiste).

@@ -33,7 +33,8 @@
     "dataSource": "Tender data: TED (Publications Office of the EU) and BZP (Polish Public Procurement Office)",
     "notifications": "Notifications",
     "billing": "Plan and billing",
-    "tagline": "EU public procurement"
+    "tagline": "EU public procurement",
+    "competitors": "Competitors"
   },
   "language": {
     "label": "Interface language",
@@ -281,7 +282,8 @@
     "no_billing_account": "The organization has no billing account yet – choose a plan first.",
     "cancel_subscription_first": "Cancel the organization’s subscription first (Plan and billing → Manage billing), then delete the account.",
     "price_not_configured": "This plan is not available for the chosen billing period.",
-    "invalid_plan": "This plan cannot be bought online."
+    "invalid_plan": "This plan cannot be bought online.",
+    "competitor_limit_reached": "The plan’s limit of followed competitors ({{limit}}) is reached."
   },
   "charts": {
     "showTable": "Show as table"
@@ -891,7 +893,8 @@
       "NEW_MATCH": "New match",
       "WATCHED_CHANGED": "Watched tender changed",
       "DEADLINE_APPROACHING": "Deadline approaching",
-      "SAVED_SEARCH": "Search alert"
+      "SAVED_SEARCH": "Search alert",
+      "COMPETITOR_WON": "Competitor won"
     },
     "item": {
       "match": "{{score}}% match with your company profile",
@@ -904,7 +907,9 @@
       "estimatedValue": "Estimated value: {{old}} → {{new}}",
       "documentsUrl": "Documents link changed",
       "changed": "Notice updated",
-      "none": "none"
+      "none": "none",
+      "competitor": "Won by: {{name}}",
+      "awardValue": "Contract value: {{value}}"
     },
     "settings": {
       "intro": "These settings apply to you in {{org}}. In-app notifications are under the bell; e-mails go to {{email}}.",
@@ -920,7 +925,8 @@
       "desc": {
         "NEW_MATCH": "An open tender matching your company profile at least at the chosen level is published.",
         "WATCHED_CHANGED": "The deadline, value, documents or status of a watched tender changed, it was cancelled or the award was published.",
-        "DEADLINE_APPROACHING": "3 days are left until the submission deadline of a watched tender."
+        "DEADLINE_APPROACHING": "3 days are left until the submission deadline of a watched tender.",
+        "COMPETITOR_WON": "A followed competitor won a tender (new award notice)."
       }
     },
     "frequency": {
@@ -1006,7 +1012,9 @@
       "exports": "CSV/XLSX exports: {{n}} / month",
       "exportsUnlimited": "CSV/XLSX exports: unlimited",
       "instant": "Instant e-mails",
-      "digest": "E-mails in daily/weekly digests"
+      "digest": "E-mails in daily/weekly digests",
+      "market": "Awards and prices: {{n}} months of history",
+      "competitors": "Followed competitors: {{n}}"
     },
     "choose": "Choose {{plan}}",
     "change": "Change plan",
@@ -1035,5 +1043,88 @@
       "void": "Void",
       "uncollectible": "Uncollectible"
     }
+  },
+  "market": {
+    "tooLittle": "Too little data",
+    "noAwards": "No awards in this range.",
+    "offersN": "offers: {{n}}",
+    "scope": "Based on award notices from TED and BZP since {{since}}",
+    "dataSince": "most awards in the database date from {{date}}",
+    "freeWindow": "the Free plan covers the last 3 months, paid plans 24.",
+    "stats": {
+      "awarded": "Awarded procedures",
+      "offers": "Median number of offers",
+      "singleBid": "single offer: {{p}}",
+      "ratio": "Winning price / estimated value",
+      "ratioRange": "middle half {{from}}–{{to}} (from {{n}} procedures)",
+      "medianValue": "Median contract value"
+    },
+    "col": {
+      "company": "Company",
+      "wins": "Wins",
+      "total": "Total value",
+      "lastWin": "Last win"
+    },
+    "panel": {
+      "title": "Market and competition",
+      "subtitle": "Similar awarded contracts: who wins, at what price and against how many competitors.",
+      "ratioHint": "In similar tenders the winning offer was typically about {{p}} of the estimated value.",
+      "topWinners": "Most frequent winners",
+      "recent": "Recent awards",
+      "atAuthority": "At this authority: {{name}}",
+      "authorityProfile": "Authority profile",
+      "authorityLine": "Awarded procedures: {{n}}",
+      "authorityOffers": "median offers: {{n}}",
+      "mostOften": "Most frequent winners"
+    },
+    "authority": {
+      "crumb": "Authority",
+      "kicker": "Contracting authority",
+      "website": "website",
+      "allTenders": "All tenders",
+      "activity": "Authority activity",
+      "published": "Published procedures",
+      "open": "Open now",
+      "cancelled": "Cancelled",
+      "competition": "Competition at this authority",
+      "winners": "Who wins",
+      "openTenders": "Open tenders",
+      "noOpen": "No open tenders.",
+      "buys": "What it buys",
+      "recent": "Recent awards"
+    },
+    "company": {
+      "crumb": "Company",
+      "kicker": "Supplier",
+      "sme": "SME",
+      "watch": "Follow",
+      "unwatch": "Unfollow",
+      "watchedNote": "You follow this company – you will be notified when it wins a new tender.",
+      "wins": "Procedures won",
+      "total": "Total value won",
+      "offers": "Median number of offers",
+      "recent": "Recent wins",
+      "authorities": "Main authorities",
+      "industries": "Industries",
+      "countries": "Countries"
+    },
+    "competitors": {
+      "title": "Competitors",
+      "subtitle": "See who wins tenders in your industry and follow competitors – we notify you about their new wins.",
+      "find": "Search companies and authorities",
+      "placeholder": "Company or authority name, tax id…",
+      "companies": "Companies",
+      "authorities": "Authorities",
+      "searchHint": "Companies are suppliers that won tenders published in TED or BZP.",
+      "wins": "wins: {{n}}",
+      "tenders": "tenders: {{n}}",
+      "watched": "Followed competitors",
+      "watchedHint": "One list for the whole organization.",
+      "usage": "{{used}} of {{limit}} in the plan",
+      "empty": "You do not follow any company yet. Find one with the search above or on a tender page.",
+      "winsIn": "Wins ({{m}} months)",
+      "searchHintAuthorities": "Authorities are the bodies publishing tenders – type the full name (no abbreviations) or the tax id."
+    },
+    "vatNote": "Amounts: TED – net, BZP – gross offer prices (with VAT); the price/estimate ratio uses TED notices only (net to net)."
   }
 }

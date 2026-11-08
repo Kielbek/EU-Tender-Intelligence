@@ -12,12 +12,12 @@ import java.util.Optional;
  * and data stay, only adding more is blocked.
  */
 public enum Plan {
-    //          seats  saved searches/user  AI analyses/month  exports/month  instant e-mails  purchasable
-    FREE(1, 3, 2, 3, false, false),
-    STARTER(3, 25, 30, 100, true, true),
-    PRO(10, 100, 100, 500, true, true),
-    BUSINESS(25, 100, 300, 2000, true, true),
-    ENTERPRISE(null, 100, 1000, null, true, false);
+    //  seats  saved searches/user  AI/month  exports/month  instant e-mails  purchasable  market history (months)  competitors
+    FREE(1, 3, 2, 3, false, false, 3, 1),
+    STARTER(3, 25, 30, 100, true, true, 24, 10),
+    PRO(10, 100, 100, 500, true, true, 24, 50),
+    BUSINESS(25, 100, 300, 2000, true, true, 24, 200),
+    ENTERPRISE(null, 100, 1000, null, true, false, 24, 500);
 
     private final Integer seats;
     private final int savedSearchesPerUser;
@@ -25,9 +25,13 @@ public enum Plan {
     private final Integer exportsPerMonth;
     private final boolean instantEmails;
     private final boolean purchasable;
+    private final int marketHistoryMonths;
+    private final int watchedCompetitors;
 
     Plan(Integer seats, int savedSearchesPerUser, int aiAnalysesPerMonth, Integer exportsPerMonth,
-            boolean instantEmails, boolean purchasable) {
+            boolean instantEmails, boolean purchasable, int marketHistoryMonths, int watchedCompetitors) {
+        this.marketHistoryMonths = marketHistoryMonths;
+        this.watchedCompetitors = watchedCompetitors;
         this.seats = seats;
         this.savedSearchesPerUser = savedSearchesPerUser;
         this.aiAnalysesPerMonth = aiAnalysesPerMonth;
@@ -64,6 +68,16 @@ public enum Plan {
     /** Without it, "instant" e-mails are sent in the daily digest instead. */
     public boolean instantEmails() {
         return instantEmails;
+    }
+
+    /** How far back award statistics, winners and company/authority profiles reach. */
+    public int marketHistoryMonths() {
+        return marketHistoryMonths;
+    }
+
+    /** Competitors the organization can follow. */
+    public int watchedCompetitors() {
+        return watchedCompetitors;
     }
 
     /** Can be bought through Stripe Checkout (ENTERPRISE is a contract set by a platform administrator). */

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AlertFrequency, SearchFilters } from './tender.model';
 
-export type NotificationType = 'NEW_MATCH' | 'WATCHED_CHANGED' | 'DEADLINE_APPROACHING' | 'SAVED_SEARCH';
+export type NotificationType = 'NEW_MATCH' | 'WATCHED_CHANGED' | 'DEADLINE_APPROACHING' | 'SAVED_SEARCH' | 'COMPETITOR_WON';
 export type ConfigurableType = Exclude<NotificationType, 'SAVED_SEARCH'>;
 
 export interface TenderChange {
@@ -19,6 +19,7 @@ export interface AppNotification {
   readAt?: string;
   tender?: { id: string; title: string; countryCode: string; submissionDeadline?: string; status: string };
   savedSearch?: { id: string; name: string; filters: SearchFilters };
+  company?: { id: string; name: string };
   payload: {
     score?: number;
     changeKind?: string;
@@ -26,6 +27,9 @@ export interface AppNotification {
     deadline?: string;
     count?: number;
     name?: string;
+    operatorName?: string;
+    valueEur?: number;
+    offers?: number;
   };
 }
 

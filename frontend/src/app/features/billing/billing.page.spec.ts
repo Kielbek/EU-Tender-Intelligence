@@ -8,7 +8,8 @@ import { OrgContextService } from '../../core/org/org-context.service';
 import { translocoTesting } from '../../testing/transloco-testing';
 import { BillingPage } from './billing.page';
 
-const limits = { seats: 1, savedSearchesPerUser: 3, aiAnalysesPerMonth: 2, exportsPerMonth: 3, instantEmails: false };
+const limits = { seats: 1, savedSearchesPerUser: 3, aiAnalysesPerMonth: 2, exportsPerMonth: 3, instantEmails: false,
+  marketHistoryMonths: 3, watchedCompetitors: 1 };
 const plans = (configured: boolean): PlansResponse => ({
   configured,
   plans: [

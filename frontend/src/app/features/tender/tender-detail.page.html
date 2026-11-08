@@ -23,7 +23,7 @@
     </div>
     <h1 class="eti-h1 mt-2 break-words" [attr.lang]="t.titleLang">{{ t.title }}</h1>
     @if (t.authority) {
-      <p class="mt-1 text-ink-muted">{{ t.authority.name }}</p>
+      <p class="mt-1 text-ink-muted"><a [routerLink]="['/authorities', t.authority.id]" class="hover:text-accent">{{ t.authority.name }}</a></p>
     }
   </header>
 
@@ -158,7 +158,11 @@
                 @for (r of t.results; track $index) {
                   <tr>
                     <th scope="row" class="px-5 py-2 font-normal">
-                      {{ r.winnerName ?? '—' }}
+                      @if (r.winnerId) {
+                        <a [routerLink]="['/companies', r.winnerId]" class="font-medium hover:text-accent">{{ r.winnerName }}</a>
+                      } @else {
+                        {{ r.winnerName ?? '—' }}
+                      }
                       @if (r.winnerCountry) { <span class="text-xs text-ink-muted">({{ r.winnerCountry | country: lang }})</span> }
                     </th>
                     <td class="px-5 py-2 text-right tabular-nums">
@@ -176,6 +180,10 @@
             </table>
           </div>
         </section>
+      }
+
+      @if (org.currentId()) {
+        <eti-tender-market [tenderId]="t.id" />
       }
 
       <section class="eti-card p-5" aria-labelledby="history-heading">
@@ -292,7 +300,8 @@
           @if (t.authority.website) {
             <a [href]="t.authority.website" target="_blank" rel="noopener noreferrer nofollow" class="eti-link mt-1 inline-block text-sm break-all">{{ t.authority.website }}</a>
           }
-          <a [routerLink]="['/search']" [queryParams]="{ authority: t.authority.name }" class="eti-link mt-3 block text-xs">{{ 'dashboard.seeAll' | transloco }}</a>
+          <a [routerLink]="['/authorities', t.authority.id]" class="eti-link mt-3 block text-xs">{{ 'market.panel.authorityProfile' | transloco }}</a>
+          <a [routerLink]="['/search']" [queryParams]="{ authority: t.authority.name }" class="eti-link mt-1 block text-xs">{{ 'dashboard.seeAll' | transloco }}</a>
         </section>
       }
 

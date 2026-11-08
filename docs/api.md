@@ -63,6 +63,11 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/organizations/{id}/notifications?unread=&page=&size=` | członek | powiadomienia osoby + liczba nieprzeczytanych |
 | PUT | `/api/v1/organizations/{id}/notification-preferences` | członek | preferencje; `INSTANT` bez planu płatnego → 402 `instant_alerts_unavailable` |
 | POST | `/api/v1/notifications/unsubscribe` | token z e-maila | wypisanie (JSON `{token}` albo RFC 8058 `?token=` + formularz) |
+| GET | `/api/v1/organizations/{id}/market/tenders/{tid}?lang=` | członek | podobne rozstrzygnięcia: statystyki, zwycięzcy, ostatnie wyniki, historia u zamawiającego |
+| GET | `/api/v1/organizations/{id}/market/authorities/{aid}`, `…/companies/{cid}` | członek | profil zamawiającego / wykonawcy (okres wg planu) |
+| GET | `/api/v1/organizations/{id}/market/companies?q=`, `…/authorities?q=` | członek | wyszukiwanie po nazwie lub numerze identyfikacyjnym |
+| GET/PUT/DELETE | `/api/v1/organizations/{id}/competitors[/{cid}]` | członek | obserwowani konkurenci (402 `competitor_limit_reached`) |
+| POST | `/api/v1/admin/market/refresh` | `PLATFORM_ADMIN` | przeliczenie widoków statystyk |
 | GET | `/api/v1/system/legal` | publiczny | dane operatora (z konfiguracji) i podmioty przetwarzające – do regulaminu i polityki prywatności |
 
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,

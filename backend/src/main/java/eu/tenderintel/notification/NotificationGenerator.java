@@ -26,8 +26,11 @@ class NotificationGenerator {
 
     /** Looking back this much before the cursor catches rows committed after the previous scan read past them. */
     static final Duration OVERLAP = Duration.ofMinutes(15);
-    /** ...and published within this many days (a backfill of old notices is not news either). */
-    static final int RECENT_PUBLICATION_DAYS = 14;
+    /**
+     * ...and published within this many days. Imports run hourly (BZP) and daily (TED), so a genuinely new notice is
+     * at most a day or two old; a backfill of older notices (up to 31 days per job) must not flood anyone.
+     */
+    static final int RECENT_PUBLICATION_DAYS = 3;
     /** Diff fields of a watched tender that are worth a notification (title or description edits are not). */
     static final String[] WATCHED_FIELDS = {"submissionDeadline", "status", "estimatedValue", "currency",
             "documentsUrl"};
@@ -56,15 +59,42 @@ class NotificationGenerator {
         this.json = json;
     }
 
-    record Counts(int newMatches, int watchedChanges, int deadlines, int savedSearches) {
+    record Counts(int newMatches, int watchedChanges, int deadlines, int savedSearches, int competitorWins) {
         int total() {
-            return newMatches + watchedChanges + deadlines + savedSearches;
+            return newMatches + watchedChanges + deadlines + savedSearches + competitorWins;
         }
     }
 
     Counts generate(Instant from, Instant to, int reminderDays) {
         return new Counts(newMatches(from, to), watchedChanges(from, to), deadlines(to, reminderDays),
-                savedSearches(to));
+                savedSearches(to), competitorWins(from, to));
+    }
+
+    /**
+     * New award notices naming a followed competitor. Only recent awards (≤ 30 days): importing older notices later
+     * (a backfill) must not flood anyone with history.
+     */
+    int competitorWins(Instant from, Instant to) {
+        NotificationType t = NotificationType.COMPETITOR_WON;
+        return jdbc.update("""
+                insert into notifications (id, user_id, organization_id, type, tender_id, operator_id, payload, in_app,
+                    email_frequency, dedup_key)
+                select gen_random_uuid(), om.user_id, w.organization_id, 'COMPETITOR_WON', r.tender_id, r.winner_id,
+                       jsonb_build_object('operatorName', max(o.name), 'valueEur', sum(distinct r.awarded_value_eur),
+                           'offers', max(r.tenders_received)),
+                       %s,
+                       'COMPETITOR:' || w.organization_id || ':' || r.tender_id || ':' || r.winner_id
+                from tender_results r
+                join watched_companies w on w.operator_id = r.winner_id
+                join economic_operators o on o.id = r.winner_id
+                %s
+                where r.created_at > ? and r.created_at <= ? and r.created_at > w.created_at
+                  and coalesce(r.award_date, r.created_at::date) >= (?::timestamptz)::date - 30
+                  and %s
+                group by om.user_id, w.organization_id, r.tender_id, r.winner_id, p.in_app, p.email_frequency
+                on conflict (user_id, dedup_key) do nothing
+                """.formatted(delivery(t), recipients("w.organization_id", t), wanted(t)),
+                ts(from.minus(OVERLAP)), ts(to), ts(to));
     }
 
     int newMatches(Instant from, Instant to) {
