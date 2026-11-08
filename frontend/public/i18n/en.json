@@ -15,7 +15,10 @@
       "alerts": "Notifications"
     },
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "organization": "Organization & team",
+    "account": "My account",
+    "logout": "Sign out"
   },
   "language": {
     "label": "Interface language",
@@ -65,5 +68,149 @@
     "title": "Page not found",
     "body": "The page you are looking for does not exist or has moved.",
     "back": "Back to system status"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "email": "E-mail address",
+    "password": "Password",
+    "loading": "Loading…",
+    "saved": "Changes saved.",
+    "required": "This field is required.",
+    "invalidEmail": "Enter a valid e-mail address.",
+    "passwordMin": "Password must be at least 12 characters long.",
+    "passwordHint": "At least 12 characters. A few random words work best.",
+    "you": "You"
+  },
+  "auth": {
+    "tagline": "Public tenders from across the European Union in one place.",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "register": "Create an account",
+      "resend": "Resend activation link",
+      "resent": "If the account needs activation, we have sent a new link."
+    },
+    "register": {
+      "title": "Create an account",
+      "fullName": "Full name",
+      "organizationName": "Company name",
+      "organizationHint": "Optional. You can change it later.",
+      "terms": "I accept the terms of service and privacy policy.",
+      "termsRequired": "You must accept the terms.",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "login": "Sign in",
+      "doneTitle": "Check your inbox",
+      "doneBody": "We sent an activation link to {{email}}. Click it to activate your account. The link is valid for 24 hours."
+    },
+    "verify": {
+      "title": "Account activation",
+      "pending": "Confirming your e-mail address…",
+      "success": "Your e-mail address is confirmed. You can sign in now.",
+      "failed": "The link is invalid or has expired. Sign in to get a new one.",
+      "missing": "The link contains no token.",
+      "login": "Go to sign in"
+    },
+    "forgot": {
+      "title": "Reset password",
+      "body": "Enter your account e-mail. We will send you a link to set a new password.",
+      "submit": "Send link",
+      "done": "If the account exists, we have sent a reset link. Check your inbox.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "newPassword": "New password",
+      "submit": "Set password",
+      "done": "Your password was changed and all sessions were signed out.",
+      "login": "Sign in"
+    }
+  },
+  "account": {
+    "title": "My account",
+    "profile": "Profile",
+    "fullName": "Full name",
+    "timezone": "Time zone",
+    "password": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password changed. Please sign in again.",
+    "sessions": "Sessions",
+    "sessionsBody": "Sign this account out on every device, e.g. after losing a laptop.",
+    "revokeAll": "Sign out everywhere",
+    "revokeConfirm": "Sign out all devices, including this one?",
+    "role": "Platform role",
+    "roles": {
+      "USER": "User",
+      "PLATFORM_ADMIN": "Platform administrator"
+    }
+  },
+  "org": {
+    "title": "Organization & team",
+    "details": "Organization details",
+    "name": "Name",
+    "country": "Country of registration",
+    "noCountry": "— not selected —",
+    "vatId": "EU VAT number",
+    "billingEmail": "Billing e-mail",
+    "plan": "Plan",
+    "readOnly": "Only a company admin can edit these details.",
+    "members": "Members",
+    "member": "Person",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "roles": {
+      "COMPANY_ADMIN": "Company admin",
+      "TEAM_MEMBER": "Team member"
+    },
+    "changeRole": "Change role of {{name}}",
+    "remove": "Remove",
+    "leave": "Leave organization",
+    "removeConfirm": "Remove {{name}} from the organization?",
+    "leaveConfirm": "Leave this organization?",
+    "invite": "Invite a person",
+    "inviteSubmit": "Send invitation",
+    "invited": "Invitation sent to {{email}}.",
+    "invitations": "Pending invitations",
+    "noInvitations": "No pending invitations.",
+    "expires": "Expires",
+    "revoke": "Revoke invitation",
+    "switch": "Organization"
+  },
+  "invitation": {
+    "title": "Organization invitation",
+    "pending": "Accepting invitation…",
+    "success": "You joined “{{name}}”.",
+    "goToOrg": "Go to the organization",
+    "missing": "The link contains no token."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Cannot reach the server. Check your connection and try again.",
+    "invalid_credentials": "Invalid e-mail or password.",
+    "too_many_attempts": "Too many failed attempts. Try again in a few minutes.",
+    "rate_limited": "Too many requests. Wait a moment and try again.",
+    "email_not_verified": "Confirm your e-mail address first – click the link in the activation e-mail.",
+    "account_disabled": "This account is disabled. Contact support.",
+    "invalid_token": "The link is invalid or has expired.",
+    "weak_password": "Password too weak: at least 12 characters, no parts of your e-mail, no repetitions.",
+    "invalid_current_password": "Current password is incorrect.",
+    "validation_failed": "Check the highlighted fields.",
+    "last_admin": "An organization needs at least one admin.",
+    "already_member": "This person is already a member.",
+    "invitation_email_mismatch": "This invitation was sent to a different e-mail address than your account's.",
+    "forbidden": "You are not allowed to do this.",
+    "not_found": "Not found.",
+    "unsupported_locale": "Unsupported language.",
+    "invalid_timezone": "Unknown time zone.",
+    "correlation": "Request ID"
   }
 }

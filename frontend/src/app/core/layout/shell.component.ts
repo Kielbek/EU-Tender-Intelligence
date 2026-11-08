@@ -1,7 +1,16 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { LucideActivity, LucideLandmark, LucideMenu, LucideX } from '@lucide/angular';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  LucideActivity,
+  LucideBuilding2,
+  LucideLandmark,
+  LucideLogOut,
+  LucideMenu,
+  LucideUserRound,
+  LucideX,
+} from '@lucide/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AuthService } from '../auth/auth.service';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 
 /**
@@ -17,13 +26,18 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
     TranslocoPipe,
     LanguageSwitcherComponent,
     LucideActivity,
+    LucideBuilding2,
     LucideLandmark,
+    LucideLogOut,
     LucideMenu,
+    LucideUserRound,
     LucideX,
   ],
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {
+  protected readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   protected readonly menuOpen = signal(false);
   protected readonly roadmap = ['dashboard', 'search', 'company', 'ai', 'alerts'] as const;
 
@@ -33,5 +47,9 @@ export class ShellComponent {
 
   protected closeMenu(): void {
     this.menuOpen.set(false);
+  }
+
+  protected logout(): void {
+    this.auth.logout().subscribe(() => void this.router.navigate(['/auth/login']));
   }
 }

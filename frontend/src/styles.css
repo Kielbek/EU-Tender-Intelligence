@@ -69,3 +69,43 @@
     }
   }
 }
+
+/* Reusable form and button styles (keeps templates short and consistent). */
+@layer components {
+  .eti-label {
+    @apply block text-sm font-medium text-ink;
+  }
+  .eti-input {
+    @apply mt-1 block h-10 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink placeholder:text-ink-muted/70 focus:border-accent;
+  }
+  .eti-input[aria-invalid="true"] {
+    @apply border-danger;
+  }
+  .eti-hint {
+    @apply mt-1 text-xs text-ink-muted;
+  }
+  .eti-field-error {
+    @apply mt-1 text-xs font-medium text-danger;
+  }
+  .eti-btn-primary {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 bg-navy-900 text-white hover:bg-navy-800 dark:bg-accent dark:hover:bg-accent/90;
+  }
+  .eti-btn-secondary {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 border border-border bg-surface text-ink hover:bg-canvas;
+  }
+  .eti-btn-danger {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 border border-danger/40 bg-surface text-danger hover:bg-danger-soft;
+  }
+  .eti-link {
+    @apply font-medium text-accent underline-offset-2 hover:underline;
+  }
+  .eti-card {
+    @apply rounded-lg border border-border bg-surface;
+  }
+  .eti-alert-error {
+    @apply rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger;
+  }
+  .eti-alert-success {
+    @apply rounded-md border border-success/30 bg-success-soft px-3 py-2 text-sm text-success;
+  }
+}

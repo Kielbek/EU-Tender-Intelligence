@@ -8,7 +8,7 @@
 ## 1. Cały stos w Dockerze
 
 ```bash
-cp .env.example .env          # zmień hasła
+cp .env.example .env          # zmień hasła, ustaw JWT_SECRET i PLATFORM_ADMIN_EMAILS
 docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 ```
 
@@ -17,9 +17,15 @@ docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 | Frontend (nginx, proxy `/api` → backend) | http://localhost:8081 |
 | Backend API | http://localhost:8080/api/v1/system/status |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
+| Mailpit (podgląd e-maili, tylko lokalnie) | http://localhost:8025 |
 | PostgreSQL / Redis | `127.0.0.1:5432` / `127.0.0.1:6379` (porty tylko na localhost) |
 
-Migracje Flyway uruchamiają się automatycznie przy starcie backendu.
+Migracje Flyway uruchamiają się automatycznie przy starcie backendu. Przy pierwszym starcie (puste tabele) backend
+importuje w tle słownik CPV (Urząd Publikacji UE, ~1–2 min) i kursy EBC z 90 dni – postęp w `GET /api/v1/admin/ingestion-jobs`.
+Wymaga dostępu do `publications.europa.eu` i `www.ecb.europa.eu`.
+
+**Pierwszy administrator:** wpisz swój adres w `PLATFORM_ADMIN_EMAILS`, zarejestruj się i kliknij link aktywacyjny (w Mailpit) –
+konto otrzyma rolę `PLATFORM_ADMIN` po potwierdzeniu adresu.
 
 ## 2. Tryb deweloperski (hot reload)
 
@@ -28,7 +34,7 @@ docker compose -f infra/docker-compose.yml --env-file .env up -d postgres redis
 ```
 
 ```bash
-cd backend && set -a && . ../.env && set +a && ./mvnw spring-boot:run
+cd backend && set -a && . ../.env && set +a && SMTP_HOST=localhost SMTP_PORT=1025 SMTP_AUTH=false SMTP_STARTTLS=false ./mvnw spring-boot:run
 ```
 
 ```bash
@@ -57,3 +63,6 @@ cd frontend && npx ng test --watch=false && npx ng build
 * **Monitoring**: Prometheus + Grafana + Alertmanager, logi JSON (ECS) do Loki, uptime check na `/actuator/health/readiness`.
 * **CI/CD**: GitHub Actions – testy → build obrazów → push do rejestru → wdrożenie (Compose/Kamal lub k8s przy większej skali).
 * `API_DOCS_ENABLED=false` na produkcji, `CORS_ALLOWED_ORIGINS` ustawione na domenę aplikacji.
+* `REFRESH_COOKIE_SECURE=true`, `APP_PUBLIC_URL` = adres aplikacji (linki w e-mailach), prawdziwy dostawca SMTP z SPF/DKIM/DMARC.
+* `JWT_SECRET` unikalny per środowisko; rotacja = wylogowanie wszystkich (access tokeny żyją 15 min).
+* `server.forward-headers-strategy=framework`: backend ufa `X-Forwarded-For` – wystaw go **tylko** za zaufanym reverse proxy (inaczej limity per IP można obejść).

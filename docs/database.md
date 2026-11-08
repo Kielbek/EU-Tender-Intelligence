@@ -1,7 +1,12 @@
 # Model bazy danych – PostgreSQL 16 + pgvector
 
-> Status: **projekt** (Etap 1). Migracja `V1__baseline.sql` zakłada tylko rozszerzenia i schemat techniczny.
-> Tabele domenowe powstają w Etapie 2 (migracje Flyway `V2__identity.sql`, `V3__tenders.sql`, ...).
+> Status (Etap 2): **zaimplementowane** migracje `V1`–`V6` – rozszerzenia, kraje, tożsamość, organizacje, zaproszenia,
+> audyt, outbox e-maili, waluty, kursy EBC, CPV, pełny schemat przetargów i ingestion, rejestr źródeł danych.
+> Tabele prywatne firm (3.5), powiadomienia (3.6) i płatności (3.7) powstaną w etapach 5–6.
+>
+> Różnice względem projektu: kody CPV przechowywane jako 8 cyfr **bez cyfry kontrolnej** (tak jak w TED/eForms);
+> `refresh_tokens.family_id` grupuje rotacje jednej sesji; `email_outbox` (transakcyjna kolejka e-maili) i
+> `organization_invitations` dodane; izolacja tenantów na razie w warstwie serwisu (RLS dojdzie razem z tabelami prywatnymi w Etapie 5).
 
 ## 1. Konwencje
 

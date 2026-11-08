@@ -11,21 +11,33 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | Etap | Zakres | Status |
 |---|---|---|
 | 1 | Architektura, dokumentacja, Docker, PostgreSQL, szkielet backendu i frontendu, CI | ✅ |
-| 2 | Modele danych, migracje, uwierzytelnianie, RBAC, API | ⏳ następny |
-| 3–8 | TED, frontend modułów, AI, powiadomienia, Stripe, admin, wdrożenie | 📋 plan |
+| 2 | Modele danych, migracje, uwierzytelnianie, RBAC, organizacje, audyt, rate limiting, słowniki (CPV, EBC), API przetargów | ✅ |
+| 3 | Integracja TED (pobieranie, normalizacja, deduplikacja, wersje) | ⏳ następny |
+| 4–8 | Frontend modułów, AI, powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
 
-Co działa teraz: `GET /api/v1/system/status` (stan bazy, pgvector, Redis, gotowość integracji),
-ekran „Status systemu” (PL/EN), migracje Flyway (rozszerzenia + 27 państw UE), bezpieczny baseline (deny-all, nagłówki,
-Problem Details, correlation id). Integracje zewnętrzne są oznaczone jako `NOT_IMPLEMENTED` do czasu ich zbudowania i przetestowania.
+Co działa teraz:
+
+* Konta: rejestracja (akceptacja regulaminu), weryfikacja e-mail, logowanie (Argon2id, JWT + rotowany refresh token
+  w ciasteczku HttpOnly z wykrywaniem ponownego użycia), blokada po nieudanych próbach, reset i zmiana hasła, wylogowanie ze wszystkich urządzeń.
+* Organizacje (tenanty): członkowie, role `COMPANY_ADMIN`/`TEAM_MEMBER`, zaproszenia e-mail, ochrona ostatniego administratora, izolacja danych.
+* Administrator platformy: użytkownicy (blokowanie), logi audytowe, źródła danych, zadania importu, kolejka e-maili.
+* Słowniki z oficjalnych źródeł: **CPV 2008** (9454 kody, 24 języki UE – Urząd Publikacji UE), **kursy EBC** (codziennie), 27 państw UE, waluty.
+* API przetargów (filtry, CPV, wartość w EUR, pełnotekstowe bez polskich znaków, sortowanie, paginacja, historia zmian) –
+  schemat gotowy, **dane pojawią się po Etapie 3** (integracja TED).
+* Frontend: logowanie, rejestracja, linki z e-maili, konto, organizacja i zespół, status systemu (PL/EN).
+* E-maile przez kolejkę (outbox) i SMTP; lokalnie Mailpit (http://localhost:8025).
+
+Integracje, których jeszcze nie ma, są oznaczone w `GET /api/v1/system/status` jako `NOT_IMPLEMENTED`.
 
 ## Szybki start
 
 ```bash
 cp .env.example .env
+# ustaw JWT_SECRET (openssl rand -base64 32) i PLATFORM_ADMIN_EMAILS=twoj@email
 docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 ```
 
-Frontend: http://localhost:8081 · API: http://localhost:8080/api/v1/system/status · Swagger: http://localhost:8080/swagger-ui.html
+Frontend: http://localhost:8081 · Mailpit: http://localhost:8025 · API: http://localhost:8080/api/v1/system/status · Swagger: http://localhost:8080/swagger-ui.html
 
 Tryb deweloperski i testy: [docs/deployment.md](docs/deployment.md).
 

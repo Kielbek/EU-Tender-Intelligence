@@ -31,6 +31,13 @@ export class LanguageService {
     }
   }
 
+  /** After login: switch to the language stored in the user's profile, if the UI supports it. */
+  adoptUserLocale(locale: string | undefined): void {
+    if (isLanguage(locale) && locale !== this.current()) {
+      this.use(locale);
+    }
+  }
+
   private readStored(): Language | null {
     try {
       const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);

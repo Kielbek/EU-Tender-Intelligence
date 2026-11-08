@@ -1,4 +1,4 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   inject,
@@ -9,6 +9,8 @@ import {
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { routes } from './app.routes';
+import { authInterceptor } from './core/auth/auth.interceptor';
+import { AuthService } from './core/auth/auth.service';
 import { LanguageService } from './core/i18n/language.service';
 import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from './core/i18n/languages';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
@@ -17,7 +19,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideTransloco({
       config: {
         availableLangs: [...AVAILABLE_LANGUAGES],
@@ -28,6 +30,12 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
-    provideAppInitializer(() => inject(LanguageService).init()),
+    provideAppInitializer(() => {
+      inject(LanguageService).init();
+      // Silent session restore; route guards wait for it to settle.
+      const auth = inject(AuthService);
+      const language = inject(LanguageService);
+      auth.init().subscribe((ok) => ok && language.adoptUserLocale(auth.user()?.locale));
+    }),
   ],
 };

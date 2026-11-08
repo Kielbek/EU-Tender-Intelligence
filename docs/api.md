@@ -6,25 +6,45 @@
 * Każda odpowiedź ma nagłówek `X-Request-Id` (przekazany przez klienta, jeśli poprawny, lub wygenerowany).
 * Specyfikacja OpenAPI generowana z kodu: `GET /v3/api-docs`, Swagger UI: `/swagger-ui.html` (wyłączane `API_DOCS_ENABLED=false`).
 
-## Endpointy – Etap 1 `[ZAIMPLEMENTOWANE]`
+## Endpointy – Etapy 1–2 `[ZAIMPLEMENTOWANE]`
+
+Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 
 | Metoda | Ścieżka | Dostęp | Opis |
 |---|---|---|---|
 | GET | `/api/v1/system/status` | publiczny | wersja, stan PostgreSQL (z wersją pgvector) i Redis, gotowość integracji (`READY` / `PENDING_CONFIGURATION` / `NOT_IMPLEMENTED`) |
 | GET | `/actuator/health`, `/actuator/health/liveness`, `/actuator/health/readiness` | publiczny | sondy dla orkiestratora (bez szczegółów) |
 | GET | `/actuator/prometheus` | **zablokowany** w Etapie 1 (`denyAll`) | metryki – udostępnione w Etapie 8 tylko w sieci wewnętrznej |
+| POST | `/api/v1/auth/register` | publiczny (limit 10/h/IP) | zawsze 202 – bez ujawniania istnienia konta |
+| POST | `/api/v1/auth/verify-email`, `/verify-email/resend` | publiczny | token z e-maila |
+| POST | `/api/v1/auth/login` | publiczny (limity IP + konto) | access token w body, refresh token w ciasteczku `eti_refresh` (HttpOnly, SameSite=Strict, path `/api/v1/auth`) |
+| POST | `/api/v1/auth/refresh`, `/logout` | ciasteczko + nagłówek `X-ETI-CSRF: 1` | rotacja tokenu; ponowne użycie starego → unieważnienie całej rodziny |
+| POST | `/api/v1/auth/password/forgot`, `/password/reset` | publiczny | reset unieważnia wszystkie sesje |
+| GET/PATCH | `/api/v1/me` | zalogowany | profil (imię, język UE, strefa czasowa) |
+| POST | `/api/v1/me/password`, `/me/sessions/revoke-all` | zalogowany | |
+| GET | `/api/v1/organizations` | zalogowany | organizacje użytkownika z rolą |
+| GET/PATCH | `/api/v1/organizations/{id}` | członek / `COMPANY_ADMIN` | obca organizacja → 404 |
+| GET | `/api/v1/organizations/{id}/members` | członek | |
+| PUT | `/api/v1/organizations/{id}/members/{userId}/role` | `COMPANY_ADMIN` | ostatni admin chroniony (409 `last_admin`) |
+| DELETE | `/api/v1/organizations/{id}/members/{userId}` | `COMPANY_ADMIN` lub sam członek | |
+| POST/GET/DELETE | `/api/v1/organizations/{id}/invitations[/{invId}]` | `COMPANY_ADMIN` | |
+| POST | `/api/v1/invitations/accept` | zalogowany, zweryfikowany e-mail = adres zaproszenia | |
+| GET | `/api/v1/countries`, `/currencies`, `/currencies/rates/latest` | publiczny | |
+| GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po kodzie/nazwie, drzewo |
+| GET | `/api/v1/tenders` | zalogowany | filtry: `q, country[], cpv[], status[], contractType[], procedureType[], authority, city, nuts, currency, language, valueMinEur, valueMaxEur, publishedFrom/To, deadlineFrom/To, sort, direction, page, size≤100` |
+| GET | `/api/v1/tenders/{id}`, `/{id}/versions` | zalogowany | szczegóły, źródła, historia zmian |
+| GET/POST | `/api/v1/admin/users`, `/users/{id}/lock`, `/unlock`, `/audit-logs`, `/data-sources`, `/ingestion-jobs`, `/email-outbox`, `/reference/cpv/import`, `/reference/exchange-rates/import` | `PLATFORM_ADMIN` | |
 
-Każdy inny endpoint zwraca obecnie `403` (domyślne „deny all” do czasu wprowadzenia uwierzytelniania).
+Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
+`too_many_attempts`, `rate_limited` (+ `Retry-After`), `email_not_verified`, `account_disabled`, `invalid_token`, `invalid_session`,
+`weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `internal_error`.
 
-## Plan endpointów (Etapy 2–7)
+## Plan endpointów (Etapy 3–7)
 
 | Obszar | Endpointy |
 |---|---|
-| Auth | `POST /auth/register`, `POST /auth/verify-email`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/password/forgot`, `POST /auth/password/reset` |
-| Użytkownik | `GET/PATCH /me`, `DELETE /me` (RODO), `GET /me/export` |
-| Organizacje | `GET/POST /organizations`, `GET/PATCH /organizations/{id}`, `GET/POST/DELETE /organizations/{id}/members`, `POST /organizations/{id}/invitations` |
-| Słowniki | `GET /countries`, `GET /cpv?query=`, `GET /currencies` |
-| Przetargi | `GET /tenders` (filtry, sortowanie, paginacja kursorowa), `GET /tenders/{id}`, `GET /tenders/{id}/versions`, `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language`, `POST /tenders/export` (CSV/XLSX, limit planu) |
+| Użytkownik (RODO) | `DELETE /me`, `GET /me/export` |
+| Przetargi | `GET /tenders/{id}/documents`, `POST /tenders/search/natural-language`, `POST /tenders/export` (CSV/XLSX, limit planu) |
 | Zapisane | `GET/POST/DELETE /saved-searches`, `GET/POST/PATCH/DELETE /saved-tenders` |
 | Dashboard | `GET /dashboard/summary`, `GET /dashboard/top-matches` |
 | Firma | `GET/PUT /company-profile`, CRUD `/company-profile/certifications`, `/references`, `/documents` |
@@ -32,5 +52,5 @@ Każdy inny endpoint zwraca obecnie `403` (domyślne „deny all” do czasu wpr
 | AI | `POST /tenders/{id}/analyses`, `GET /analyses/{id}`, `POST /translations`, `POST /assistant/messages` (SSE) |
 | Powiadomienia | `GET /notifications`, `POST /notifications/{id}/read`, `GET/PUT /notification-preferences` |
 | Płatności | `GET /plans`, `POST /billing/checkout-session`, `POST /billing/portal-session`, `GET /billing/usage`, `POST /webhooks/stripe` (podpis) |
-| Admin | `/admin/users`, `/admin/organizations`, `/admin/data-sources`, `/admin/ingestion-jobs` (+ `POST /{id}/retry`), `/admin/ai-usage`, `/admin/audit-logs` |
+| Admin | `/admin/organizations`, `/admin/ingestion-jobs/{id}/retry`, `/admin/ai-usage` |
 | Growth | `/admin/crm/*`, `/admin/campaigns/*`, `/public/reports/subscribe`, `/partners/me/*`, `/referrals/me` – patrz [growth-system.md](growth-system.md) |

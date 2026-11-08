@@ -1,0 +1,179 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <h1 class="text-xl font-semibold tracking-tight">{{ 'org.title' | transloco }}</h1>
+  @if (memberships().length > 1) {
+    <div>
+      <label class="eti-label" for="org-switch">{{ 'org.switch' | transloco }}</label>
+      <select id="org-switch" class="eti-input min-w-56" [value]="current()?.id" (change)="switchTo($any($event.target).value)">
+        @for (m of memberships(); track m.id) {
+          <option [value]="m.id" [selected]="m.id === current()?.id">{{ m.name }}</option>
+        }
+      </select>
+    </div>
+  }
+</div>
+
+<div class="mt-6 space-y-6" aria-live="polite" [attr.aria-busy]="loading()">
+  @if (loadError()) {
+    <eti-api-error [error]="loadError()" />
+  } @else if (loading() && !organization()) {
+    <p class="sr-only">{{ 'common.loading' | transloco }}</p>
+    <div class="eti-card space-y-3 p-5">
+      <eti-skeleton size="h-5 w-48" />
+      <eti-skeleton size="h-10 w-full" />
+      <eti-skeleton size="h-10 w-full" />
+    </div>
+  } @else if (organization(); as org) {
+    <eti-api-error [error]="actionError()" />
+
+    <section class="eti-card p-5" aria-labelledby="details-heading">
+      <div class="flex items-center justify-between gap-3">
+        <h2 id="details-heading" class="text-base font-semibold">{{ 'org.details' | transloco }}</h2>
+        <span class="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+          {{ 'org.plan' | transloco }}: {{ org.planCode }}
+        </span>
+      </div>
+      @if (!isAdmin()) {
+        <p class="mt-1 text-sm text-ink-muted">{{ 'org.readOnly' | transloco }}</p>
+      }
+      <form class="mt-4 grid gap-4 sm:grid-cols-2" [formGroup]="details" (ngSubmit)="saveDetails()" novalidate>
+        <div class="sm:col-span-2">
+          <label class="eti-label" for="org-name">{{ 'org.name' | transloco }}</label>
+          <input id="org-name" class="eti-input" formControlName="name" autocomplete="organization" />
+        </div>
+        <div>
+          <label class="eti-label" for="org-country">{{ 'org.country' | transloco }}</label>
+          <select id="org-country" class="eti-input" formControlName="countryCode">
+            <option value="">{{ 'org.noCountry' | transloco }}</option>
+            @for (c of countries(); track c.code) {
+              <option [value]="c.code">{{ c.nameEn }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="eti-label" for="org-vat">{{ 'org.vatId' | transloco }}</label>
+          <input id="org-vat" class="eti-input" formControlName="vatId" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="eti-label" for="org-billing">{{ 'org.billingEmail' | transloco }}</label>
+          <input id="org-billing" type="email" class="eti-input" formControlName="billingEmail" />
+          @if (details.controls.billingEmail.invalid && details.controls.billingEmail.touched) {
+            <p class="eti-field-error">{{ 'common.invalidEmail' | transloco }}</p>
+          }
+        </div>
+        @if (isAdmin()) {
+          <div class="flex items-center gap-3 sm:col-span-2">
+            <button type="submit" class="eti-btn-primary" [disabled]="busy()">{{ 'common.save' | transloco }}</button>
+            @if (saved()) {
+              <span role="status" class="text-sm text-success">{{ 'common.saved' | transloco }}</span>
+            }
+          </div>
+        }
+      </form>
+    </section>
+
+    <section class="eti-card" aria-labelledby="members-heading">
+      <h2 id="members-heading" class="px-5 pt-5 text-base font-semibold">{{ 'org.members' | transloco }}</h2>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="border-y border-border text-xs text-ink-muted">
+            <tr>
+              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.member' | transloco }}</th>
+              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.role' | transloco }}</th>
+              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.joined' | transloco }}</th>
+              <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'org.actions' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (member of members(); track member.userId) {
+              @let self = member.userId === auth.user()?.id;
+              <tr>
+                <th scope="row" class="px-5 py-3 font-normal">
+                  <span class="font-medium">{{ member.fullName }}</span>
+                  @if (self) {
+                    <span class="ml-1 text-xs text-ink-muted">({{ 'common.you' | transloco }})</span>
+                  }
+                  <span class="block text-xs text-ink-muted">{{ member.email }}</span>
+                </th>
+                <td class="px-5 py-3">
+                  @if (isAdmin()) {
+                    <select class="eti-input mt-0 h-8 w-auto" [value]="member.role" [disabled]="busy()"
+                            [attr.aria-label]="'org.changeRole' | transloco: { name: member.fullName }"
+                            (change)="changeRole(member, $event)">
+                      @for (role of roles; track role) {
+                        <option [value]="role" [selected]="role === member.role">{{ 'org.roles.' + role | transloco }}</option>
+                      }
+                    </select>
+                  } @else {
+                    {{ 'org.roles.' + member.role | transloco }}
+                  }
+                </td>
+                <td class="px-5 py-3 text-ink-muted">{{ member.joinedAt | date: 'mediumDate' : undefined : language.current() }}</td>
+                <td class="px-5 py-3 text-right">
+                  @if (canRemove(member)) {
+                    <button type="button" class="eti-btn-danger h-8 px-3" [disabled]="busy()" (click)="remove(member)">
+                      {{ (self ? 'org.leave' : 'org.remove') | transloco }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    @if (isAdmin()) {
+      <div class="grid gap-6 lg:grid-cols-2">
+        <section class="eti-card p-5" aria-labelledby="invite-heading">
+          <h2 id="invite-heading" class="text-base font-semibold">{{ 'org.invite' | transloco }}</h2>
+          <form class="mt-4 space-y-4" [formGroup]="inviteForm" (ngSubmit)="invite()" novalidate>
+            @if (invitedEmail(); as email) {
+              <p role="status" class="eti-alert-success">{{ 'org.invited' | transloco: { email } }}</p>
+            }
+            <div>
+              <label class="eti-label" for="invite-email">{{ 'common.email' | transloco }}</label>
+              <input id="invite-email" type="email" class="eti-input" formControlName="email"
+                     [attr.aria-invalid]="inviteForm.controls.email.invalid && inviteForm.controls.email.touched" />
+              @if (inviteForm.controls.email.invalid && inviteForm.controls.email.touched) {
+                <p class="eti-field-error">{{ 'common.invalidEmail' | transloco }}</p>
+              }
+            </div>
+            <div>
+              <label class="eti-label" for="invite-role">{{ 'org.role' | transloco }}</label>
+              <select id="invite-role" class="eti-input" formControlName="role">
+                @for (role of roles; track role) {
+                  <option [value]="role">{{ 'org.roles.' + role | transloco }}</option>
+                }
+              </select>
+            </div>
+            <button type="submit" class="eti-btn-primary" [disabled]="busy()">{{ 'org.inviteSubmit' | transloco }}</button>
+          </form>
+        </section>
+
+        <section class="eti-card p-5" aria-labelledby="invitations-heading">
+          <h2 id="invitations-heading" class="text-base font-semibold">{{ 'org.invitations' | transloco }}</h2>
+          @if (invitations().length === 0) {
+            <p class="mt-3 text-sm text-ink-muted">{{ 'org.noInvitations' | transloco }}</p>
+          } @else {
+            <ul class="mt-3 divide-y divide-border text-sm">
+              @for (inv of invitations(); track inv.id) {
+                <li class="flex items-center justify-between gap-3 py-2">
+                  <div>
+                    <p class="font-medium">{{ inv.email }}</p>
+                    <p class="text-xs text-ink-muted">
+                      {{ 'org.roles.' + inv.role | transloco }} · {{ 'org.expires' | transloco }}
+                      {{ inv.expiresAt | date: 'mediumDate' : undefined : language.current() }}
+                    </p>
+                  </div>
+                  <button type="button" class="eti-btn-secondary h-8 px-3" [disabled]="busy()" (click)="revoke(inv)">
+                    {{ 'org.revoke' | transloco }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+    }
+  }
+</div>

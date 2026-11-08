@@ -15,7 +15,10 @@
       "alerts": "Powiadomienia"
     },
     "openMenu": "Otwórz menu",
-    "closeMenu": "Zamknij menu"
+    "closeMenu": "Zamknij menu",
+    "organization": "Organizacja i zespół",
+    "account": "Moje konto",
+    "logout": "Wyloguj"
   },
   "language": {
     "label": "Język interfejsu",
@@ -65,5 +68,149 @@
     "title": "Nie znaleziono strony",
     "body": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
     "back": "Wróć do statusu systemu"
+  },
+  "common": {
+    "save": "Zapisz",
+    "saving": "Zapisywanie…",
+    "cancel": "Anuluj",
+    "email": "Adres e-mail",
+    "password": "Hasło",
+    "loading": "Ładowanie…",
+    "saved": "Zapisano zmiany.",
+    "required": "To pole jest wymagane.",
+    "invalidEmail": "Podaj poprawny adres e-mail.",
+    "passwordMin": "Hasło musi mieć co najmniej 12 znaków.",
+    "passwordHint": "Co najmniej 12 znaków. Najlepiej kilka losowych słów.",
+    "you": "Ty"
+  },
+  "auth": {
+    "tagline": "Przetargi publiczne z całej Unii Europejskiej w jednym miejscu.",
+    "login": {
+      "title": "Zaloguj się",
+      "submit": "Zaloguj się",
+      "submitting": "Logowanie…",
+      "forgot": "Nie pamiętasz hasła?",
+      "noAccount": "Nie masz konta?",
+      "register": "Załóż konto",
+      "resend": "Wyślij ponownie link aktywacyjny",
+      "resent": "Jeśli konto wymaga aktywacji, wysłaliśmy nowy link."
+    },
+    "register": {
+      "title": "Załóż konto",
+      "fullName": "Imię i nazwisko",
+      "organizationName": "Nazwa firmy",
+      "organizationHint": "Opcjonalnie. Możesz ją zmienić później.",
+      "terms": "Akceptuję regulamin i politykę prywatności.",
+      "termsRequired": "Akceptacja regulaminu jest wymagana.",
+      "submit": "Załóż konto",
+      "submitting": "Tworzenie konta…",
+      "haveAccount": "Masz już konto?",
+      "login": "Zaloguj się",
+      "doneTitle": "Sprawdź skrzynkę e-mail",
+      "doneBody": "Wysłaliśmy link aktywacyjny na adres {{email}}. Kliknij go, aby aktywować konto. Link jest ważny 24 godziny."
+    },
+    "verify": {
+      "title": "Aktywacja konta",
+      "pending": "Potwierdzanie adresu e-mail…",
+      "success": "Adres e-mail został potwierdzony. Możesz się zalogować.",
+      "failed": "Link jest nieprawidłowy lub wygasł. Zaloguj się, aby wysłać nowy.",
+      "missing": "Brak tokenu w linku.",
+      "login": "Przejdź do logowania"
+    },
+    "forgot": {
+      "title": "Reset hasła",
+      "body": "Podaj adres e-mail konta. Wyślemy link do ustawienia nowego hasła.",
+      "submit": "Wyślij link",
+      "done": "Jeśli konto istnieje, wysłaliśmy link do resetu hasła. Sprawdź skrzynkę.",
+      "back": "Wróć do logowania"
+    },
+    "reset": {
+      "title": "Ustaw nowe hasło",
+      "newPassword": "Nowe hasło",
+      "submit": "Ustaw hasło",
+      "done": "Hasło zostało zmienione. Wszystkie sesje zostały wylogowane.",
+      "login": "Zaloguj się"
+    }
+  },
+  "account": {
+    "title": "Moje konto",
+    "profile": "Profil",
+    "fullName": "Imię i nazwisko",
+    "timezone": "Strefa czasowa",
+    "password": "Zmiana hasła",
+    "currentPassword": "Obecne hasło",
+    "newPassword": "Nowe hasło",
+    "changePassword": "Zmień hasło",
+    "passwordChanged": "Hasło zmienione. Zaloguj się ponownie.",
+    "sessions": "Sesje",
+    "sessionsBody": "Wyloguj to konto na wszystkich urządzeniach, np. po utracie laptopa.",
+    "revokeAll": "Wyloguj wszędzie",
+    "revokeConfirm": "Na pewno wylogować wszystkie urządzenia, łącznie z tym?",
+    "role": "Rola na platformie",
+    "roles": {
+      "USER": "Użytkownik",
+      "PLATFORM_ADMIN": "Administrator platformy"
+    }
+  },
+  "org": {
+    "title": "Organizacja i zespół",
+    "details": "Dane organizacji",
+    "name": "Nazwa",
+    "country": "Kraj rejestracji",
+    "noCountry": "— nie wybrano —",
+    "vatId": "NIP / numer VAT UE",
+    "billingEmail": "E-mail do faktur",
+    "plan": "Plan",
+    "readOnly": "Tylko administrator firmy może edytować te dane.",
+    "members": "Członkowie",
+    "member": "Osoba",
+    "role": "Rola",
+    "joined": "Dołączył(a)",
+    "actions": "Akcje",
+    "roles": {
+      "COMPANY_ADMIN": "Administrator firmy",
+      "TEAM_MEMBER": "Członek zespołu"
+    },
+    "changeRole": "Zmień rolę osoby {{name}}",
+    "remove": "Usuń",
+    "leave": "Opuść organizację",
+    "removeConfirm": "Usunąć {{name}} z organizacji?",
+    "leaveConfirm": "Na pewno opuścić tę organizację?",
+    "invite": "Zaproś osobę",
+    "inviteSubmit": "Wyślij zaproszenie",
+    "invited": "Zaproszenie wysłane na {{email}}.",
+    "invitations": "Oczekujące zaproszenia",
+    "noInvitations": "Brak oczekujących zaproszeń.",
+    "expires": "Wygasa",
+    "revoke": "Anuluj zaproszenie",
+    "switch": "Organizacja"
+  },
+  "invitation": {
+    "title": "Zaproszenie do organizacji",
+    "pending": "Przyjmowanie zaproszenia…",
+    "success": "Dołączyłeś(-aś) do organizacji „{{name}}”.",
+    "goToOrg": "Przejdź do organizacji",
+    "missing": "Brak tokenu w linku."
+  },
+  "errors": {
+    "generic": "Coś poszło nie tak. Spróbuj ponownie.",
+    "network": "Brak połączenia z serwerem. Sprawdź połączenie i spróbuj ponownie.",
+    "invalid_credentials": "Nieprawidłowy e-mail lub hasło.",
+    "too_many_attempts": "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilkanaście minut.",
+    "rate_limited": "Zbyt wiele żądań. Odczekaj chwilę i spróbuj ponownie.",
+    "email_not_verified": "Najpierw potwierdź adres e-mail – kliknij link z wiadomości aktywacyjnej.",
+    "account_disabled": "To konto jest zablokowane. Skontaktuj się z pomocą techniczną.",
+    "invalid_token": "Link jest nieprawidłowy lub wygasł.",
+    "weak_password": "Hasło jest za słabe: min. 12 znaków, bez fragmentów adresu e-mail i powtórzeń.",
+    "invalid_current_password": "Obecne hasło jest nieprawidłowe.",
+    "validation_failed": "Sprawdź poprawność wypełnionych pól.",
+    "last_admin": "Organizacja musi mieć co najmniej jednego administratora.",
+    "already_member": "Ta osoba już należy do organizacji.",
+    "invitation_email_mismatch": "To zaproszenie wysłano na inny adres e-mail niż adres Twojego konta.",
+    "forbidden": "Nie masz uprawnień do tej operacji.",
+    "not_found": "Nie znaleziono zasobu.",
+    "unsupported_locale": "Nieobsługiwany język.",
+    "invalid_timezone": "Nieznana strefa czasowa.",
+    "correlation": "Identyfikator zgłoszenia"
   }
 }

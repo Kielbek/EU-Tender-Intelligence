@@ -1,9 +1,10 @@
 # Integracja z TED i portalami krajowymi
 
 > Status: **projekt** (Etap 3). Implementacja jeszcze nie istnieje.
-> **Uwaga:** w środowisku, w którym powstał Etap 1, wychodzący ruch do `api.ted.europa.eu` był zablokowany przez politykę
-> sieci, więc szczegóły poniżej opierają się na oficjalnej dokumentacji (https://docs.ted.europa.eu/api/latest/index.html),
-> a nie na testach na żywo. Pierwszym krokiem Etapu 3 jest weryfikacja kontraktu API testami kontraktowymi na prawdziwych odpowiedziach.
+> **Zweryfikowane na żywo (Etap 2, 2026-11-08):** `POST https://api.ted.europa.eu/v3/notices/search` działa anonimowo.
+> Pola `publication-number`, `notice-type` (np. `cn-standard`), `buyer-name` (mapa język → lista), `classification-cpv`
+> (8 cyfr, bez cyfry kontrolnej), `deadline-receipt-tender-date-lot` (format `2026-11-13+01:00`), `procedure-identifier`
+> (UUID – BT-04, klucz deduplikacji) i `links` (XML/PDF/HTML) istnieją. Pozostałe nazwy pól – do potwierdzenia testem kontraktowym w Etapie 3.
 
 ## 1. Źródła TED
 
