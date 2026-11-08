@@ -170,7 +170,7 @@ Wszystkie zadania: idempotentne, z retry (backoff wykładniczy), zapisem do `ing
 * Angular 22, standalone components, signals, `HttpClient` z interceptorami (auth, correlation id, błędy).
 * Struktura feature-first (`src/app/features/*`), wspólne komponenty UI w `src/app/shared/ui`.
 * Transloco – język domyślny **polski**, przełącznik języka zapisywany w profilu użytkownika (a przed logowaniem w `localStorage`).
-* Design system: granat / biel / szarość / niebieskie akcenty, tryb jasny i ciemny, gęstość informacji jak w narzędziach analitycznych.
+* Design system: wariant „A · Czysta biel” (biel, cienkie obramowania, jeden niebieski akcent, Inter hostowany lokalnie) – opis i zrzuty w `docs/design/`. Tylko tryb jasny (decyzja właściciela produktu).
 * Dostępność: WCAG 2.2 AA – kontrast, focus visible, nawigacja klawiaturą, `aria-live` dla stanów ładowania/błędów, skip link.
 * SSR (Angular SSR) tylko dla publicznych stron marketingowych/SEO; aplikacja po zalogowaniu jako SPA.
 

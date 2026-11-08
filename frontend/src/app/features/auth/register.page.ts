@@ -14,12 +14,12 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
   template: `
     @if (doneFor(); as email) {
       <div role="status">
-        <h1 class="text-xl font-semibold tracking-tight">{{ 'auth.register.doneTitle' | transloco }}</h1>
+        <h1 class="eti-h1">{{ 'auth.register.doneTitle' | transloco }}</h1>
         <p class="mt-3 text-sm text-ink-muted">{{ 'auth.register.doneBody' | transloco: { email } }}</p>
         <a routerLink="/auth/login" class="eti-btn-secondary mt-6 w-full">{{ 'auth.register.login' | transloco }}</a>
       </div>
     } @else {
-      <h1 class="text-xl font-semibold tracking-tight">{{ 'auth.register.title' | transloco }}</h1>
+      <h1 class="eti-h1">{{ 'auth.register.title' | transloco }}</h1>
       <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <eti-api-error [error]="error()" />
         <div>
@@ -54,7 +54,7 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
         </div>
         <div>
           <label class="flex items-start gap-2 text-sm">
-            <input type="checkbox" class="mt-0.5 size-4 accent-navy-900" formControlName="acceptTerms"
+            <input type="checkbox" class="mt-0.5 size-4 accent-accent" formControlName="acceptTerms"
                    [attr.aria-invalid]="invalid('acceptTerms')" aria-describedby="terms-error" />
             <span>{{ 'auth.register.terms' | transloco }}</span>
           </label>

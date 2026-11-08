@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import { DashboardSummary } from '../../core/api/tender.model';
 import { TenderService } from '../../core/api/tender.service';
@@ -24,6 +24,7 @@ import { StatTileComponent } from '../../shared/ui/stat-tile.component';
 })
 export class DashboardPage {
   private readonly api = inject(TenderService);
+  private readonly transloco = inject(TranslocoService);
   protected readonly auth = inject(AuthService);
   protected readonly org = inject(OrgContextService);
   protected readonly language = inject(LanguageService);
@@ -67,16 +68,38 @@ export class DashboardPage {
     }));
   });
 
-  protected readonly cpvBars = computed<BarItem[]>(() =>
-    (this.data()?.topCpvDivisions ?? []).map((b) => ({ key: b.key, label: `${b.key.slice(0, 2)} · ${b.label ?? b.key}`, value: b.count })),
-  );
+  protected readonly cpvItems = computed(() => {
+    const list = (this.data()?.topCpvDivisions ?? []).slice(0, 6);
+    const max = Math.max(1, ...list.map((b) => b.count));
+    return list.map((b) => ({ key: b.key, division: b.key.slice(0, 2), label: b.label ?? b.key, count: b.count,
+      share: (b.count / max) * 100 }));
+  });
+
+  protected readonly firstName = computed(() => (this.auth.user()?.fullName ?? '').split(/\s+/)[0] ?? '');
+
+  /** Open tenders whose deadline falls within the next 7 days (same rule as the KPI). */
+  protected readonly dueSoonQuery = computed(() => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const d = new Date();
+    const from = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    d.setDate(d.getDate() + 7);
+    const to = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return { status: 'OPEN', deadlineFrom: from, deadlineTo: to, sort: 'DEADLINE' };
+  });
 
   protected readonly countryBars = computed<BarItem[]>(() => {
     const lang = this.language.current();
-    return (this.data()?.byCountry ?? []).map((b) => ({ key: b.key, label: countryName(b.key, lang), value: b.count }));
+    return (this.data()?.byCountry ?? []).slice(0, 8).map((b) => ({ key: b.key, label: countryName(b.key, lang), value: b.count }));
   });
 
   protected watchedValue(d: DashboardSummary): string {
     return money(d.watchedValueEur, 'EUR', this.language.current());
+  }
+
+  protected watchedHint(d: DashboardSummary): string {
+    const base = this.transloco.translate('dashboard.watchedCount', { n: d.watchedActive });
+    return d.watchedWithoutValue
+      ? `${base} · ${this.transloco.translate('dashboard.watchedValueHint', { n: d.watchedWithoutValue })}`
+      : base;
   }
 }

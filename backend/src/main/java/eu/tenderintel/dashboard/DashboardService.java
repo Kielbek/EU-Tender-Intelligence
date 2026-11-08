@@ -33,7 +33,8 @@ public class DashboardService {
         this.tenders = tenders;
     }
 
-    public record Summary(long openTenders, long newLast7Days, long watchedActive, BigDecimal watchedValueEur,
+    public record Summary(long openTenders, long openCountries, long dueWithin7Days, long newLast7Days,
+            long watchedActive, BigDecimal watchedValueEur,
             long watchedWithoutValue, List<TenderSummary> upcomingDeadlines, List<Bucket> topCpvDivisions,
             List<Bucket> byCountry, List<DayCount> noticesPerDay, List<Update> recentUpdates, String updatesScope,
             Instant lastIngestionAt) {
@@ -55,6 +56,9 @@ public class DashboardService {
         String l = lang != null && lang.matches("[a-z]{2}") ? lang : "en";
 
         long open = count("select count(*) from tenders where status = 'OPEN'");
+        long openCountries = count("select count(distinct country_code) from tenders where status = 'OPEN'");
+        long dueSoon = count("select count(*) from tenders where status = 'OPEN' and submission_deadline > now() "
+                + "and submission_deadline <= now() + interval '7 days'");
         long newTenders = count("select count(*) from tenders where published_at >= now() - interval '7 days'");
         Map<String, Object> watched = jdbc.queryForMap("""
                 select count(*) as n, coalesce(sum(t.estimated_value_eur), 0) as v,
@@ -113,7 +117,7 @@ public class DashboardService {
                 where d.code = 'TED' and j.status in ('SUCCEEDED', 'PARTIAL')
                 """, rs -> rs.next() ? rs.getTimestamp(1) : null);
 
-        return new Summary(open, newTenders, watchedCount, (BigDecimal) watched.get("v"),
+        return new Summary(open, openCountries, dueSoon, newTenders, watchedCount, (BigDecimal) watched.get("v"),
                 ((Number) watched.get("no_value")).longValue(), upcoming, cpv, countries, perDay, updates, scope,
                 last == null ? null : last.toInstant());
     }

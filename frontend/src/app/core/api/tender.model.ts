@@ -143,6 +143,8 @@ export interface Bucket {
 
 export interface DashboardSummary {
   openTenders: number;
+  openCountries: number;
+  dueWithin7Days: number;
   newLast7Days: number;
   watchedActive: number;
   watchedValueEur: number;

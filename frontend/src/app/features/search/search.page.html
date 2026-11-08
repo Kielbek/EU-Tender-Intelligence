@@ -1,7 +1,7 @@
 <div class="flex flex-wrap items-end justify-between gap-3">
   <div>
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'search.title' | transloco }}</h1>
-    <p class="mt-1 text-sm text-ink-muted">{{ 'search.subtitle' | transloco }}</p>
+    <h1 class="eti-h1">{{ 'search.title' | transloco }}</h1>
+    <p class="eti-subtitle mt-1.5">{{ 'search.subtitle' | transloco }}</p>
   </div>
 </div>
 
@@ -30,7 +30,7 @@
       </button>
       <section id="filters" class="space-y-4 lg:block" [class.hidden]="!filtersOpen()" aria-labelledby="filters-heading">
         <div class="mt-3 flex items-center justify-between lg:mt-0">
-          <h2 id="filters-heading" class="text-sm font-semibold">{{ 'search.filters' | transloco }}</h2>
+          <h2 id="filters-heading" class="eti-h2">{{ 'search.filters' | transloco }}</h2>
           @if (activeFilters()) {
             <button type="button" class="eti-link text-xs" (click)="clear()">{{ 'search.clear' | transloco }}</button>
           }
@@ -123,7 +123,7 @@
     <!-- Results -->
     <section class="min-w-0" aria-labelledby="results-heading" [attr.aria-busy]="loading()">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="results-heading" tabindex="-1" class="text-sm font-semibold" aria-live="polite">
+        <h2 id="results-heading" tabindex="-1" class="eti-h2" aria-live="polite">
           @if (loading()) {
             {{ 'search.loading' | transloco }}
           } @else if (results(); as r) {
@@ -183,57 +183,63 @@
             }
           </div>
         } @else {
-          <ul class="mt-3 space-y-2" [class.opacity-60]="loading()">
-            @for (t of r.items; track t.id) {
-              <li class="eti-card flex gap-3 p-4">
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
-                    <eti-tender-status [status]="t.status" />
-                    <span>{{ t.countryCode | country: language.current() }}@if (t.city) {, {{ t.city }}}</span>
-                    @if (t.contractType) {
-                      <span aria-hidden="true">·</span>
-                      <span>{{ 'tender.contractType.' + t.contractType | transloco }}</span>
+          <div class="eti-card mt-3 overflow-hidden" [class.opacity-60]="loading()">
+            <div class="eti-table-head hidden grid-cols-[minmax(0,1fr)_7.5rem_9rem_10.5rem_2.5rem] gap-3 px-5 py-2.5 md:grid" aria-hidden="true">
+              <span>{{ 'search.columns.tender' | transloco }}</span>
+              <span>{{ 'search.columns.country' | transloco }}</span>
+              <span class="text-right">{{ 'search.columns.value' | transloco }}</span>
+              <span>{{ 'search.columns.deadline' | transloco }}</span>
+              <span></span>
+            </div>
+            <ul class="divide-y divide-track">
+              @for (t of r.items; track t.id) {
+                @let lang = language.current();
+                <li class="grid grid-cols-[minmax(0,1fr)_2.5rem] gap-3 px-5 py-3.5 hover:bg-subtle md:grid-cols-[minmax(0,1fr)_7.5rem_9rem_10.5rem_2.5rem] md:items-center">
+                  <div class="min-w-0">
+                    <h3 class="text-sm leading-snug font-medium break-words text-ink">
+                      <a [routerLink]="['/tenders', t.id]" class="hover:text-accent">{{ t.title }}</a>
+                    </h3>
+                    @if (t.authorityName) {
+                      <p class="mt-0.5 truncate text-[13px] text-ink-muted">{{ t.authorityName }}</p>
+                    }
+                    <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+                      <eti-tender-status [status]="t.status" />
+                      @if (t.mainCpv) {
+                        <span><span class="eti-num">{{ t.mainCpv }}</span>@if (t.mainCpvLabel) { · {{ t.mainCpvLabel }}}</span>
+                      }
+                    </p>
+                    <!-- Phone: the columns below are hidden, so key facts repeat here. -->
+                    <p class="mt-1.5 flex flex-wrap gap-x-3 text-xs text-ink-soft md:hidden">
+                      <span>{{ t.countryCode | country: lang }}@if (t.city) {, {{ t.city }}}</span>
+                      @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
+                        <span class="eti-num font-medium">{{ t.estimatedValue | money: t.currency : lang }}</span>
+                      }
+                      @if (t.submissionDeadline) {
+                        <span>{{ 'search.columns.deadline' | transloco }}: <eti-deadline [iso]="t.submissionDeadline" [locale]="lang" /></span>
+                      }
+                    </p>
+                  </div>
+                  <div class="hidden text-[13px] text-ink-soft md:block">
+                    {{ t.countryCode | country: lang }}
+                    @if (t.city) { <span class="block truncate text-xs text-ink-muted">{{ t.city }}</span> }
+                  </div>
+                  <div class="eti-num hidden text-right text-[13px] whitespace-nowrap md:block">
+                    @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
+                      {{ t.estimatedValue | money: t.currency : lang }}
+                    } @else {
+                      <span class="text-ink-faint">—</span>
                     }
                   </div>
-                  <h3 class="mt-1 font-medium leading-snug break-words">
-                    <a [routerLink]="['/tenders', t.id]" class="hover:text-accent hover:underline">{{ t.title }}</a>
-                  </h3>
-                  @if (t.authorityName) {
-                    <p class="mt-0.5 truncate text-sm text-ink-muted">{{ t.authorityName }}</p>
-                  }
-                  <p class="mt-1 flex flex-wrap gap-x-3 text-xs sm:hidden">
-                    @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
-                      <span class="font-medium tabular-nums">{{ t.estimatedValue | money: t.currency : language.current() }}</span>
+                  <div class="hidden text-[13px] md:block"><eti-deadline [iso]="t.submissionDeadline" [locale]="lang" /></div>
+                  <div class="row-start-1 md:row-start-auto col-start-2 md:col-start-auto">
+                    @if (org.currentId()) {
+                      <eti-watch-toggle [tenderId]="t.id" [title]="t.title" />
                     }
-                    @if (t.submissionDeadline) {
-                      <span>{{ 'search.columns.deadline' | transloco }}: <eti-deadline [iso]="t.submissionDeadline" [locale]="language.current()" /></span>
-                    }
-                  </p>
-                  @if (t.mainCpv) {
-                    <p class="mt-1 text-xs text-ink-muted">
-                      <span class="font-mono">{{ t.mainCpv }}</span>
-                      @if (t.mainCpvLabel) { · {{ t.mainCpvLabel }} }
-                    </p>
-                  }
-                </div>
-                <dl class="hidden shrink-0 space-y-1 text-right text-sm sm:block">
-                  <dt class="sr-only">{{ 'search.columns.value' | transloco }}</dt>
-                  <dd class="font-medium tabular-nums">
-                    @if (t.estimatedValue !== null && t.estimatedValue !== undefined) {
-                      {{ t.estimatedValue | money: t.currency : language.current() }}
-                    } @else {
-                      <span class="text-ink-muted">—</span>
-                    }
-                  </dd>
-                  <dt class="sr-only">{{ 'search.columns.deadline' | transloco }}</dt>
-                  <dd class="text-xs"><eti-deadline [iso]="t.submissionDeadline" [locale]="language.current()" /></dd>
-                </dl>
-                @if (org.currentId()) {
-                  <eti-watch-toggle [tenderId]="t.id" [title]="t.title" />
-                }
-              </li>
-            }
-          </ul>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
 
           @if (r.totalPages > 1) {
             <nav class="mt-4 flex items-center justify-between gap-3 text-sm" [attr.aria-label]="'common.pageOf' | transloco: { page: r.page + 1, pages: r.totalPages }">
@@ -253,7 +259,7 @@
   </div>
 </form>
 
-<dialog #saveDialog class="w-full max-w-md rounded-lg border border-border bg-surface p-0 text-ink shadow-xl backdrop:bg-navy-950/40"
+<dialog #saveDialog class="w-full max-w-md eti-card p-0 text-ink shadow-xl backdrop:bg-navy-950/40"
         aria-labelledby="save-title">
   <form class="space-y-4 p-6" (ngSubmit)="save()">
     <h2 id="save-title" class="text-lg font-semibold">{{ 'search.saveTitle' | transloco }}</h2>

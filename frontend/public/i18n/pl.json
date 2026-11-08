@@ -18,11 +18,15 @@
     "account": "Moje konto",
     "logout": "Wyloguj",
     "dashboard": "Dashboard",
-    "search": "Wyszukiwarka przetargów",
+    "search": "Wyszukiwarka",
     "watchlist": "Obserwowane",
     "savedSearches": "Zapisane wyszukiwania",
     "workspace": "Praca",
-    "currentOrg": "Organizacja robocza"
+    "currentOrg": "Organizacja robocza",
+    "organizationSection": "Organizacja",
+    "plan": "Plan {{plan}}",
+    "globalSearch": "Szukaj przetargów",
+    "globalSearchPlaceholder": "Szukaj w przetargach lub wpisz kod CPV…"
   },
   "language": {
     "label": "Język interfejsu",
@@ -349,7 +353,9 @@
     "filter": "Etap",
     "notesIndicator": "Ma notatki",
     "toggleAria": "Obserwuj przetarg: {{title}}",
-    "untoggleAria": "Przestań obserwować: {{title}}"
+    "untoggleAria": "Przestań obserwować: {{title}}",
+    "teamHeading": "Praca zespołu",
+    "notWatchedHint": "Dodaj przetarg do wspólnej listy, aby ustalić etap pracy i notatki."
   },
   "search": {
     "title": "Wyszukiwarka przetargów",
@@ -441,15 +447,13 @@
     "greeting": "Dzień dobry, {{name}}",
     "openTenders": "Otwarte przetargi",
     "newTenders": "Nowe w ostatnich 7 dniach",
-    "watched": "Obserwowane (aktywne)",
-    "watchedValue": "Wartość obserwowanych",
-    "watchedValueHint": "{{n}} bez podanej wartości",
-    "watchedValueAllKnown": "suma wartości szacunkowych w EUR",
-    "upcoming": "Najbliższe terminy – obserwowane",
+    "watchedValue": "Obserwowane przez zespół",
+    "watchedValueHint": "{{n}} bez wartości",
+    "upcoming": "Najbliższe terminy",
     "upcomingEmpty": "Brak otwartych obserwowanych przetargów z terminem.",
-    "noticesPerDay": "Nowe ogłoszenia dziennie (30 dni)",
+    "noticesPerDay": "Nowe ogłoszenia dziennie",
     "noticesCaption": "Liczba ogłoszeń TED dziennie w ostatnich 30 dniach",
-    "topCpv": "Najczęstsze branże – otwarte przetargi",
+    "topCpv": "Najczęstsze branże (CPV)",
     "byCountry": "Otwarte przetargi według kraju",
     "updates": "Ostatnie aktualizacje",
     "updatesWatched": "Zmiany w obserwowanych przetargach",
@@ -458,6 +462,15 @@
     "freshness": "Dane z TED, ostatnia aktualizacja: {{time}}",
     "freshnessNever": "Import z TED jeszcze się nie zakończył.",
     "matchingPending": "Dopasowanie przetargów do profilu firmy („Najlepsze przetargi dla Twojej firmy”) pojawi się w Etapie 5.",
-    "seeAll": "Zobacz wszystkie"
+    "seeAll": "Wszystkie",
+    "kpi": "Wskaźniki",
+    "newSearch": "Nowe wyszukiwanie",
+    "inCountries": "w {{n}} krajach",
+    "newTendersHint": "nowe postępowania",
+    "dueSoon": "Termin w ciągu 7 dni",
+    "dueSoonHint": "otwarte postępowania",
+    "watchedCount": "aktywne: {{n}} · suma wartości",
+    "noticesHint": "TED, ostatnie 30 dni · TED nie publikuje w weekendy",
+    "upcomingHint": "obserwowane przez zespół"
   }
 }

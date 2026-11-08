@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
-import { SESSION } from './auth.service.spec';
+import { SESSION } from '../../testing/session.fixture';
 
 describe('authInterceptor', () => {
   let http: HttpTestingController;

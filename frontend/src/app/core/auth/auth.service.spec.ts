@@ -1,24 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { AuthResponse } from './auth.model';
+import { SESSION } from '../../testing/session.fixture';
 import { AuthService } from './auth.service';
 
-export const SESSION: AuthResponse = {
-  accessToken: 'access-1',
-  tokenType: 'Bearer',
-  expiresAt: '2026-11-08T00:15:00Z',
-  user: {
-    id: 'u1',
-    email: 'jan@example.com',
-    fullName: 'Jan Kowalski',
-    locale: 'pl',
-    timezone: 'Europe/Warsaw',
-    platformRole: 'USER',
-    emailVerified: true,
-    createdAt: '2026-11-01T00:00:00Z',
-  },
-};
 
 describe('AuthService', () => {
   let auth: AuthService;

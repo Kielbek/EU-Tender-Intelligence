@@ -18,11 +18,15 @@
     "account": "My account",
     "logout": "Sign out",
     "dashboard": "Dashboard",
-    "search": "Tender search",
+    "search": "Search",
     "watchlist": "Watch-list",
     "savedSearches": "Saved searches",
-    "workspace": "Workspace",
-    "currentOrg": "Working organization"
+    "workspace": "Work",
+    "currentOrg": "Working organization",
+    "organizationSection": "Organization",
+    "plan": "{{plan}} plan",
+    "globalSearch": "Search tenders",
+    "globalSearchPlaceholder": "Search tenders or type a CPV code…"
   },
   "language": {
     "label": "Interface language",
@@ -349,7 +353,9 @@
     "filter": "Stage",
     "notesIndicator": "Has notes",
     "toggleAria": "Watch tender: {{title}}",
-    "untoggleAria": "Stop watching: {{title}}"
+    "untoggleAria": "Stop watching: {{title}}",
+    "teamHeading": "Team work",
+    "notWatchedHint": "Add the tender to the shared list to track the bid stage and notes."
   },
   "search": {
     "title": "Tender search",
@@ -441,15 +447,13 @@
     "greeting": "Hello, {{name}}",
     "openTenders": "Open tenders",
     "newTenders": "New in the last 7 days",
-    "watched": "Watched (active)",
-    "watchedValue": "Value of watched tenders",
-    "watchedValueHint": "{{n}} without a stated value",
-    "watchedValueAllKnown": "sum of estimated values in EUR",
-    "upcoming": "Upcoming deadlines – watched",
+    "watchedValue": "Watched by your team",
+    "watchedValueHint": "{{n}} without a value",
+    "upcoming": "Upcoming deadlines",
     "upcomingEmpty": "No open watched tenders with a deadline.",
-    "noticesPerDay": "New notices per day (30 days)",
+    "noticesPerDay": "New notices per day",
     "noticesCaption": "TED notices per day over the last 30 days",
-    "topCpv": "Top sectors – open tenders",
+    "topCpv": "Top sectors (CPV)",
     "byCountry": "Open tenders by country",
     "updates": "Recent updates",
     "updatesWatched": "Changes in watched tenders",
@@ -458,6 +462,15 @@
     "freshness": "TED data, last update: {{time}}",
     "freshnessNever": "The TED import has not finished yet.",
     "matchingPending": "Matching tenders to your company profile (\"Best tenders for your company\") comes in Stage 5.",
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "kpi": "Key figures",
+    "newSearch": "New search",
+    "inCountries": "in {{n}} countries",
+    "newTendersHint": "new procedures",
+    "dueSoon": "Deadline within 7 days",
+    "dueSoonHint": "open procedures",
+    "watchedCount": "active: {{n}} · total value",
+    "noticesHint": "TED, last 30 days · TED does not publish at weekends",
+    "upcomingHint": "watched by your team"
   }
 }

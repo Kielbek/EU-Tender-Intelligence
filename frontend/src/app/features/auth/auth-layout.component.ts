@@ -8,20 +8,20 @@ import { LanguageSwitcherComponent } from '../../core/layout/language-switcher.c
   selector: 'eti-auth-layout',
   imports: [RouterOutlet, TranslocoPipe, LanguageSwitcherComponent, LucideLandmark],
   template: `
-    <div class="flex min-h-dvh flex-col">
-      <header class="flex h-14 items-center justify-between px-4 sm:px-6">
-        <div class="flex items-center gap-2">
-          <svg lucideLandmark class="size-5 text-accent" aria-hidden="true"></svg>
-          <span class="text-sm font-semibold tracking-tight">{{ 'app.name' | transloco }}</span>
-        </div>
+    <div class="flex min-h-dvh flex-col bg-surface">
+      <header class="flex h-16 items-center justify-between border-b border-border px-4 sm:px-8">
+        <a href="/" class="flex items-center gap-2.5">
+          <svg lucideLandmark class="size-[22px] text-accent" aria-hidden="true"></svg>
+          <span class="text-[15px] font-bold tracking-[-0.01em] text-ink">Tender Intelligence</span>
+        </a>
         <eti-language-switcher />
       </header>
-      <main id="main" class="flex flex-1 items-start justify-center px-4 pb-16 pt-8 sm:pt-16">
-        <div class="w-full max-w-md">
-          <p class="mb-6 text-center text-sm text-ink-muted">{{ 'auth.tagline' | transloco }}</p>
-          <div class="eti-card p-6 sm:p-8">
+      <main id="main" class="flex flex-1 items-start justify-center px-4 pt-10 pb-16 sm:pt-20">
+        <div class="w-full max-w-[420px]">
+          <div class="eti-card px-6 py-7 sm:px-8 sm:py-8">
             <router-outlet />
           </div>
+          <p class="mt-6 text-center text-[13px] text-ink-muted">{{ 'auth.tagline' | transloco }}</p>
         </div>
       </main>
     </div>

@@ -10,7 +10,7 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
   imports: [RouterLink, TranslocoPipe, ApiErrorAlertComponent],
   template: `
     <div class="mx-auto max-w-lg">
-      <h1 class="text-xl font-semibold tracking-tight">{{ 'invitation.title' | transloco }}</h1>
+      <h1 class="eti-h1">{{ 'invitation.title' | transloco }}</h1>
       <div class="mt-4" aria-live="polite">
         @if (!token()) {
           <p role="alert" class="eti-alert-error">{{ 'invitation.missing' | transloco }}</p>

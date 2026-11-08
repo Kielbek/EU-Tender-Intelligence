@@ -1,62 +1,57 @@
 @import "tailwindcss";
+/* Inter, self-hosted (no request to Google: CSP-friendly and no visitor data sent to third parties). */
+@import "@fontsource-variable/inter";
 
 /*
- * Design tokens – navy / white / grey with restrained blue accents.
- * Colours are defined once here and consumed through Tailwind utilities (bg-surface, text-ink, ...).
+ * Design tokens – style "A · Czysta biel": white surfaces, hairline borders, near-black ink and one blue accent
+ * reserved for actions, the active navigation item and data marks. Colours are defined once here and consumed through
+ * Tailwind utilities (bg-surface, text-ink, border-border, …).
  */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  --color-navy-950: #0b1426;
+  /* Kept for dialog backdrops and text on dark fills. */
+  --color-navy-950: #0a0f1c;
   --color-navy-900: #0f1d36;
-  --color-navy-800: #172a4a;
-  --color-navy-700: #22385f;
 
-  --color-accent: #2563eb;
-  --color-accent-soft: #e8effd;
-  /* Single-series chart marks; validated (dataviz validator) against both surfaces. */
-  --color-chart: #2563eb;
+  --color-accent: #2457f5;
+  --color-accent-hover: #1a46d6;
+  --color-accent-soft: #f2f5ff;
+  /* Single-series chart marks – validated for contrast against white (dataviz validator). */
+  --color-chart: #2457f5;
 
-  --color-canvas: #f6f7f9;
+  /* Page and component surfaces: everything is white; canvas is only a subtle hover / table-header tint. */
   --color-surface: #ffffff;
-  --color-border: #e3e6eb;
-  --color-ink: #111827;
-  --color-ink-muted: #5b6474;
+  --color-canvas: #f7f8fa;
+  --color-subtle: #fafafb;
+  --color-border: #eef0f3;
+  --color-border-strong: #eaecf0;
+  --color-track: #f2f4f7;
 
-  --color-success: #15803d;
-  --color-success-soft: #e7f5ec;
-  --color-warning: #a16207;
-  --color-warning-soft: #fdf4e3;
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fdecec;
+  --color-ink: #0a0f1c;
+  --color-ink-soft: #344054;
+  --color-ink-muted: #667085;
+  --color-ink-faint: #98a2b3;
+
+  --color-success: #067647;
+  --color-success-soft: #ecfdf3;
+  --color-warning: #b54708;
+  --color-warning-soft: #fffaeb;
+  --color-danger: #b42318;
+  --color-danger-soft: #fef3f2;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
 }
 
 @layer base {
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-canvas: #0b1220;
-      --color-surface: #111a2c;
-      --color-border: #24314a;
-      --color-ink: #e6eaf2;
-      --color-ink-muted: #9aa5b8;
-      --color-accent: #6b9bff;
-      --color-accent-soft: #1a2a4d;
-      --color-chart: #5b8def;
-      --color-success: #4ade80;
-      --color-success-soft: #12301f;
-      --color-warning: #facc15;
-      --color-warning-soft: #33290b;
-      --color-danger: #f87171;
-      --color-danger-soft: #3a1414;
-    }
-  }
-
   html {
-    color-scheme: light dark;
+    color-scheme: light;
   }
 
   body {
-    @apply bg-canvas text-ink font-sans antialiased;
+    @apply bg-surface text-ink font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
   }
 
   :focus-visible {
@@ -73,13 +68,31 @@
   }
 }
 
-/* Reusable form and button styles (keeps templates short and consistent). */
+/* Reusable building blocks (keep templates short and the look consistent across every screen). */
 @layer components {
+  /* Typography */
+  .eti-eyebrow {
+    @apply text-[13px] text-ink-muted;
+  }
+  .eti-h1 {
+    @apply text-[26px] leading-tight font-semibold tracking-[-0.02em] text-ink;
+  }
+  .eti-h2 {
+    @apply text-[15px] font-semibold text-ink;
+  }
+  .eti-subtitle {
+    @apply text-[13px] text-ink-muted;
+  }
+  .eti-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Forms */
   .eti-label {
-    @apply block text-sm font-medium text-ink;
+    @apply block text-sm font-medium text-ink-soft;
   }
   .eti-input {
-    @apply mt-1 block h-10 w-full rounded-md border border-border bg-surface px-3 text-sm text-ink placeholder:text-ink-muted/70 focus:border-accent;
+    @apply mt-1 block h-10 w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent-soft;
   }
   .eti-input[aria-invalid="true"] {
     @apply border-danger;
@@ -90,25 +103,40 @@
   .eti-field-error {
     @apply mt-1 text-xs font-medium text-danger;
   }
+
+  /* Buttons */
   .eti-btn-primary {
-    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 bg-navy-900 text-white hover:bg-navy-800 dark:bg-accent dark:hover:bg-accent/90;
+    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-btn-secondary {
-    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 border border-border bg-surface text-ink hover:bg-canvas;
+    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-border-strong bg-surface px-4 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60;
   }
   .eti-btn-danger {
-    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 border border-danger/40 bg-surface text-danger hover:bg-danger-soft;
+    @apply inline-flex whitespace-nowrap h-10 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-danger/30 bg-surface px-4 text-sm font-medium text-danger transition-colors hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .eti-btn-ghost {
+    @apply inline-flex whitespace-nowrap h-9 items-center justify-center gap-2 rounded-[var(--radius-control)] px-3 text-sm font-medium text-ink-soft transition-colors hover:bg-canvas;
   }
   .eti-link {
     @apply font-medium text-accent underline-offset-2 hover:underline;
   }
+
+  /* Containers */
   .eti-card {
-    @apply rounded-lg border border-border bg-surface;
+    @apply rounded-[var(--radius-card)] border border-border bg-surface;
   }
+  .eti-table-head {
+    @apply bg-subtle text-left text-xs font-medium text-ink-muted;
+  }
+
+  /* Feedback */
   .eti-alert-error {
-    @apply rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger;
+    @apply rounded-[var(--radius-control)] border border-danger/20 bg-danger-soft px-3 py-2 text-sm text-danger;
   }
   .eti-alert-success {
-    @apply rounded-md border border-success/30 bg-success-soft px-3 py-2 text-sm text-success;
+    @apply rounded-[var(--radius-control)] border border-success/20 bg-success-soft px-3 py-2 text-sm text-success;
+  }
+  .eti-note {
+    @apply rounded-[var(--radius-control)] border border-border bg-subtle px-3 py-2 text-xs text-ink-muted;
   }
 }

@@ -15,19 +15,16 @@ export interface BarItem {
   selector: 'eti-bar-list',
   imports: [TranslocoPipe],
   template: `
-    <ul class="space-y-2" [attr.aria-label]="caption()">
+    <ul class="space-y-3" [attr.aria-label]="caption()">
       @for (item of items(); track item.key) {
-        <li class="grid grid-cols-[minmax(0,10rem)_1fr] items-center gap-3 text-sm sm:grid-cols-[minmax(0,14rem)_1fr]">
-          <span class="truncate text-ink-muted" [title]="item.label">{{ item.label }}</span>
-          <span class="flex items-center gap-2" aria-hidden="true">
-            <span class="h-3 rounded-r-[4px] bg-chart" [style.width.%]="width(item.value)"></span>
-            <span class="shrink-0 font-medium tabular-nums text-ink">{{ format()(item.value) }}</span>
-          </span>
-          <span class="sr-only">{{ format()(item.value) }}</span>
+        <li class="grid grid-cols-[minmax(0,7.5rem)_1fr_3.5rem] items-center gap-2.5 text-sm sm:grid-cols-[minmax(0,10rem)_1fr_3.5rem]">
+          <span class="truncate text-ink-soft" [title]="item.label">{{ item.label }}</span>
+          <span class="h-2 rounded-r-[4px] bg-chart" [style.width.%]="width(item.value)" aria-hidden="true"></span>
+          <span class="eti-num text-right text-ink">{{ format()(item.value) }}</span>
         </li>
       }
     </ul>
-    <details class="mt-3 text-xs text-ink-muted">
+    <details class="mt-4 text-xs text-ink-muted">
       <summary class="cursor-pointer select-none">{{ 'charts.showTable' | transloco }}</summary>
       <table class="mt-2 w-full text-left">
         <caption class="sr-only">{{ caption() }}</caption>
@@ -50,7 +47,6 @@ export class BarListComponent {
   private readonly max = computed(() => Math.max(1, ...this.items().map((i) => i.value)));
 
   protected width(value: number): number {
-    // Leave room for the value label at the tip.
-    return Math.max(1, (value / this.max()) * 78);
+    return Math.max(1, (value / this.max()) * 100);
   }
 }

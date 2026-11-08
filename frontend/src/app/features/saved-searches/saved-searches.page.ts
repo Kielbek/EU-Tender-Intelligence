@@ -17,8 +17,8 @@ import { paramsFromApiFilters } from '../search/search-state';
   selector: 'eti-saved-searches-page',
   imports: [FormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, SkeletonComponent],
   template: `
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'savedSearches.title' | transloco }}</h1>
-    <p class="mt-1 text-sm text-ink-muted">{{ 'savedSearches.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
+    <h1 class="eti-h1">{{ 'savedSearches.title' | transloco }}</h1>
+    <p class="eti-subtitle mt-1.5">{{ 'savedSearches.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
     <p class="mt-2 text-xs text-ink-muted">{{ 'savedSearches.alertsNote' | transloco }}</p>
 
     <div class="mt-5" aria-live="polite" [attr.aria-busy]="loading()">
@@ -53,7 +53,7 @@ import { paramsFromApiFilters } from '../search/search-state';
       }
     </div>
 
-    <dialog #renameDlg class="w-full max-w-md rounded-lg border border-border bg-surface p-0 text-ink shadow-xl backdrop:bg-navy-950/40"
+    <dialog #renameDlg class="w-full max-w-md eti-card p-0 text-ink shadow-xl backdrop:bg-navy-950/40"
             aria-labelledby="rename-title">
       <form class="space-y-4 p-6" (ngSubmit)="rename()">
         <h2 id="rename-title" class="text-lg font-semibold">{{ 'common.rename' | transloco }}</h2>

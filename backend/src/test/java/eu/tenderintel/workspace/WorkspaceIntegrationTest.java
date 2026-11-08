@@ -157,6 +157,11 @@ class WorkspaceIntegrationTest {
         mvc.perform(get("/api/v1/organizations/" + org + "/dashboard").param("lang", "pl").with(carol.bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.openTenders").value(open.intValue()))
+                .andExpect(jsonPath("$.openCountries").value(jdbc.queryForObject(
+                        "select count(distinct country_code) from tenders where status = 'OPEN'", Integer.class)))
+                .andExpect(jsonPath("$.dueWithin7Days").value(jdbc.queryForObject("select count(*) from tenders where "
+                        + "status = 'OPEN' and submission_deadline > now() and submission_deadline <= now() + interval '7 days'",
+                        Integer.class)))
                 .andExpect(jsonPath("$.watchedActive").value(1))
                 .andExpect(jsonPath("$.watchedValueEur").value(2500000.0))
                 .andExpect(jsonPath("$.noticesPerDay", hasSize(30)))

@@ -1,36 +1,38 @@
 <a
   href="#main"
-  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:shadow"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[10px] focus:bg-surface focus:px-3 focus:py-2 focus:shadow"
 >
   {{ 'app.skipToContent' | transloco }}
 </a>
 
-<div class="flex min-h-dvh">
+<div class="flex min-h-dvh bg-surface">
   @if (menuOpen()) {
-    <div class="fixed inset-0 z-30 bg-navy-950/40 lg:hidden" (click)="closeMenu()" aria-hidden="true"></div>
+    <div class="fixed inset-0 z-30 bg-navy-950/30 lg:hidden" (click)="closeMenu()" aria-hidden="true"></div>
   }
 
   <aside
     id="eti-sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-navy-900 text-slate-200 transition-transform lg:static lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-[248px] flex-col gap-6 border-r border-border bg-surface px-3.5 py-5 transition-transform lg:static lg:translate-x-0"
     [class.-translate-x-full]="!menuOpen()"
+    [class.shadow-xl]="menuOpen()"
   >
-    <div class="flex h-14 items-center gap-2 border-b border-white/10 px-4">
-      <svg lucideLandmark class="size-5 text-blue-300" aria-hidden="true"></svg>
-      <span class="text-sm font-semibold tracking-tight text-white">{{ 'app.name' | transloco }}</span>
-    </div>
+    <a routerLink="/" class="flex items-center gap-2.5 px-2.5 py-1" (click)="closeMenu()">
+      <svg lucideLandmark class="size-[22px] text-accent" aria-hidden="true"></svg>
+      <span class="text-[15px] font-bold tracking-[-0.01em] text-ink">Tender Intelligence</span>
+    </a>
 
-    <nav class="flex-1 overflow-y-auto px-3 py-4" [attr.aria-label]="'nav.main' | transloco">
-      <ul class="space-y-1">
+    <nav class="flex flex-1 flex-col overflow-y-auto" [attr.aria-label]="'nav.main' | transloco">
+      <p class="mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-muted uppercase">{{ 'nav.workspace' | transloco }}</p>
+      <ul class="space-y-0.5">
         @for (item of workItems; track item.path) {
           <li>
             <a
               [routerLink]="item.path"
               [queryParams]="item.query"
-              routerLinkActive="bg-white/10 text-white"
+              routerLinkActive="!bg-accent-soft !text-accent font-semibold"
               [routerLinkActiveOptions]="{ paths: item.exact ? 'exact' : 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
               ariaCurrentWhenActive="page"
-              class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white"
+              class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas"
               (click)="closeMenu()"
             >
               @switch (item.icon) {
@@ -45,46 +47,52 @@
         }
       </ul>
 
-      <ul class="mt-6 space-y-1 border-t border-white/10 pt-4">
+      <p class="mt-5 mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-muted uppercase">{{ 'nav.organizationSection' | transloco }}</p>
+      <ul class="space-y-0.5">
         <li>
-          <a routerLink="/organization" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
+          <a routerLink="/organization" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
             <svg lucideBuilding2 class="size-4" aria-hidden="true"></svg>
             {{ 'nav.organization' | transloco }}
           </a>
         </li>
         <li>
-          <a routerLink="/account" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
+          <a routerLink="/account" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
             <svg lucideUserRound class="size-4" aria-hidden="true"></svg>
             {{ 'nav.account' | transloco }}
           </a>
         </li>
         <li>
-          <a routerLink="/status" routerLinkActive="bg-white/10 text-white" ariaCurrentWhenActive="page"
-             class="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-white/5 hover:text-white" (click)="closeMenu()">
+          <a routerLink="/status" routerLinkActive="!bg-accent-soft !text-accent font-semibold" ariaCurrentWhenActive="page"
+             class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-ink-soft hover:bg-canvas" (click)="closeMenu()">
             <svg lucideActivity class="size-4" aria-hidden="true"></svg>
             {{ 'nav.systemStatus' | transloco }}
           </a>
         </li>
       </ul>
 
-      <p class="mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-        {{ 'nav.roadmap' | transloco }}
-      </p>
-      <ul class="mt-2 space-y-1">
+      <p class="mt-5 mb-1.5 px-2.5 text-[11px] font-semibold tracking-[0.06em] text-ink-faint uppercase">{{ 'nav.roadmap' | transloco }}</p>
+      <ul>
         @for (item of roadmap; track item) {
-          <li class="px-3 py-1.5 text-sm text-slate-400">{{ 'nav.roadmapItems.' + item | transloco }}</li>
+          <li class="px-2.5 py-1.5 text-sm text-ink-faint">{{ 'nav.roadmapItems.' + item | transloco }}</li>
         }
       </ul>
     </nav>
+
+    @if (org.current(); as current) {
+      <div class="rounded-[10px] border border-border px-3 py-2.5">
+        <p class="truncate text-[13px] font-semibold text-ink">{{ current.name }}</p>
+        <p class="text-xs text-ink-muted">{{ 'nav.plan' | transloco: { plan: current.planCode } }}</p>
+      </div>
+    }
   </aside>
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <header class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur">
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-4 backdrop-blur sm:px-8">
       <button
         type="button"
-        class="inline-flex size-9 items-center justify-center rounded-md text-ink-muted hover:bg-canvas lg:hidden"
+        class="inline-flex size-10 items-center justify-center rounded-[10px] border border-border-strong text-ink-soft hover:bg-canvas lg:hidden"
         [attr.aria-label]="(menuOpen() ? 'nav.closeMenu' : 'nav.openMenu') | transloco"
         [attr.aria-expanded]="menuOpen()"
         aria-controls="eti-sidebar"
@@ -96,10 +104,21 @@
           <svg lucideMenu class="size-5" aria-hidden="true"></svg>
         }
       </button>
-      <div class="ml-auto flex items-center gap-3">
+
+      <form role="search" class="hidden min-w-0 flex-1 sm:block" (ngSubmit)="search()">
+        <label for="global-search" class="sr-only">{{ 'nav.globalSearch' | transloco }}</label>
+        <div class="flex h-[38px] w-full max-w-[420px] items-center gap-2 rounded-[10px] border border-border-strong px-3 text-ink-faint focus-within:border-accent focus-within:ring-4 focus-within:ring-accent-soft">
+          <svg lucideSearch class="size-4 shrink-0" aria-hidden="true"></svg>
+          <input id="global-search" name="q" type="search" [(ngModel)]="globalQuery" maxlength="200"
+                 class="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
+                 [placeholder]="'nav.globalSearchPlaceholder' | transloco" />
+        </div>
+      </form>
+
+      <div class="ml-auto flex items-center gap-2.5">
         @if (org.memberships().length > 1) {
           <label class="sr-only" for="org-context">{{ 'nav.currentOrg' | transloco }}</label>
-          <select id="org-context" class="h-9 max-w-48 rounded-md border border-border bg-surface px-2 text-sm"
+          <select id="org-context" class="h-[38px] max-w-48 rounded-[10px] border border-border-strong bg-surface px-2 text-sm text-ink-soft"
                   [value]="org.currentId()" (change)="org.select($any($event.target).value)">
             @for (m of org.memberships(); track m.id) {
               <option [value]="m.id" [selected]="m.id === org.currentId()">{{ m.name }}</option>
@@ -108,17 +127,17 @@
         }
         <eti-language-switcher />
         @if (auth.user(); as user) {
-          <span class="hidden max-w-48 truncate text-sm text-ink-muted sm:inline" [title]="user.email">{{ user.fullName }}</span>
-          <button type="button" class="eti-btn-secondary h-9 px-3" (click)="logout()">
+          <a routerLink="/account" class="inline-flex size-9 items-center justify-center rounded-full bg-track text-[13px] font-semibold text-ink-soft hover:ring-2 hover:ring-border-strong"
+             [title]="user.fullName" [attr.aria-label]="('nav.account' | transloco) + ': ' + user.fullName">{{ initials() }}</a>
+          <button type="button" class="inline-flex size-9 items-center justify-center rounded-[10px] text-ink-muted hover:bg-canvas hover:text-ink"
+                  [attr.aria-label]="'nav.logout' | transloco" [title]="'nav.logout' | transloco" (click)="logout()">
             <svg lucideLogOut class="size-4" aria-hidden="true"></svg>
-            <span class="hidden sm:inline">{{ 'nav.logout' | transloco }}</span>
-            <span class="sr-only sm:hidden">{{ 'nav.logout' | transloco }}</span>
           </button>
         }
       </div>
     </header>
 
-    <main id="main" tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+    <main id="main" tabindex="-1" class="mx-auto w-full max-w-[1280px] flex-1 px-4 py-7 sm:px-8">
       <router-outlet />
     </main>
   </div>

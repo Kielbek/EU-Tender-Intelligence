@@ -20,8 +20,8 @@ import { WATCH_STATUSES } from '../tender/tender-detail.page';
   imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, DeadlineComponent, SkeletonComponent,
     TenderStatusBadgeComponent, LucideStickyNote],
   template: `
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'watch.title' | transloco }}</h1>
-    <p class="mt-1 text-sm text-ink-muted">{{ 'watch.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
+    <h1 class="eti-h1">{{ 'watch.title' | transloco }}</h1>
+    <p class="eti-subtitle mt-1.5">{{ 'watch.subtitle' | transloco: { org: org.current()?.name ?? '' } }}</p>
 
     <div class="mt-5 flex flex-wrap items-center gap-2" role="group" [attr.aria-label]="'watch.filter' | transloco">
       <button type="button" class="eti-btn-secondary h-8 px-3" [attr.aria-pressed]="filter() === null"
@@ -44,7 +44,7 @@ import { WATCH_STATUSES } from '../tender/tender-detail.page';
       } @else {
         <div class="eti-card overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-border text-xs text-ink-muted">
+            <thead class="eti-table-head">
               <tr>
                 <th scope="col" class="px-4 py-2 font-medium">{{ 'search.columns.tender' | transloco }}</th>
                 <th scope="col" class="px-4 py-2 font-medium">{{ 'search.columns.deadline' | transloco }}</th>

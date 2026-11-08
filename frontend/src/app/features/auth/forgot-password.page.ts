@@ -10,7 +10,7 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
   selector: 'eti-forgot-password-page',
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ApiErrorAlertComponent],
   template: `
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'auth.forgot.title' | transloco }}</h1>
+    <h1 class="eti-h1">{{ 'auth.forgot.title' | transloco }}</h1>
     @if (done()) {
       <p role="status" class="eti-alert-success mt-4">{{ 'auth.forgot.done' | transloco }}</p>
     } @else {

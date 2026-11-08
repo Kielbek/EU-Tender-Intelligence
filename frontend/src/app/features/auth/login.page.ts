@@ -11,7 +11,7 @@ import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.componen
   selector: 'eti-login-page',
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ApiErrorAlertComponent],
   template: `
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'auth.login.title' | transloco }}</h1>
+    <h1 class="eti-h1">{{ 'auth.login.title' | transloco }}</h1>
     <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <eti-api-error [error]="error()" />
       @if (notice(); as key) {

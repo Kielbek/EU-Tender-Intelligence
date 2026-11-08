@@ -16,10 +16,10 @@ export interface ColumnPoint {
   imports: [TranslocoPipe],
   template: `
     <figure>
-      <div class="relative h-40 pl-10" role="group" [attr.aria-label]="caption()">
+      <div class="relative h-56 pl-10" role="group" [attr.aria-label]="caption()">
         <!-- Recessive hairline grid: top, middle, baseline. -->
         @for (tick of ticks(); track tick.value) {
-          <div class="pointer-events-none absolute right-0 left-10 border-t border-border"
+          <div class="pointer-events-none absolute right-0 left-10 border-t border-track"
                [style.bottom.%]="tick.position" aria-hidden="true"></div>
           <span class="absolute left-0 w-8 -translate-y-1/2 text-right text-[11px] tabular-nums text-ink-muted"
                 [style.bottom.%]="tick.position" style="transform: translateY(50%)" aria-hidden="true">
@@ -38,7 +38,7 @@ export interface ColumnPoint {
                    [style.height.%]="height(p.value)"></div>
               @if (active() === i) {
                 <div role="tooltip"
-                     class="pointer-events-none absolute bottom-full z-10 mb-1 whitespace-nowrap rounded-md border border-border bg-surface px-2 py-1 text-xs shadow-sm">
+                     class="pointer-events-none absolute bottom-full z-10 mb-1 whitespace-nowrap rounded-[10px] border border-border-strong bg-surface px-2.5 py-1.5 text-xs shadow-md">
                   <span class="block font-semibold tabular-nums text-ink">{{ format()(p.value) }}</span>
                   <span class="block text-ink-muted">{{ p.label }}</span>
                 </div>

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { SESSION } from '../../core/auth/auth.service.spec';
+import { SESSION } from '../../testing/session.fixture';
 import { translocoTesting } from '../../testing/transloco-testing';
 import { LoginPage, safeReturnUrl } from './login.page';
 

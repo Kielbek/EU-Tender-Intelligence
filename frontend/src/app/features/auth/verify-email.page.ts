@@ -7,7 +7,7 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'eti-verify-email-page',
   imports: [RouterLink, TranslocoPipe],
   template: `
-    <h1 class="text-xl font-semibold tracking-tight">{{ 'auth.verify.title' | transloco }}</h1>
+    <h1 class="eti-h1">{{ 'auth.verify.title' | transloco }}</h1>
     <div class="mt-4" aria-live="polite">
       @switch (state()) {
         @case ('pending') {

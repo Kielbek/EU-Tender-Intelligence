@@ -96,8 +96,11 @@ export class SearchPage {
     });
   }
 
+  /** Emits whenever the active translation is (re)loaded, so option labels never show raw keys. */
+  private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
+
   private options(values: string[], prefix: string): CheckOption[] {
-    this.language.current(); // re-evaluate on language change
+    this.translations(); // re-evaluate once translations are loaded / the language changes
     return values.map((v) => ({ value: v, label: this.transloco.translate(prefix + v) }));
   }
 

@@ -21,7 +21,7 @@
         <span aria-hidden="true">·</span><span>{{ t.referenceNumber }}</span>
       }
     </div>
-    <h1 class="mt-2 break-words text-xl font-semibold leading-snug tracking-tight sm:text-2xl" [attr.lang]="t.titleLang">{{ t.title }}</h1>
+    <h1 class="eti-h1 mt-2 break-words" [attr.lang]="t.titleLang">{{ t.title }}</h1>
     @if (t.authority) {
       <p class="mt-1 text-ink-muted">{{ t.authority.name }}</p>
     }
@@ -74,7 +74,7 @@
             <dt class="text-xs text-ink-muted">{{ 'tender.location' | transloco }}</dt>
             <dd class="mt-0.5">
               {{ t.countryCode | country: lang }}@if (t.city) {, {{ t.city }}}
-              @if (t.nutsCode) { <span class="text-xs text-ink-muted">(NUTS {{ t.nutsCode }})</span> }
+              @if (t.nutsCode) {&nbsp;<span class="text-xs text-ink-muted">(NUTS {{ t.nutsCode }})</span>}
             </dd>
           </div>
           @if (t.noticeLanguage) {
@@ -87,7 +87,7 @@
       </section>
 
       <section class="eti-card p-5" aria-labelledby="desc-heading">
-        <h2 id="desc-heading" class="text-base font-semibold">{{ 'tender.description' | transloco }}</h2>
+        <h2 id="desc-heading" class="eti-h2">{{ 'tender.description' | transloco }}</h2>
         @if (t.description) {
           <p class="mt-2 whitespace-pre-line text-sm leading-relaxed" [attr.lang]="t.titleLang">{{ t.description }}</p>
         } @else {
@@ -97,7 +97,7 @@
       </section>
 
       <section class="eti-card p-5" aria-labelledby="cpv-heading">
-        <h2 id="cpv-heading" class="text-base font-semibold">{{ 'tender.cpv' | transloco }}</h2>
+        <h2 id="cpv-heading" class="eti-h2">{{ 'tender.cpv' | transloco }}</h2>
         <ul class="mt-2 space-y-1 text-sm">
           @for (c of cpvList(); track c.code) {
             <li>
@@ -111,10 +111,10 @@
 
       @if (t.lots.length) {
         <section class="eti-card" aria-labelledby="lots-heading">
-          <h2 id="lots-heading" class="px-5 pt-5 text-base font-semibold">{{ 'tender.lots' | transloco }} ({{ t.lots.length }})</h2>
+          <h2 id="lots-heading" class="eti-h2 px-5 pt-5">{{ 'tender.lots' | transloco }} ({{ t.lots.length }})</h2>
           <div class="mt-3 max-h-96 overflow-auto">
             <table class="w-full text-left text-sm">
-              <thead class="sticky top-0 border-y border-border bg-surface text-xs text-ink-muted">
+              <thead class="eti-table-head sticky top-0 border-y border-border">
                 <tr>
                   <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.lot' | transloco }}</th>
                   <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'tender.value' | transloco }}</th>
@@ -140,10 +140,10 @@
 
       @if (t.results.length) {
         <section class="eti-card" aria-labelledby="results-heading">
-          <h2 id="results-heading" class="px-5 pt-5 text-base font-semibold">{{ 'tender.results' | transloco }}</h2>
+          <h2 id="results-heading" class="eti-h2 px-5 pt-5">{{ 'tender.results' | transloco }}</h2>
           <div class="mt-3 overflow-x-auto">
             <table class="w-full text-left text-sm">
-              <thead class="border-y border-border text-xs text-ink-muted">
+              <thead class="eti-table-head border-y border-border">
                 <tr>
                   <th scope="col" class="px-5 py-2 font-medium">{{ 'tender.winner' | transloco }}</th>
                   <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'tender.awardedValue' | transloco }}</th>
@@ -176,7 +176,7 @@
       }
 
       <section class="eti-card p-5" aria-labelledby="history-heading">
-        <h2 id="history-heading" class="text-base font-semibold">{{ 'tender.history' | transloco }}</h2>
+        <h2 id="history-heading" class="eti-h2">{{ 'tender.history' | transloco }}</h2>
         @if (versions().length <= 1) {
           <p class="mt-2 text-sm text-ink-muted">{{ 'tender.historyEmpty' | transloco }}</p>
         }
@@ -209,7 +209,10 @@
     <aside class="min-w-0 space-y-6">
       @if (org.currentId()) {
         <section class="eti-card p-5" aria-labelledby="team-heading">
-          <h2 id="team-heading" class="text-base font-semibold">{{ saved() ? ('watch.watched' | transloco) : ('watch.add' | transloco) }}</h2>
+          <h2 id="team-heading" class="eti-h2">{{ saved() ? ('watch.watched' | transloco) : ('watch.teamHeading' | transloco) }}</h2>
+          @if (!saved()) {
+            <p class="eti-subtitle mt-1">{{ 'watch.notWatchedHint' | transloco }}</p>
+          }
           <eti-api-error [error]="actionError()" />
           @if (saved(); as s) {
             <div class="mt-3 space-y-3">
@@ -243,7 +246,7 @@
       }
 
       <section class="eti-card p-5" aria-labelledby="docs-heading">
-        <h2 id="docs-heading" class="text-base font-semibold">{{ 'tender.documents' | transloco }}</h2>
+        <h2 id="docs-heading" class="eti-h2">{{ 'tender.documents' | transloco }}</h2>
         @if (t.documentsUrl) {
           <a [href]="t.documentsUrl" target="_blank" rel="noopener noreferrer nofollow" class="eti-link mt-2 inline-flex items-center gap-1 text-sm">
             {{ 'tender.documentsLink' | transloco }} <svg lucideExternalLink class="size-3.5" aria-hidden="true"></svg>
@@ -261,7 +264,7 @@
 
       @if (t.authority) {
         <section class="eti-card p-5" aria-labelledby="authority-heading">
-          <h2 id="authority-heading" class="text-base font-semibold">{{ 'tender.authority' | transloco }}</h2>
+          <h2 id="authority-heading" class="eti-h2">{{ 'tender.authority' | transloco }}</h2>
           <p class="mt-2 text-sm">{{ t.authority.name }}</p>
           @if (t.authority.city) { <p class="text-sm text-ink-muted">{{ t.authority.city }}, {{ t.authority.countryCode | country: lang }}</p> }
           @if (t.authority.nationalId) { <p class="mt-1 font-mono text-xs text-ink-muted">{{ t.authority.nationalId }}</p> }

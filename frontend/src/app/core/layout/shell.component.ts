@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideActivity,
@@ -25,6 +26,7 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
 @Component({
   selector: 'eti-shell',
   imports: [
+    FormsModule,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
@@ -49,6 +51,15 @@ export class ShellComponent {
   protected readonly org = inject(OrgContextService);
   private readonly router = inject(Router);
   protected readonly menuOpen = signal(false);
+  protected globalQuery = '';
+  protected readonly initials = computed(() =>
+    (this.auth.user()?.fullName ?? '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]!.toUpperCase())
+      .join(''),
+  );
   protected readonly roadmap = ['company', 'ai', 'alerts'] as const;
 
   protected readonly workItems = [
@@ -64,6 +75,20 @@ export class ShellComponent {
 
   protected closeMenu(): void {
     this.menuOpen.set(false);
+  }
+
+  /** Top-bar search over open tenders: full text, or a CPV code when only digits are typed. */
+  protected search(): void {
+    const q = this.globalQuery.trim();
+    // Digits only = a CPV code or prefix (e.g. "45" = construction); anything else = full-text search.
+    const params: Record<string, string> = { status: 'OPEN' };
+    if (/^\d{2,8}$/.test(q)) {
+      params['cpv'] = q.padEnd(8, '0');
+    } else if (q) {
+      params['q'] = q;
+    }
+    void this.router.navigate(['/search'], { queryParams: params });
+    this.globalQuery = '';
   }
 
   protected logout(): void {

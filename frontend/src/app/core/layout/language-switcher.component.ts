@@ -12,7 +12,7 @@ import { AVAILABLE_LANGUAGES, isLanguage } from '../i18n/languages';
     <label class="sr-only" for="eti-lang">{{ 'language.label' | transloco }}</label>
     <select
       id="eti-lang"
-      class="h-9 rounded-md border border-border bg-surface px-2 text-sm text-ink hover:border-ink-muted/50"
+      class="h-[38px] rounded-[10px] border border-border-strong bg-surface px-2.5 text-sm text-ink-soft hover:bg-canvas"
       [value]="language.current()"
       (change)="onChange($event)"
     >
