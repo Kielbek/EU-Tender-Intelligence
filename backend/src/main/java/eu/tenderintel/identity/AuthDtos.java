@@ -47,11 +47,11 @@ public final class AuthDtos {
     }
 
     public record MeView(UUID id, String email, String fullName, String locale, String timezone,
-            String platformRole, boolean emailVerified, Instant createdAt) {
+            String platformRole, boolean emailVerified, Instant createdAt, boolean setupCompleted) {
 
         public static MeView of(User u) {
             return new MeView(u.getId(), u.getEmail(), u.getFullName(), u.getLocale(), u.getTimezone(),
-                    u.getPlatformRole().name(), u.isEmailVerified(), u.getCreatedAt());
+                    u.getPlatformRole().name(), u.isEmailVerified(), u.getCreatedAt(), u.getSetupCompletedAt() != null);
         }
     }
 

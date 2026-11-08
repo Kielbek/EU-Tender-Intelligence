@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/auth/auth.guards';
+import { authGuard, guestGuard, setupGuard } from './core/auth/auth.guards';
 import { ShellComponent } from './core/layout/shell.component';
 import { AuthLayoutComponent } from './features/auth/auth-layout.component';
 
@@ -34,6 +34,11 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'setup',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/setup/setup.page').then((m) => m.SetupPage),
+  },
+  {
     path: 'legal/terms',
     data: { doc: 'terms' },
     loadComponent: () => import('./features/legal/legal.page').then((m) => m.LegalPage),
@@ -51,6 +56,7 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
+        canActivate: [setupGuard],
         data: { section: 'nav.workspace', crumb: 'nav.dashboard' },
         loadComponent: () => import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
       },

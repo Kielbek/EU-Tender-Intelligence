@@ -34,6 +34,10 @@ export class AccountService {
     return this.http.delete<void>('/api/v1/me', { body: { password } });
   }
 
+  completeSetup(): Observable<Me> {
+    return this.http.post<Me>('/api/v1/me/setup-complete', null);
+  }
+
   revokeAllSessions(): Observable<void> {
     return this.http.post<void>('/api/v1/me/sessions/revoke-all', null);
   }

@@ -792,5 +792,37 @@
         "hint": "A shared watch-list and bid stages for the whole team."
       }
     }
+  },
+  "setup": {
+    "stepOf": "Step {{step}} of {{total}}",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Save and finish",
+    "welcome": "Welcome, {{name}}!",
+    "s1": {
+      "title": "Tell us about your company",
+      "subtitle": "Three short steps and we will show tenders that fit your business. You can change everything later in the company profile."
+    },
+    "s2": {
+      "title": "What do you do?",
+      "subtitle": "Choose sectors from the CPV vocabulary – the way authorities describe what they buy.",
+      "cpvHint": "Type a name (e.g. “road works”) or the start of a code (e.g. 45). A general code covers all specific ones.",
+      "cpvRequired": "Choose at least one sector – without it we cannot calculate the match. You can also skip the setup."
+    },
+    "s3": {
+      "title": "Where and how big?",
+      "subtitle": "Countries you want to bid in and the size of contracts you take on.",
+      "valueHint": "Values in euro. Leave empty if the value should not affect matching."
+    },
+    "done": {
+      "title": "All set!",
+      "searching": "Looking for tenders that fit your company…",
+      "found": "We found {{n}} open tenders that fit your company well.",
+      "none": "No open tenders with a high fit yet. Check back daily – new notices arrive every hour.",
+      "matches": "See matched tenders",
+      "dashboard": "Go to the dashboard",
+      "more": "Add references, certifications and resources in the company profile to improve matching."
+    }
   }
 }

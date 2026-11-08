@@ -101,6 +101,15 @@ class MeController {
         return MeView.of(user);
     }
 
+    @PostMapping("/setup-complete")
+    @Transactional
+    @Operation(summary = "Kreator pierwszego uruchomienia zakończony lub pominięty – nie pokazuj go ponownie")
+    MeView completeSetup() {
+        User user = load();
+        user.completeSetup(Instant.now(clock));
+        return MeView.of(user);
+    }
+
     @PostMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Zmiana hasła; wylogowuje wszystkie sesje (refresh tokeny)")

@@ -14,5 +14,6 @@ export const SESSION: AuthResponse = {
     platformRole: 'USER',
     emailVerified: true,
     createdAt: '2026-11-01T00:00:00Z',
+    setupCompleted: true,
   },
 };

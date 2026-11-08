@@ -32,3 +32,12 @@ export const adminGuard: CanActivateFn = () => {
   const router = inject(Router);
   return whenKnown().pipe(map(() => (auth.isAdmin() ? true : router.createUrlTree(['/']))));
 };
+
+/** New accounts go through the setup wizard once (finished or skipped), before the dashboard. */
+export const setupGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  return whenKnown().pipe(
+    map(() => (auth.user() && auth.user()!.setupCompleted === false ? router.createUrlTree(['/setup']) : true)),
+  );
+};

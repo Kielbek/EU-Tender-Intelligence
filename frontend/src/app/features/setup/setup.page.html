@@ -1,0 +1,158 @@
+@let lang = language.current();
+<div class="flex min-h-dvh flex-col bg-surface">
+  <header class="flex h-16 shrink-0 items-center gap-3 border-b border-border px-4 sm:px-8">
+    <span class="flex items-center gap-2.5">
+      <svg lucideLandmark class="size-[22px] text-accent" aria-hidden="true"></svg>
+      <span class="hidden text-[15px] font-bold tracking-[-0.01em] text-ink sm:inline">Tender Intelligence</span>
+    </span>
+    @if (step() <= totalSteps) {
+      <span class="eti-num ml-auto text-[13px] text-ink-muted" aria-live="polite">
+        {{ 'setup.stepOf' | transloco: { step: step(), total: totalSteps } }}
+      </span>
+      <button type="button" class="eti-btn-ghost" (click)="skip()">{{ 'setup.skip' | transloco }}</button>
+    }
+  </header>
+
+  @if (step() <= totalSteps) {
+    <div class="flex gap-1.5 px-4 pt-4 sm:px-8" aria-hidden="true">
+      @for (i of [1, 2, 3]; track i) {
+        <span class="h-1.5 flex-1 rounded-full transition-colors" [class.bg-accent]="i <= step()" [class.bg-track]="i > step()"></span>
+      }
+    </div>
+  }
+
+  <main id="main" class="flex flex-1 justify-center px-4 py-10 sm:px-8 sm:py-16">
+    <div class="w-full max-w-xl">
+      @if (!ready()) {
+        <p class="flex items-center gap-2 text-sm text-ink-muted" role="status">
+          <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>{{ 'common.loading' | transloco }}
+        </p>
+      } @else {
+        <form (ngSubmit)="next()" novalidate>
+          @switch (step()) {
+            @case (1) {
+              <p class="eti-eyebrow">{{ 'setup.welcome' | transloco: { name: firstName() } }}</p>
+              <h1 class="eti-h1 mt-2">{{ 'setup.s1.title' | transloco }}</h1>
+              <p class="eti-subtitle mt-2">{{ 'setup.s1.subtitle' | transloco }}</p>
+              <div class="mt-8 space-y-5">
+                <div>
+                  <label class="eti-label" for="setup-name">{{ 'company.name' | transloco }}</label>
+                  <input id="setup-name" name="name" class="eti-input h-12 text-base" autocomplete="organization"
+                         [ngModel]="name()" (ngModelChange)="name.set($event)"
+                         [attr.aria-invalid]="attempted() && !name().trim()" />
+                  @if (attempted() && !name().trim()) {
+                    <p class="eti-field-error">{{ 'common.required' | transloco }}</p>
+                  }
+                </div>
+                <div>
+                  <label class="eti-label" for="setup-country">{{ 'company.registrationCountry' | transloco }}</label>
+                  <eti-select inputId="setup-country" [options]="countrySelect()" [value]="registrationCountry()"
+                              (valueChange)="registrationCountry.set($event)" />
+                </div>
+                <div>
+                  <label class="eti-label" for="setup-size">{{ 'company.size' | transloco }}</label>
+                  <eti-select inputId="setup-size" [options]="sizeSelect()" [value]="size()" (valueChange)="size.set($event)" />
+                </div>
+              </div>
+            }
+            @case (2) {
+              <h1 class="eti-h1">{{ 'setup.s2.title' | transloco }}</h1>
+              <p class="eti-subtitle mt-2">{{ 'setup.s2.subtitle' | transloco }}</p>
+              <div class="mt-8 space-y-6">
+                <div>
+                  <eti-cpv-picker [label]="'company.cpv' | transloco" [lang]="lang" [selected]="cpvCodes()"
+                                  (selectedChange)="cpvCodes.set($event)" [knownLabels]="cpvLabels()" />
+                  @if (attempted() && !cpvCodes().length) {
+                    <p class="eti-field-error">{{ 'setup.s2.cpvRequired' | transloco }}</p>
+                  } @else {
+                    <p class="eti-hint">{{ 'setup.s2.cpvHint' | transloco }}</p>
+                  }
+                </div>
+                <fieldset>
+                  <legend class="eti-label">{{ 'company.contractTypes' | transloco }}</legend>
+                  <div class="mt-2 grid gap-2 sm:grid-cols-3">
+                    @for (t of typeOptions; track t) {
+                      <label class="flex h-12 cursor-pointer items-center gap-3 rounded-[var(--radius-control)] border border-border-strong px-4 text-sm text-ink-soft has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:text-accent">
+                        <input type="checkbox" [checked]="contractTypes().includes(t)" (change)="toggleType(t, $any($event.target).checked)" />
+                        {{ 'tender.contractType.' + t | transloco }}
+                      </label>
+                    }
+                  </div>
+                </fieldset>
+              </div>
+            }
+            @case (3) {
+              <h1 class="eti-h1">{{ 'setup.s3.title' | transloco }}</h1>
+              <p class="eti-subtitle mt-2">{{ 'setup.s3.subtitle' | transloco }}</p>
+              <div class="mt-8 space-y-6">
+                <div>
+                  <span class="eti-label">{{ 'company.countriesOfInterest' | transloco }}</span>
+                  <eti-multi-check class="mt-1 block" [label]="'company.countries' | transloco" [options]="countryOptions()"
+                                   [allLabel]="'company.countriesNone' | transloco" [selected]="countriesOfInterest()"
+                                   (selectedChange)="countriesOfInterest.set($event)" />
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label class="eti-label" for="setup-min">{{ 'company.minValue' | transloco }}</label>
+                    <input id="setup-min" name="min" type="number" min="0" step="1000" inputmode="numeric" class="eti-input eti-num"
+                           [ngModel]="minValue()" (ngModelChange)="minValue.set(num($event))" [attr.aria-invalid]="rangeInvalid()" />
+                  </div>
+                  <div>
+                    <label class="eti-label" for="setup-max">{{ 'company.maxValue' | transloco }}</label>
+                    <input id="setup-max" name="max" type="number" min="0" step="1000" inputmode="numeric" class="eti-input eti-num"
+                           [ngModel]="maxValue()" (ngModelChange)="maxValue.set(num($event))" [attr.aria-invalid]="rangeInvalid()" />
+                  </div>
+                </div>
+                @if (rangeInvalid()) {
+                  <p class="eti-field-error" role="alert">{{ 'company.rangeError' | transloco }}</p>
+                } @else {
+                  <p class="eti-hint">{{ 'setup.s3.valueHint' | transloco }}</p>
+                }
+              </div>
+            }
+            @case (4) {
+              <div class="text-center">
+                <span class="mx-auto inline-flex size-14 items-center justify-center rounded-full bg-success-soft text-success" aria-hidden="true">
+                  <svg lucideCheck class="size-7"></svg>
+                </span>
+                <h1 class="eti-h1 mt-5">{{ 'setup.done.title' | transloco }}</h1>
+                <p class="eti-subtitle mx-auto mt-2 max-w-md" aria-live="polite">
+                  @if (matchCount() === null) {
+                    {{ 'setup.done.searching' | transloco }}
+                  } @else if (matchCount()! > 0) {
+                    {{ 'setup.done.found' | transloco: { n: matchCount() } }}
+                  } @else {
+                    {{ 'setup.done.none' | transloco }}
+                  }
+                </p>
+                <div class="mt-8 flex flex-col justify-center gap-2 sm:flex-row">
+                  <button type="button" class="eti-btn-primary h-12 px-6" (click)="go('/matches')">{{ 'setup.done.matches' | transloco }}</button>
+                  <button type="button" class="eti-btn-secondary h-12 px-6" (click)="go('/')">{{ 'setup.done.dashboard' | transloco }}</button>
+                </div>
+                <p class="mt-6 text-[13px] text-ink-muted">{{ 'setup.done.more' | transloco }}</p>
+              </div>
+            }
+          }
+
+          <eti-api-error class="mt-6 block" [error]="error()" />
+
+          @if (step() <= totalSteps) {
+            <div class="mt-10 flex items-center gap-3 border-t border-border pt-6">
+              @if (step() > 1) {
+                <button type="button" class="eti-btn-ghost h-12" (click)="back()">
+                  <svg lucideArrowLeft class="size-4" aria-hidden="true"></svg>{{ 'setup.back' | transloco }}
+                </button>
+              }
+              <button type="submit" class="eti-btn-primary ml-auto h-12 px-6" [disabled]="busy()">
+                @if (busy()) {
+                  <svg lucideLoaderCircle class="size-4 animate-spin" aria-hidden="true"></svg>
+                }
+                {{ (step() === totalSteps ? 'setup.finish' : 'setup.next') | transloco }}
+              </button>
+            </div>
+          }
+        </form>
+      }
+    </div>
+  </main>
+</div>

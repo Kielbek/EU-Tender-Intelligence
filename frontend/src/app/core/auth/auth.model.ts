@@ -8,6 +8,8 @@ export interface Me {
   platformRole: 'USER' | 'PLATFORM_ADMIN';
   emailVerified: boolean;
   createdAt: string;
+  /** The first-run setup wizard was finished or skipped. */
+  setupCompleted: boolean;
 }
 
 export interface AuthResponse {

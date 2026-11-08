@@ -52,6 +52,7 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | POST / GET | `/api/v1/admin/ai/check`, `/api/v1/admin/ai/usage` | `PLATFORM_ADMIN` | test klucza Anthropic (na żywo); zużycie i koszt per organizacja |
 | POST | `/api/v1/admin/bzp/ingest?from=YYYY-MM-DD&to=YYYY-MM-DD` | `PLATFORM_ADMIN` | import BZP z okna dat (≤ 31 dni), 202 + `jobId` |
 | POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania (TED lub BZP) dla tego samego okna |
+| POST | `/api/v1/me/setup-complete` | zalogowany | zakończenie lub pominięcie konfiguracji po rejestracji (idempotentne); zwraca `/me` z `setupCompleted: true` |
 | GET | `/api/v1/me/export` | zalogowany | RODO: wszystkie dane osobowe jako plik JSON (audyt `PERSONAL_DATA_EXPORTED`) |
 | DELETE | `/api/v1/me` `{password}` | zalogowany | RODO: usunięcie konta; 409 `transfer_admin_first`, 400 `invalid_current_password` |
 | GET | `/api/v1/system/legal` | publiczny | dane operatora (z konfiguracji) i podmioty przetwarzające – do regulaminu i polityki prywatności |

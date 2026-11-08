@@ -35,6 +35,7 @@ public class User {
     private Instant lastLoginAt;
     private Instant termsAcceptedAt;
     private String termsVersion;
+    private Instant setupCompletedAt;
     @Column(insertable = false, updatable = false)
     private Instant createdAt;
     private Instant updatedAt;
@@ -134,4 +135,13 @@ public class User {
     public Instant getLockedUntil() { return lockedUntil; }
     public Instant getLastLoginAt() { return lastLoginAt; }
     public Instant getCreatedAt() { return createdAt; }
+    public Instant getSetupCompletedAt() { return setupCompletedAt; }
+
+    /** The first-run setup wizard was finished or skipped; it is not shown again. */
+    public void completeSetup(Instant now) {
+        if (setupCompletedAt == null) {
+            setupCompletedAt = now;
+            updatedAt = now;
+        }
+    }
 }

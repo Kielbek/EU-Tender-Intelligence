@@ -792,5 +792,37 @@
         "hint": "Wspólna lista obserwowanych i etapy ofert dla całego zespołu."
       }
     }
+  },
+  "setup": {
+    "stepOf": "Krok {{step}} z {{total}}",
+    "skip": "Pomiń",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "finish": "Zapisz i zakończ",
+    "welcome": "Witaj, {{name}}!",
+    "s1": {
+      "title": "Opowiedz nam o swojej firmie",
+      "subtitle": "Trzy krótkie kroki, a pokażemy przetargi dopasowane do Twojej działalności. Wszystko zmienisz później w profilu firmy."
+    },
+    "s2": {
+      "title": "Czym się zajmujecie?",
+      "subtitle": "Wybierz branże ze słownika CPV – tak zamawiający opisują przedmiot zamówienia.",
+      "cpvHint": "Wpisz nazwę (np. „roboty drogowe”) albo początek kodu (np. 45). Ogólny kod obejmuje wszystkie szczegółowe.",
+      "cpvRequired": "Wybierz co najmniej jedną branżę – bez niej nie policzymy dopasowania. Możesz też pominąć konfigurację."
+    },
+    "s3": {
+      "title": "Gdzie i za ile?",
+      "subtitle": "Kraje, w których chcesz startować, i wielkość zamówień, które realizujecie.",
+      "valueHint": "Wartości w euro. Możesz zostawić puste – wtedy wartość nie wpływa na dopasowanie."
+    },
+    "done": {
+      "title": "Gotowe!",
+      "searching": "Szukamy przetargów dopasowanych do Twojej firmy…",
+      "found": "Znaleźliśmy {{n}} otwartych przetargów dobrze dopasowanych do Twojej firmy.",
+      "none": "Na razie brak otwartych przetargów z wysokim dopasowaniem. Sprawdzaj codziennie – nowe ogłoszenia dochodzą co godzinę.",
+      "matches": "Zobacz dopasowane przetargi",
+      "dashboard": "Przejdź do dashboardu",
+      "more": "Referencje, certyfikaty i zasoby dodasz w profilu firmy – podniosą trafność dopasowania."
+    }
   }
 }
