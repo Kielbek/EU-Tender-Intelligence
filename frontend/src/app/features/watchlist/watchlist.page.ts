@@ -44,7 +44,39 @@ import { WATCH_STATUSES } from '../tender/tender-detail.page';
           <a routerLink="/search" [queryParams]="{ status: 'OPEN' }" class="eti-btn-primary mt-4">{{ 'watch.emptyCta' | transloco }}</a>
         </div>
       } @else {
-        <div class="eti-card overflow-x-auto">
+        <!-- Phones: one card per tender, with the stage picker always visible. -->
+        <ul class="space-y-3 md:hidden">
+          @for (s of items(); track s.tenderId) {
+            @let lang = language.current();
+            @if (s.tender; as t) {
+              <li class="eti-card p-4">
+                <div class="flex items-center gap-2 text-xs text-ink-muted">
+                  <eti-tender-status [status]="t.status" /> {{ t.countryCode | country: lang }}
+                  @if (s.notes) {
+                    <svg lucideStickyNote class="size-3.5" [attr.aria-label]="'watch.notesIndicator' | transloco" role="img"></svg>
+                  }
+                </div>
+                <a [routerLink]="['/tenders', t.id]" class="mt-1.5 block text-[15px] font-medium text-ink hover:text-accent">{{ t.title }}</a>
+                <span class="block truncate text-xs text-ink-muted">{{ t.authorityName }}</span>
+                <dl class="mt-3 grid grid-cols-2 gap-2 text-[13px]">
+                  <div>
+                    <dt class="text-xs text-ink-muted">{{ 'search.columns.deadline' | transloco }}</dt>
+                    <dd><eti-deadline [iso]="t.submissionDeadline" [locale]="lang" /></dd>
+                  </div>
+                  <div class="text-right">
+                    <dt class="text-xs text-ink-muted">{{ 'search.columns.value' | transloco }}</dt>
+                    <dd class="eti-num">{{ t.estimatedValue | money: t.currency : lang }}</dd>
+                  </div>
+                </dl>
+                <eti-select class="mt-3" size="md" [spaced]="false" [ariaLabel]="'watch.stage' | transloco"
+                            [prefix]="('watch.stage' | transloco) + ':'"
+                            [options]="statuses | etiOptions: 'watch.status.'" [value]="s.status"
+                            (valueChange)="setStage(s, $any($event))" />
+              </li>
+            }
+          }
+        </ul>
+        <div class="eti-card hidden overflow-x-auto md:block">
           <table class="w-full text-left text-sm">
             <thead class="eti-table-head">
               <tr>

@@ -68,6 +68,10 @@ cd frontend && npx ng test --watch=false && npx ng build
 * **CI/CD**: GitHub Actions – testy → build obrazów → push do rejestru → wdrożenie (Compose/Kamal lub k8s przy większej skali).
 * `API_DOCS_ENABLED=false` na produkcji, `CORS_ALLOWED_ORIGINS` ustawione na domenę aplikacji.
 * `REFRESH_COOKIE_SECURE=true`, `APP_PUBLIC_URL` = adres aplikacji (linki w e-mailach), prawdziwy dostawca SMTP z SPF/DKIM/DMARC.
+* `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS`, `LEGAL_OPERATOR_TAX_ID`, `LEGAL_OPERATOR_EMAIL`, `LEGAL_HOSTING_PROVIDER`,
+  `LEGAL_EMAIL_PROVIDER` – dane do regulaminu i polityki prywatności (bez nich strony pokazują ostrzeżenie). Teksty to projekt:
+  przed sprzedażą zweryfikuj je z prawnikiem i ustaw `APP_TERMS_VERSION`.
+* `BZP_SCHEDULE_ENABLED` (domyślnie `true`) – godzinny import ogłoszeń krajowych z BZP; `BZP_INITIAL_BACKFILL_DAYS` – import przy pierwszym starcie.
 * `ANTHROPIC_API_KEY` (konsola Anthropic → API keys) włącza analizę AI. Po wdrożeniu wykonaj `POST /api/v1/admin/ai/check`.
   Ustaw w konsoli Anthropic miesięczny limit wydatków i podpisz DPA (Anthropic jest podprocesorem danych z wgrywanych dokumentów).
   Zewnętrzne reverse proxy musi przyjmować pliki do 25 MB (nginx w obrazie frontendu ma `client_max_body_size 50m`).

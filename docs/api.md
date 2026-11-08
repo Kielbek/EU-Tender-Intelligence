@@ -50,12 +50,16 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/organizations/{id}/tenders/{tid}/analyses/latest?lang=` | członek | status, wynik (sekcje, punkty, cytaty), `stale`; 404 `analysis_missing` |
 | GET | `/api/v1/organizations/{id}/ai/quota` | członek | plan, limit, wykorzystanie w miesiącu |
 | POST / GET | `/api/v1/admin/ai/check`, `/api/v1/admin/ai/usage` | `PLATFORM_ADMIN` | test klucza Anthropic (na żywo); zużycie i koszt per organizacja |
-| POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania TED dla tego samego okna |
+| POST | `/api/v1/admin/bzp/ingest?from=YYYY-MM-DD&to=YYYY-MM-DD` | `PLATFORM_ADMIN` | import BZP z okna dat (≤ 31 dni), 202 + `jobId` |
+| POST | `/api/v1/admin/ingestion-jobs/{id}/retry` | `PLATFORM_ADMIN` | ponowienie zadania (TED lub BZP) dla tego samego okna |
+| GET | `/api/v1/me/export` | zalogowany | RODO: wszystkie dane osobowe jako plik JSON (audyt `PERSONAL_DATA_EXPORTED`) |
+| DELETE | `/api/v1/me` `{password}` | zalogowany | RODO: usunięcie konta; 409 `transfer_admin_first`, 400 `invalid_current_password` |
+| GET | `/api/v1/system/legal` | publiczny | dane operatora (z konfiguracji) i podmioty przetwarzające – do regulaminu i polityki prywatności |
 
 Kody błędów (`code` w problem+json): `validation_failed`, `unauthenticated`, `forbidden`, `not_found`, `invalid_credentials`,
 `too_many_attempts`, `rate_limited` (+ `Retry-After`), `email_not_verified`, `account_disabled`, `invalid_token`, `invalid_session`,
 `weak_password`, `last_admin`, `already_member`, `invitation_email_mismatch`, `csrf_header_missing`, `job_already_running`,
-`invalid_window`, `window_too_large`, `not_retryable`, `invalid_filters`, `duplicate_name`, `too_many_saved_searches`, `profile_missing`, `invalid_value_range`, `empty_file`, `file_too_large`, `unsupported_file`, `invalid_archive`, `no_documents_link`, `analysis_missing`, `ai_quota_exceeded`, `ai_not_configured`, `internal_error`.
+`invalid_window`, `window_too_large`, `not_retryable`, `invalid_filters`, `duplicate_name`, `too_many_saved_searches`, `profile_missing`, `invalid_value_range`, `empty_file`, `file_too_large`, `unsupported_file`, `invalid_archive`, `no_documents_link`, `analysis_missing`, `ai_quota_exceeded`, `ai_not_configured`, `transfer_admin_first`, `internal_error`.
 
 Wartości `changeKind` w historii zmian: `PRIOR_INFORMATION`, `COMPETITION`, `CHANGE`, `CANCELLATION`, `AWARD`, `MODIFICATION`, `OTHER`.
 Wartości `procedureType` – kody TED/eForms: `open`, `restricted`, `neg-w-call`, `neg-wo-call`, `comp-dial`, `innovation`, `oth-single`, `oth-mult`.

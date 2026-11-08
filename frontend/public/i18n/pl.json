@@ -765,5 +765,32 @@
       "EMAIL": "Wysyłka e-maili",
       "AI": "Model AI do analizy dokumentów"
     }
+  },
+  "onboarding": {
+    "title": "Pierwsze kroki",
+    "subtitle": "Pięć rzeczy, dzięki którym szybciej znajdziesz przetargi dla swojej firmy.",
+    "hide": "Ukryj przewodnik",
+    "steps": {
+      "profile": {
+        "title": "Uzupełnij profil firmy",
+        "hint": "Branże CPV, kraje i zakres wartości – na tej podstawie liczymy dopasowanie."
+      },
+      "watched": {
+        "title": "Obserwuj pierwszy przetarg",
+        "hint": "Gwiazdka przy przetargu – zespół widzi go na liście i w terminach."
+      },
+      "savedSearch": {
+        "title": "Zapisz wyszukiwanie",
+        "hint": "Ustaw filtry raz i wracaj do wyników jednym kliknięciem."
+      },
+      "aiAnalysis": {
+        "title": "Przeanalizuj dokumentację z AI",
+        "hint": "Warunki, kryteria i wadium z cytatami – na stronie przetargu."
+      },
+      "teammate": {
+        "title": "Zaproś współpracownika",
+        "hint": "Wspólna lista obserwowanych i etapy ofert dla całego zespołu."
+      }
+    }
   }
 }

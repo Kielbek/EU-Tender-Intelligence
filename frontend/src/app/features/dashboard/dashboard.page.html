@@ -34,6 +34,9 @@
       <div class="eti-card h-80 p-5"><eti-skeleton size="h-full w-full" /></div>
     </div>
   } @else if (data(); as d) {
+    @if (org.currentId(); as orgId) {
+      <div class="mb-5"><eti-onboarding [data]="d" [orgId]="orgId" /></div>
+    }
     <!-- KPIs -->
     <section [attr.aria-label]="'dashboard.kpi' | transloco" class="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
       <a routerLink="/search" [queryParams]="{ status: 'OPEN' }" class="rounded-[var(--radius-card)] transition-shadow hover:shadow-[0_0_0_1px_var(--color-border-strong)]">

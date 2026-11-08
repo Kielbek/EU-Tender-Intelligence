@@ -765,5 +765,32 @@
       "EMAIL": "E-mail delivery",
       "AI": "AI model for document analysis"
     }
+  },
+  "onboarding": {
+    "title": "First steps",
+    "subtitle": "Five things that help you find the right tenders faster.",
+    "hide": "Hide the guide",
+    "steps": {
+      "profile": {
+        "title": "Complete the company profile",
+        "hint": "CPV sectors, countries and value range – the basis of the match score."
+      },
+      "watched": {
+        "title": "Watch your first tender",
+        "hint": "Star a tender – the team sees it in the list and in deadlines."
+      },
+      "savedSearch": {
+        "title": "Save a search",
+        "hint": "Set filters once and come back to the results in one click."
+      },
+      "aiAnalysis": {
+        "title": "Analyse documents with AI",
+        "hint": "Conditions, criteria and guarantees with quotes – on the tender page."
+      },
+      "teammate": {
+        "title": "Invite a colleague",
+        "hint": "A shared watch-list and bid stages for the whole team."
+      }
+    }
   }
 }

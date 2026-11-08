@@ -19,6 +19,7 @@ import { MatchScoreComponent } from '../../shared/ui/match-score.component';
 import { ProgressListComponent, ProgressRow } from '../../shared/ui/progress-list.component';
 import { Segment, SegmentedBarComponent } from '../../shared/ui/segmented-bar.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
+import { OnboardingComponent } from './onboarding.component';
 import { StatTileComponent } from '../../shared/ui/stat-tile.component';
 
 /** Categorical series in fixed order (validated palette, see styles.css). */
@@ -30,7 +31,7 @@ const CONTRACT_TYPES = ['WORKS', 'SERVICES', 'SUPPLIES', 'MIXED', 'UNKNOWN'] as 
   selector: 'eti-dashboard-page',
   imports: [RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, CardHeaderComponent,
     ColumnChartComponent, DeadlineComponent, DonutChartComponent, MatchScoreComponent, ProgressListComponent,
-    SegmentedBarComponent, SkeletonComponent, StatTileComponent],
+    SegmentedBarComponent, SkeletonComponent, StatTileComponent, OnboardingComponent],
   templateUrl: './dashboard.page.html',
 })
 export class DashboardPage {

@@ -170,6 +170,7 @@ export interface DashboardSummary {
   byContractType: Bucket[];
   pipeline: { status: WatchStatus; count: number; valueEur: number }[];
   newPerDay: { day: string; count: number }[];
+  onboarding: { profile: boolean; watched: boolean; savedSearch: boolean; aiAnalysis: boolean; teammate: boolean };
 }
 
 export interface CpvOption {

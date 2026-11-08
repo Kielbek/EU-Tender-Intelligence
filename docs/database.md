@@ -181,7 +181,10 @@ Przy dużym wolumenie: partycjonowanie `tender_versions` po roku publikacji.
 > Etap 5b (migracja `V10`): `document_blobs` (treść plików, SHA-256), rozszerzenie `tender_documents` (`source`,
 > `organization_id` – NULL = publiczny, `extracted_text`, status `NO_TEXT_LAYER`), `ai_analyses` (wynik w `result jsonb`,
 > unikalność po przetargu, zakresie, języku, hashu dokumentów i wersji promptu) oraz `ai_usage` (tokeny, koszt, `counts_to_quota`).
-> Opis w [ai-analysis.md](ai-analysis.md). Reguły dopasowania opisuje [matching.md](matching.md).
+> Opis w [ai-analysis.md](ai-analysis.md).
+>
+> `V11` – źródło `PL_EZAMOWIENIA` (BZP) aktywowane; `V12` – indeks `raw_notices (data_source_id, fetched_at)` dla
+> przyrostowych importów BZP; `V13` – przeliczenie wartości w BGN na EUR po stałym kursie 1,95583 (euro w Bułgarii od 2026). Reguły dopasowania opisuje [matching.md](matching.md).
 
 * **company_profiles** – `organization_id UNIQUE`, `name`, `registration_country`, `industry`, `description`, `website`, `countries_of_interest char(2)[]`,
   `size` (`MICRO`/`SMALL`/`MEDIUM`/`LARGE`), `annual_revenue`, `revenue_currency`, `years_of_experience`, `technical_resources`, `staff_resources`,

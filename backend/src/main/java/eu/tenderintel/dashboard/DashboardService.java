@@ -50,7 +50,13 @@ public class DashboardService {
             /* the team's watch-list by stage, with summed estimated value in EUR */
             List<Stage> pipeline,
             /* tenders first published per day, last 14 days (trend = last 7 vs previous 7) */
-            List<DayCount> newPerDay) {
+            List<DayCount> newPerDay,
+            /* first-steps checklist: what the organization has already done */
+            Onboarding onboarding) {
+    }
+
+    public record Onboarding(boolean profile, boolean watched, boolean savedSearch, boolean aiAnalysis,
+            boolean teammate) {
     }
 
     public record Stage(String status, long count, BigDecimal valueEur) {
@@ -155,9 +161,17 @@ public class DashboardService {
                   on v.day = d::date
                 order by 1
                 """, (rs, i) -> new DayCount(rs.getObject(1, LocalDate.class), rs.getLong(2)));
+        Onboarding onboarding = jdbc.queryForObject("""
+                select exists (select 1 from saved_tenders where organization_id = ?),
+                       exists (select 1 from saved_searches where organization_id = ?),
+                       exists (select 1 from ai_usage where organization_id = ?)
+                         or exists (select 1 from ai_analyses where requested_by_org = ?),
+                       (select count(*) from organization_members where organization_id = ?) > 1
+                """, (rs, i) -> new Onboarding(hasProfile, rs.getBoolean(1), rs.getBoolean(2), rs.getBoolean(3),
+                rs.getBoolean(4)), orgId, orgId, orgId, orgId, orgId);
         return new Summary(hasProfile, good, top, open, openCountries, dueSoon, newTenders, watchedCount, (BigDecimal) watched.get("v"),
                 ((Number) watched.get("no_value")).longValue(), upcoming, cpv, countries, perDay, updates, scope,
-                last == null ? null : last.toInstant(), byType, pipeline, newPerDay);
+                last == null ? null : last.toInstant(), byType, pipeline, newPerDay, onboarding);
     }
 
     private long count(String sql) {

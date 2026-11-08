@@ -16,6 +16,7 @@ tłumaczeniami i alertami, oraz wbudowanym systemem pozyskiwania klientów (CRM,
 | 4 | Dashboard, wyszukiwarka z filtrami i CPV, szczegóły przetargu z historią zmian, obserwowane (zespół), zapisane wyszukiwania, eksport CSV/XLSX | ✅ |
 | 5a | Profil firmy, wyjaśnialne dopasowanie 0–100, lista dopasowanych przetargów, najlepsze przetargi na dashboardzie | ✅ |
 | 5b | Dokumenty przetargów, analiza AI (Claude) z cytatami, limity planów, koszty AI | ✅ (test z prawdziwym kluczem – do wykonania) |
+| 5b+ | Przetargi krajowe z Polski (BZP), RODO (eksport i usunięcie konta, regulamin, polityka prywatności), przewodnik „Pierwsze kroki”, BGN | ✅ |
 | 5c | OCR, tłumaczenia, wyszukiwanie w języku naturalnym, asystent AI | ⏳ następny |
 | 6–8 | Powiadomienia, Stripe, admin UI, wdrożenie | 📋 plan |
 
@@ -29,6 +30,10 @@ Co działa teraz:
 * **Prawdziwe przetargi z TED**: import co godzinę w godzinach publikacji (pn–sb), import początkowy z ostatnich dni,
   ręczny backfill z panelu admina; zmiany, anulowania i wyniki (zwycięzcy, wartości, liczba ofert) z pełną historią zmian.
   Test na żywo: ~18,8 tys. ogłoszeń z 5 dni, 0 błędów – szczegóły w [docs/ted-integration.md](docs/ted-integration.md).
+* **Polskie przetargi krajowe z BZP** (e-Zamówienia, bezpłatne API): ~650 nowych postępowań dziennie, wyniki i zmiany terminów,
+  pełna treść ogłoszeń do analizy AI – szczegóły w [docs/bzp-integration.md](docs/bzp-integration.md).
+* **RODO w aplikacji**: pobranie wszystkich swoich danych (JSON) i usunięcie konta; publiczny regulamin i polityka prywatności
+  (dane operatora z konfiguracji `LEGAL_*` – bez nich strona wyświetla ostrzeżenie).
 * **Profil firmy i dopasowanie 0–100** z uzasadnieniem (spełnione / niespełnione / brakujące informacje), przeliczane automatycznie
   po zmianie profilu i po imporcie ogłoszeń. To wskaźnik zgodności, nie szansa na wygraną – reguły w [docs/matching.md](docs/matching.md).
 * **Analiza dokumentacji AI (Claude)**: dokumenty z linku w ogłoszeniu (tylko bezpośrednie pliki, bez obchodzenia zabezpieczeń)
