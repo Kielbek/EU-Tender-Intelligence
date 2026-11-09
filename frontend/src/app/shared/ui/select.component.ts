@@ -16,8 +16,15 @@ import { LucideCheck, LucideChevronDown, LucideSearch, LucideX } from '@lucide/a
 export interface SelectOption {
   value: string;
   label: string;
-  /** Secondary text shown on the right (e.g. a code). */
+  /** Secondary text shown on the right (e.g. a code); also searched by the filter. */
   hint?: string;
+  /** Options with the same group are listed under a heading (keep them consecutive). */
+  group?: string;
+}
+
+/** Lower case without diacritics, for filtering ("lodz" finds "Łódź"). */
+export function fold(s: string): string {
+  return s.toLocaleLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/\p{M}+/gu, '');
 }
 
 let nextId = 0;
@@ -92,6 +99,9 @@ export function isSmallScreen(): boolean {
         <ul #list [id]="listId" role="listbox" tabindex="-1" [attr.aria-label]="ariaLabel() ?? placeholder()"
             class="flex-1 overflow-y-auto py-1 outline-none" (keydown)="onListKey($event)">
           @for (o of visible(); track o.value; let i = $index) {
+            @if (o.group && (i === 0 || visible()[i - 1].group !== o.group)) {
+              <li role="presentation" class="px-3.5 pt-2.5 pb-1 text-[10px] font-semibold tracking-[0.08em] text-ink-faint uppercase">{{ o.group }}</li>
+            }
             <li [id]="optionId(i)" role="option" [attr.aria-selected]="o.value === value()"
                 class="mx-1 flex cursor-pointer items-center gap-2 rounded-md px-2.5"
                 [class]="optionClass(o, i)"
@@ -149,8 +159,9 @@ export class SelectComponent implements ControlValueAccessor {
   protected readonly selected = computed(() => this.options().find((o) => o.value === (this.value() ?? '')) ?? null);
   protected readonly filterable = computed(() => this.options().length > 10);
   protected readonly visible = computed(() => {
-    const f = this.filter().trim().toLocaleLowerCase();
-    return f ? this.options().filter((o) => o.label.toLocaleLowerCase().includes(f)) : this.options();
+    const f = fold(this.filter().trim());
+    return f ? this.options().filter((o) => fold(o.label).includes(f) || fold(o.hint ?? '').includes(f)
+      || fold(o.group ?? '').includes(f)) : this.options();
   });
 
   protected optionClass(o: SelectOption, i: number): string {
@@ -279,8 +290,18 @@ export class SelectComponent implements ControlValueAccessor {
         this.close(false);
         break;
       default:
-        if (!this.filterable() && e.key.length === 1 && /\S/.test(e.key)) {
-          this.jumpTo(e.key, false);
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          const input = this.filterInput()?.nativeElement;
+          if (!input) {
+            if (/\S/.test(e.key)) {
+              this.jumpTo(e.key, false);
+            }
+          } else if (e.target !== input) {
+            // typed before the filter field got focus (the list is still opening): send the key to the filter
+            e.preventDefault();
+            this.onFilter(this.filter() + e.key);
+            input.focus();
+          }
         }
         return;
     }

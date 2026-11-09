@@ -3,14 +3,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LucideCheck, LucideCircle, LucideLock, LucideTrash2 } from '@lucide/angular';
-import { Observable } from 'rxjs';
+import { LucideCheck, LucideChevronRight, LucideCircle, LucideLock, LucideTrash2 } from '@lucide/angular';
+import { Observable, map, startWith } from 'rxjs';
 import { ApiError, toApiError } from '../../core/api/api-error';
 import {
   CompanyProfile,
   CompanyProfileRequest,
   CompanyService,
   CompanySize,
+  DEFAULT_MATCHING,
+  MatchingSettings,
   ProfileContractType,
 } from '../../core/api/company.service';
 import { ReferenceService } from '../../core/api/reference.service';
@@ -20,13 +22,18 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { OrgContextService } from '../../core/org/org-context.service';
 import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { CpvPickerComponent } from '../../shared/ui/cpv-picker.component';
-import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.component';
+import { MultiOption, MultiSelectComponent, MultiShortcut } from '../../shared/ui/multi-select.component';
 import { DateInputComponent } from '../../shared/ui/date-input.component';
 import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 import { SkeletonComponent } from '../../shared/ui/skeleton.component';
-import { MatchingSettingsComponent } from './matching-settings.component';
+import { MatchingSettingsComponent, NUTS_EXTRA } from './matching-settings.component';
 
 type Num = number | null;
+
+export type ProfileTab = 'scope' | 'area' | 'preferences' | 'basics' | 'references';
+const CHECK_TAB: Record<string, ProfileTab> = {
+  cpv: 'scope', countries: 'scope', area: 'area', contractTypes: 'scope', valueRange: 'scope', references: 'references',
+};
 
 /** '' / null / NaN → undefined, so optional numbers are sent as absent rather than 0. */
 function num(value: unknown): number | undefined {
@@ -45,7 +52,8 @@ function text(value: string | null | undefined): string | undefined {
 @Component({
   selector: 'eti-company-profile-page',
   imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, ...FORMAT_PIPES, ApiErrorAlertComponent, CpvPickerComponent,
-    MultiCheckComponent, SkeletonComponent, SelectComponent, DateInputComponent, MatchingSettingsComponent, LucideCheck, LucideCircle, LucideLock, LucideTrash2],
+    MultiSelectComponent, SkeletonComponent, SelectComponent, DateInputComponent, MatchingSettingsComponent, LucideCheck,
+    LucideChevronRight, LucideCircle, LucideLock, LucideTrash2],
   templateUrl: './company-profile.page.html',
 })
 export class CompanyProfilePage {
@@ -71,6 +79,10 @@ export class CompanyProfilePage {
   protected readonly countriesOfInterest = signal<string[]>([]);
   protected readonly contractTypes = signal<ProfileContractType[]>([]);
   protected readonly refCpv = signal<string[]>([]);
+  protected readonly matching = signal<MatchingSettings>(DEFAULT_MATCHING);
+
+  protected readonly tabs: ProfileTab[] = ['scope', 'area', 'preferences', 'basics', 'references'];
+  protected readonly tab = signal<ProfileTab>('scope');
 
   protected readonly isAdmin = computed(() => this.org.current()?.role === 'COMPANY_ADMIN');
 
@@ -110,14 +122,30 @@ export class CompanyProfilePage {
 
   private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
 
-  protected readonly countryOptions = computed<CheckOption[]>(() => {
+  private readonly countryNames = computed(() => {
     const lang = this.language.current();
     return this.countries()
-      .map((c) => ({ value: c.code, label: countryName(c.code, lang) }))
+      .map((c) => ({ value: c.code, label: countryName(c.code, lang), isEu: c.isEu }))
       .sort((a, b) => a.label.localeCompare(b.label, lang));
   });
 
-  protected readonly countrySelect = computed<SelectOption[]>(() => [{ value: '', label: '—' }, ...this.countryOptions()]);
+  /** Countries of interest: the EU first, then the rest of Europe with NUTS regions, then everything else. */
+  protected readonly countryOptions = computed<MultiOption[]>(() => {
+    this.translations();
+    const rank = (c: { value: string; isEu: boolean }) => (c.isEu ? 0 : NUTS_EXTRA.includes(c.value) ? 1 : 2);
+    const groups = ['company.groupEu', 'company.groupOtherEurope', 'company.groupOther'].map((k) => this.transloco.translate(k));
+    return this.countryNames()
+      .map((c) => ({ value: c.value, label: c.label, hint: c.value, rank: rank(c) }))
+      .sort((a, b) => a.rank - b.rank)
+      .map(({ rank, ...o }) => ({ ...o, group: groups[rank] }));
+  });
+  protected readonly countryShortcuts = computed<MultiShortcut[]>(() => {
+    this.translations();
+    return [{ label: this.transloco.translate('company.allEu'), values: this.countries().filter((c) => c.isEu).map((c) => c.code) }];
+  });
+
+  protected readonly countrySelect = computed<SelectOption[]>(() =>
+    [{ value: '', label: '—' }, ...this.countryNames().map((c) => ({ value: c.value, label: c.label }))]);
   protected readonly currencySelect = computed<SelectOption[]>(() =>
     this.currencies().map((c) => ({ value: c.code, label: c.code })),
   );
@@ -142,6 +170,16 @@ export class CompanyProfilePage {
     ];
   });
   protected readonly checklistDone = computed(() => this.checklist().filter((i) => i.done).length);
+  protected readonly checkTab = CHECK_TAB;
+
+  /** Raw form value as a signal (includes disabled controls). */
+  protected readonly formValue = toSignal(this.form.valueChanges.pipe(startWith(null), map(() => this.form.getRawValue())),
+    { initialValue: this.form.getRawValue() });
+  private readonly snapshot = computed(() => JSON.stringify([this.formValue(), this.cpvCodes(), this.countriesOfInterest(),
+    this.contractTypes(), this.matching()]));
+  private readonly savedSnapshot = signal('');
+  /** Unsaved edits of the form, the lists or the matching settings. */
+  protected readonly dirty = computed(() => this.isAdmin() && this.snapshot() !== this.savedSnapshot());
 
   constructor() {
     effect(() => {
@@ -178,6 +216,8 @@ export class CompanyProfilePage {
           this.cpvCodes.set([]);
           this.countriesOfInterest.set([]);
           this.contractTypes.set([]);
+          this.matching.set(DEFAULT_MATCHING);
+          this.savedSnapshot.set('');
         } else {
           this.loadError.set(e);
         }
@@ -208,6 +248,35 @@ export class CompanyProfilePage {
     this.cpvCodes.set(p.cpvCodes);
     this.countriesOfInterest.set(p.countriesOfInterest);
     this.contractTypes.set(p.contractTypes);
+    this.matching.set({ ...DEFAULT_MATCHING, ...p.matching });
+    this.savedSnapshot.set(this.snapshot());
+  }
+
+  /** Back to the saved profile. */
+  protected discard(): void {
+    const p = this.profile();
+    if (p) {
+      this.apply(p);
+    } else {
+      this.load();
+    }
+  }
+
+  protected openTab(t: ProfileTab): void {
+    this.tab.set(t);
+  }
+
+  /** Arrow keys, Home and End move between tabs (WAI-ARIA tabs pattern). */
+  protected tabKey(e: KeyboardEvent): void {
+    const i = this.tabs.indexOf(this.tab());
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: this.tabs.length - 1 }[e.key];
+    if (next === undefined) {
+      return;
+    }
+    e.preventDefault();
+    const t = this.tabs[(next + this.tabs.length) % this.tabs.length];
+    this.tab.set(t);
+    setTimeout(() => document.getElementById('cp-tab-' + t)?.focus());
   }
 
   protected toggleType(type: ProfileContractType, checked: boolean): void {
@@ -224,6 +293,11 @@ export class CompanyProfilePage {
   protected save(): void {
     const orgId = this.org.currentId();
     this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      this.tab.set('basics');
+    } else if (this.invalidRange()) {
+      this.tab.set('scope');
+    }
     if (!orgId || this.form.invalid || this.invalidRange() || this.busy()) {
       return;
     }
@@ -247,6 +321,7 @@ export class CompanyProfilePage {
       countriesOfInterest: this.countriesOfInterest(),
       contractTypes: this.contractTypes(),
       cpvCodes: this.cpvCodes(),
+      matching: this.matching(),
     };
     this.run(this.api.save(orgId, body, this.language.current()), (p) => {
       this.apply(p);

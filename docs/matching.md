@@ -39,8 +39,9 @@ Każdy punkt ma przyczynę: kod (`CPV_MATCH`, `WITHIN_DISTANCE`, …) z parametr
 
 ### Cała Unia (i EOG)
 
-* Regiony NUTS są dla wszystkich państw UE oraz NO, CH, IS, LI (Eurostat, 2148 regionów). Siedzibę wybiera się:
-  kraj → region (NUTS 2) → podregion (NUTS 3); dodatkowe regiony – z kraju siedziby i krajów z listy firmy.
+* Regiony NUTS są dla wszystkich państw UE oraz NO, CH, IS, LI (Eurostat, 2148 regionów). Siedzibę wybiera się w zakładce
+  „Lokalizacja” profilu: kraj → podregion (NUTS 3, lista pogrupowana wg regionów NUTS 2, z wyszukiwaniem);
+  dodatkowe regiony – z kraju siedziby i krajów z listy firmy.
 * Kody NUTS Grecji i Wielkiej Brytanii to `EL` i `UK`, a w ogłoszeniach (ISO) `GR` i `GB` – silnik je mapuje.
 * Pokrycie kodem regionu otwartych przetargów (8.11.2026): PL 99%, DE 95%, FR 93%, ES 96%, IT 92%, CZ 92%, RO 100%,
   PT 97%, BE 82%, SE 79%, FI 65%, **NL 43%** – przetarg bez regionu liczy się tylko po kraju („brakujące informacje”).

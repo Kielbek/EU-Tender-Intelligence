@@ -115,7 +115,10 @@
     "nextMonth": "Następny miesiąc",
     "today": "Dzisiaj",
     "clear": "Wyczyść",
-    "remove": "Usuń"
+    "remove": "Usuń",
+    "done": "Gotowe",
+    "clearSelection": "Wyczyść wybór",
+    "selectedN": "Wybrano: {{n}}"
   },
   "auth": {
     "tagline": "Przetargi publiczne z całej Unii Europejskiej w jednym miejscu.",
@@ -658,7 +661,30 @@
     "validUntil": "ważny do {{date}}",
     "saveFirst": "Najpierw zapisz profil firmy.",
     "removeConfirm": "Usunąć ten wpis?",
-    "removeNamed": "Usuń: {{name}}"
+    "removeNamed": "Usuń: {{name}}",
+    "groupEu": "Unia Europejska",
+    "groupOtherEurope": "Pozostałe kraje Europy",
+    "allEu": "Cała UE",
+    "countriesPh": "Kraj rejestracji firmy",
+    "unsaved": "Masz niezapisane zmiany",
+    "discard": "Odrzuć zmiany",
+    "tabsLabel": "Sekcje profilu",
+    "goTo": "Przejdź do sekcji",
+    "tabs": {
+      "scope": "Zakres i branże",
+      "area": "Lokalizacja",
+      "preferences": "Słowa i wykluczenia",
+      "basics": "Dane firmy",
+      "references": "Referencje i certyfikaty"
+    },
+    "tabHints": {
+      "scope": "Branże CPV, rodzaje zamówień, wartości i kraje – podstawa wyniku dopasowania.",
+      "area": "Siedziba, promień działania i regiony. Odległość liczymy między podregionami NUTS 3 (Eurostat).",
+      "preferences": "Słowa kluczowe, wykluczenia i minimalny czas na przygotowanie oferty.",
+      "basics": "Dane rejestrowe i potencjał firmy – przydadzą się w analizie warunków udziału.",
+      "references": "Zrealizowane zamówienia i certyfikaty. Referencje z kodem CPV podnoszą wynik."
+    },
+    "groupOther": "Pozostałe kraje"
   },
   "match": {
     "title": "Dopasowane przetargi",
@@ -1199,6 +1225,8 @@
     "prepHint": "Przetargi z bliższym terminem znikną z dopasowań i powiadomień.",
     "save": "Zapisz ustawienia dopasowania",
     "saved": "Zapisano. Dopasowania przeliczamy w tle (kilka sekund).",
-    "country": "Kraj siedziby"
+    "country": "Kraj siedziby",
+    "basePh": "Wybierz podregion (miasto, powiat)…",
+    "radiusHint": "Dotyczy robót i usług na miejscu. Bez limitu – bliższe przetargi mają wyższy wynik."
   }
 }

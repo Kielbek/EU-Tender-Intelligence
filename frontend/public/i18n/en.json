@@ -115,7 +115,10 @@
     "nextMonth": "Next month",
     "today": "Today",
     "clear": "Clear",
-    "remove": "Remove"
+    "remove": "Remove",
+    "done": "Done",
+    "clearSelection": "Clear selection",
+    "selectedN": "Selected: {{n}}"
   },
   "auth": {
     "tagline": "Public tenders from across the European Union in one place.",
@@ -658,7 +661,30 @@
     "validUntil": "valid until {{date}}",
     "saveFirst": "Save the company profile first.",
     "removeConfirm": "Remove this entry?",
-    "removeNamed": "Remove: {{name}}"
+    "removeNamed": "Remove: {{name}}",
+    "groupEu": "European Union",
+    "groupOtherEurope": "Other European countries",
+    "allEu": "Whole EU",
+    "countriesPh": "Country of registration",
+    "unsaved": "You have unsaved changes",
+    "discard": "Discard changes",
+    "tabsLabel": "Profile sections",
+    "goTo": "Go to section",
+    "tabs": {
+      "scope": "Scope and sectors",
+      "area": "Location",
+      "preferences": "Keywords and exclusions",
+      "basics": "Company details",
+      "references": "References and certificates"
+    },
+    "tabHints": {
+      "scope": "CPV sectors, contract types, values and countries – the basis of the match score.",
+      "area": "Base, operating radius and regions. Distance is measured between NUTS 3 subregions (Eurostat).",
+      "preferences": "Keywords, exclusions and the minimum time to prepare a bid.",
+      "basics": "Registration details and capacity – used when analysing participation conditions.",
+      "references": "Completed contracts and certificates. References with a CPV code raise the score."
+    },
+    "groupOther": "Other countries"
   },
   "match": {
     "title": "Matched tenders",
@@ -1199,6 +1225,8 @@
     "prepHint": "Tenders closing sooner disappear from matches and notifications.",
     "save": "Save matching settings",
     "saved": "Saved. Matches are recomputed in the background (a few seconds).",
-    "country": "Country of the base"
+    "country": "Country of the base",
+    "basePh": "Choose a subregion (city, district)…",
+    "radiusHint": "Applies to works and on-site services. No limit – closer tenders score higher."
   }
 }

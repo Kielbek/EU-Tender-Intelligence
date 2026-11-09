@@ -1,169 +1,168 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, map, switchMap } from 'rxjs';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LucideMapPin } from '@lucide/angular';
-import { ApiError, toApiError } from '../../core/api/api-error';
-import { CompanyProfile, CompanyService, DEFAULT_MATCHING, MatchingSettings, profileToRequest } from '../../core/api/company.service';
-import { ReferenceService } from '../../core/api/reference.service';
+import { combineLatest, map, of, switchMap } from 'rxjs';
+import { DEFAULT_MATCHING, MatchingSettings } from '../../core/api/company.service';
+import { Region, ReferenceService } from '../../core/api/reference.service';
 import { countryName } from '../../core/format/format';
 import { LanguageService } from '../../core/i18n/language.service';
-import { ApiErrorAlertComponent } from '../../shared/ui/api-error-alert.component';
 import { CpvPickerComponent } from '../../shared/ui/cpv-picker.component';
 import { KeywordsInputComponent } from '../../shared/ui/keywords-input.component';
-import { CheckOption, MultiCheckComponent } from '../../shared/ui/multi-check.component';
+import { MultiOption, MultiSelectComponent } from '../../shared/ui/multi-select.component';
 import { SelectComponent, SelectOption } from '../../shared/ui/select.component';
 
 const RADII = [25, 50, 75, 100, 150, 200, 300, 500];
-/** Non-EU countries with NUTS regions that publish in TED. */
-const NUTS_EXTRA = ['NO', 'CH', 'IS', 'LI'];
 const PREP_DAYS = [3, 5, 7, 10, 14, 21, 30];
+/** Non-EU countries with NUTS regions that publish in TED. */
+export const NUTS_EXTRA = ['NO', 'CH', 'IS', 'LI'];
+
+/** NUTS uses EL and UK for Greece and the United Kingdom. */
+function nutsPrefix(iso: string): string {
+  return iso === 'GR' ? 'EL' : iso === 'GB' ? 'UK' : iso;
+}
+
+function isoOf(nutsCode: string | null | undefined): string | null {
+  if (!nutsCode) {
+    return null;
+  }
+  const p = nutsCode.slice(0, 2);
+  return p === 'EL' ? 'GR' : p === 'UK' ? 'GB' : p;
+}
 
 /**
- * Where the company works and what it does not do – the settings that make matching precise: base subregion and
- * radius (distance between NUTS 3 points), strict area, extra voivodeships, nationwide supplies, keywords, excluded
- * sectors and the minimum time needed to prepare an offer.
+ * Matching settings of the company profile, controlled by the page (one save for the whole profile):
+ * {@code part="area"} – base, radius and regions; {@code part="preferences"} – keywords, exclusions, preparation time.
  */
 @Component({
   selector: 'eti-matching-settings',
-  imports: [TranslocoPipe, ApiErrorAlertComponent, CpvPickerComponent, KeywordsInputComponent, MultiCheckComponent,
-    SelectComponent, LucideMapPin],
+  imports: [TranslocoPipe, CpvPickerComponent, KeywordsInputComponent, MultiSelectComponent, SelectComponent],
   template: `
-    @let lang = language.current();
-    <section class="eti-card p-5" aria-labelledby="ms-h">
-      <div class="flex items-start gap-3">
-        <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent" aria-hidden="true"><svg lucideMapPin class="size-4"></svg></span>
+    @let s = settings();
+    @if (part() === 'area') {
+      <div class="grid gap-x-5 gap-y-5 md:grid-cols-2">
         <div>
-          <h2 id="ms-h" class="eti-h2">{{ 'matchSettings.title' | transloco }}</h2>
-          <p class="eti-subtitle mt-1">{{ 'matchSettings.subtitle' | transloco }}</p>
+          <label class="eti-label" for="ms-country">{{ 'matchSettings.country' | transloco }}</label>
+          <eti-select inputId="ms-country" [options]="countryOptions()" [value]="baseCountry()" (valueChange)="setCountry($any($event))" [disabled]="!editable()" />
+        </div>
+        <div>
+          <label class="eti-label" for="ms-base">{{ 'matchSettings.base' | transloco }}</label>
+          <eti-select inputId="ms-base" [options]="baseOptions()" [value]="s.baseNuts ?? ''" [placeholder]="'matchSettings.basePh' | transloco"
+                      (valueChange)="patch({ baseNuts: $any($event) || null })" [disabled]="!editable()" />
+          <p class="eti-hint">{{ 'matchSettings.baseHint' | transloco }}</p>
+        </div>
+        <div>
+          <label class="eti-label" for="ms-radius">{{ 'matchSettings.radius' | transloco }}</label>
+          <eti-select inputId="ms-radius" [options]="radiusOptions()" [value]="s.maxDistanceKm ? '' + s.maxDistanceKm : ''"
+                      (valueChange)="patch({ maxDistanceKm: $event ? +$event : null })" [disabled]="!editable()" />
+          <p class="eti-hint">{{ 'matchSettings.radiusHint' | transloco }}</p>
+        </div>
+        <div>
+          <label class="eti-label" for="ms-extra">{{ 'matchSettings.extra' | transloco }}</label>
+          <eti-multi-select inputId="ms-extra" [label]="'matchSettings.extra' | transloco" [placeholder]="'matchSettings.extraNone' | transloco"
+                            [options]="extraOptions()" [selected]="s.extraRegions" (selectedChange)="patch({ extraRegions: $event })" [disabled]="!editable()" />
+          <p class="eti-hint">{{ 'matchSettings.extraHint' | transloco }}</p>
         </div>
       </div>
 
-      <fieldset class="mt-6" [disabled]="!editable()">
-        <legend class="eti-overline">{{ 'matchSettings.area' | transloco }}</legend>
-        <div class="mt-3 grid gap-4 md:grid-cols-4">
-          <div>
-            <label class="eti-label" for="ms-country">{{ 'matchSettings.country' | transloco }}</label>
-            <eti-select inputId="ms-country" [options]="countryOptions()" [value]="baseCountry()" (valueChange)="setCountry($any($event))" [disabled]="!editable()" />
-          </div>
-          <div>
-            <label class="eti-label" for="ms-voiv">{{ 'matchSettings.voivodeship' | transloco }}</label>
-            <eti-select inputId="ms-voiv" [options]="voivodeshipOptions()" [value]="voivodeship()" (valueChange)="setVoivodeship($any($event))" [disabled]="!editable()" />
-          </div>
-          <div>
-            <label class="eti-label" for="ms-base">{{ 'matchSettings.base' | transloco }}</label>
-            <eti-select inputId="ms-base" [options]="subregionOptions()" [value]="s().baseNuts ?? ''" (valueChange)="patch({ baseNuts: $any($event) || null })" [disabled]="!editable() || !voivodeship()" />
-            <p class="eti-hint">{{ 'matchSettings.baseHint' | transloco }}</p>
-          </div>
-          <div>
-            <label class="eti-label" for="ms-radius">{{ 'matchSettings.radius' | transloco }}</label>
-            <eti-select inputId="ms-radius" [options]="radiusOptions()" [value]="s().maxDistanceKm ? '' + s().maxDistanceKm : ''" (valueChange)="patch({ maxDistanceKm: $event ? +$event : null })" [disabled]="!editable()" />
-          </div>
+      <div class="mt-6 grid gap-3 md:grid-cols-2">
+        <label class="flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border border-border p-4 has-[:checked]:border-accent has-[:checked]:bg-accent-soft/40">
+          <input type="checkbox" class="mt-0.5" [checked]="s.regionMode === 'STRICT'" [disabled]="!editable()"
+                 (change)="patch({ regionMode: $any($event.target).checked ? 'STRICT' : 'PREFER' })" />
+          <span class="text-[13px]"><span class="font-semibold text-ink">{{ 'matchSettings.strict' | transloco }}</span>
+            <span class="mt-1 block text-xs text-ink-muted">{{ 'matchSettings.strictHint' | transloco }}</span></span>
+        </label>
+        <label class="flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border border-border p-4 has-[:checked]:border-accent has-[:checked]:bg-accent-soft/40">
+          <input type="checkbox" class="mt-0.5" [checked]="s.suppliesNationwide" [disabled]="!editable()"
+                 (change)="patch({ suppliesNationwide: $any($event.target).checked })" />
+          <span class="text-[13px]"><span class="font-semibold text-ink">{{ 'matchSettings.supplies' | transloco }}</span>
+            <span class="mt-1 block text-xs text-ink-muted">{{ 'matchSettings.suppliesHint' | transloco }}</span></span>
+        </label>
+      </div>
+    } @else {
+      <div class="grid gap-x-5 gap-y-5 md:grid-cols-2">
+        <div>
+          <label class="eti-label" for="ms-inc">{{ 'matchSettings.include' | transloco }}</label>
+          <eti-keywords-input inputId="ms-inc" [placeholder]="'matchSettings.includePh' | transloco" [words]="s.includeKeywords" (wordsChange)="patch({ includeKeywords: $event })" />
+          <p class="eti-hint">{{ 'matchSettings.includeHint' | transloco }}</p>
         </div>
-        <div class="mt-4 space-y-2.5 text-[13px]">
-          <label class="flex items-start gap-2">
-            <input type="checkbox" class="mt-0.5" [checked]="s().regionMode === 'STRICT'" (change)="patch({ regionMode: $any($event.target).checked ? 'STRICT' : 'PREFER' })" />
-            <span>{{ 'matchSettings.strict' | transloco }} <span class="block text-xs text-ink-muted">{{ 'matchSettings.strictHint' | transloco }}</span></span>
-          </label>
-          <label class="flex items-start gap-2">
-            <input type="checkbox" class="mt-0.5" [checked]="s().suppliesNationwide" (change)="patch({ suppliesNationwide: $any($event.target).checked })" />
-            <span>{{ 'matchSettings.supplies' | transloco }} <span class="block text-xs text-ink-muted">{{ 'matchSettings.suppliesHint' | transloco }}</span></span>
-          </label>
+        <div>
+          <label class="eti-label" for="ms-exc">{{ 'matchSettings.exclude' | transloco }}</label>
+          <eti-keywords-input inputId="ms-exc" tone="danger" [placeholder]="'matchSettings.excludePh' | transloco" [words]="s.excludeKeywords" (wordsChange)="patch({ excludeKeywords: $event })" />
+          <p class="eti-hint">{{ 'matchSettings.excludeHint' | transloco }}</p>
         </div>
-        <div class="mt-4 max-w-xl">
-          <eti-multi-check class="block" [stacked]="true" [label]="'matchSettings.extra' | transloco" [allLabel]="'matchSettings.extraNone' | transloco"
-                           [options]="extraOptions()" [selected]="s().extraRegions" (selectedChange)="patch({ extraRegions: $event })" />
-          <p class="eti-hint">{{ 'matchSettings.extraHint' | transloco }}</p>
-        </div>
-      </fieldset>
-
-      <fieldset class="mt-7" [disabled]="!editable()">
-        <legend class="eti-overline">{{ 'matchSettings.what' | transloco }}</legend>
-        <div class="mt-3 grid gap-4 md:grid-cols-2">
-          <div>
-            <label class="eti-label" for="ms-inc">{{ 'matchSettings.include' | transloco }}</label>
-            <eti-keywords-input inputId="ms-inc" [placeholder]="'matchSettings.includePh' | transloco" [words]="s().includeKeywords" (wordsChange)="patch({ includeKeywords: $event })" />
-            <p class="eti-hint">{{ 'matchSettings.includeHint' | transloco }}</p>
-          </div>
-          <div>
-            <label class="eti-label" for="ms-exc">{{ 'matchSettings.exclude' | transloco }}</label>
-            <eti-keywords-input inputId="ms-exc" tone="danger" [placeholder]="'matchSettings.excludePh' | transloco" [words]="s().excludeKeywords" (wordsChange)="patch({ excludeKeywords: $event })" />
-            <p class="eti-hint">{{ 'matchSettings.excludeHint' | transloco }}</p>
-          </div>
-        </div>
-        <div class="mt-4 max-w-xl">
-          <eti-cpv-picker class="block" [label]="'matchSettings.excludedCpv' | transloco" [lang]="lang"
-                          [selected]="s().excludedCpv" (selectedChange)="patch({ excludedCpv: $event })" />
+        <div>
+          <eti-cpv-picker class="block" [label]="'matchSettings.excludedCpv' | transloco" [lang]="language.current()"
+                          [selected]="s.excludedCpv" (selectedChange)="patch({ excludedCpv: $event })" />
           <p class="eti-hint">{{ 'matchSettings.excludedCpvHint' | transloco }}</p>
         </div>
-        <div class="mt-4 max-w-xs">
+        <div>
           <label class="eti-label" for="ms-days">{{ 'matchSettings.prep' | transloco }}</label>
-          <eti-select inputId="ms-days" [options]="prepOptions()" [value]="s().minDaysToDeadline ? '' + s().minDaysToDeadline : ''" (valueChange)="patch({ minDaysToDeadline: $event ? +$event : null })" [disabled]="!editable()" />
+          <eti-select inputId="ms-days" [options]="prepOptions()" [value]="s.minDaysToDeadline ? '' + s.minDaysToDeadline : ''"
+                      (valueChange)="patch({ minDaysToDeadline: $event ? +$event : null })" [disabled]="!editable()" />
           <p class="eti-hint">{{ 'matchSettings.prepHint' | transloco }}</p>
         </div>
-      </fieldset>
-
-      <eti-api-error class="mt-4 block" [error]="error()" />
-      @if (editable()) {
-        <div class="mt-5 flex items-center gap-3">
-          <button type="button" class="eti-btn-primary" [disabled]="busy() || !dirty()" (click)="save()">{{ 'matchSettings.save' | transloco }}</button>
-          @if (saved()) {
-            <p class="text-sm text-success" role="status">{{ 'matchSettings.saved' | transloco }}</p>
-          }
-        </div>
-      }
-    </section>
+      </div>
+    }
   `,
 })
 export class MatchingSettingsComponent {
-  readonly profile = input.required<CompanyProfile>();
-  readonly orgId = input.required<string>();
+  readonly settings = model<MatchingSettings>(DEFAULT_MATCHING);
+  readonly part = input<'area' | 'preferences'>('area');
+  readonly registrationCountry = input<string | null | undefined>(null);
+  readonly countriesOfInterest = input<string[]>([]);
   readonly editable = input(true);
-  readonly savedProfile = output<CompanyProfile>();
 
-  private readonly api = inject(CompanyService);
   private readonly reference = inject(ReferenceService);
   private readonly transloco = inject(TranslocoService);
   protected readonly language = inject(LanguageService);
   private readonly translations = toSignal(this.transloco.selectTranslation(), { initialValue: {} });
-
-  protected readonly s = signal<MatchingSettings>(DEFAULT_MATCHING);
-  protected readonly voivodeship = signal<string>('');
-  protected readonly dirty = signal(false);
-  protected readonly busy = signal(false);
-  protected readonly saved = signal(false);
-  protected readonly error = signal<ApiError | null>(null);
-
-  /** Country of the base (any European country with NUTS regions). */
-  protected readonly baseCountry = signal('PL');
   private readonly countries = toSignal(this.reference.countries(), { initialValue: [] });
-  private readonly voivodeships = toSignal(toObservable(this.baseCountry).pipe(switchMap((c) => this.reference.regions(c, 2))), { initialValue: [] });
-  private readonly subregions = toSignal(toObservable(this.baseCountry).pipe(switchMap((c) => this.reference.regions(c, 3))), { initialValue: [] });
-  /** Extra regions: level 2 of the base country and of every country of interest. */
+
+  /** Country of the base: from the chosen subregion, else the country picked last, else the registration country. */
+  private readonly chosenCountry = signal<string | null>(null);
+  protected readonly baseCountry = computed(() =>
+    isoOf(this.settings().baseNuts) ?? this.chosenCountry() ?? this.registrationCountry() ?? 'PL');
+
+  /** NUTS 2 and NUTS 3 regions of the base country. */
+  private readonly baseRegions = toSignal(toObservable(this.baseCountry).pipe(
+    switchMap((c) => combineLatest([this.reference.regions(c, 2), this.reference.regions(c, 3)])),
+  ), { initialValue: [[], []] as [Region[], Region[]] });
+
+  /** Level-2 regions of the base country and of every country of interest. */
   private readonly extraRegions = toSignal(toObservable(computed(() =>
-    [...new Set([this.baseCountry(), ...this.profile().countriesOfInterest])])).pipe(
-    switchMap((codes) => combineLatest(codes.map((c) => this.reference.regions(c, 2)))),
+    [...new Set([this.baseCountry(), ...this.countriesOfInterest()])])).pipe(
+    switchMap((codes) => codes.length ? combineLatest(codes.map((c) => this.reference.regions(c, 2).pipe(
+      map((list) => list.map((r) => ({ ...r, country: c })))))) : of([])),
     map((lists) => lists.flat()),
   ), { initialValue: [] });
+
   protected readonly countryOptions = computed<SelectOption[]>(() => {
     const lang = this.language.current();
+    this.translations();
+    const eu = this.transloco.translate('company.groupEu');
+    const other = this.transloco.translate('company.groupOtherEurope');
     return this.countries().filter((c) => c.isEu || NUTS_EXTRA.includes(c.code))
-      .map((c) => ({ value: c.code, label: countryName(c.code, lang) }))
-      .sort((a, b) => a.label.localeCompare(b.label, lang));
+      .map((c) => ({ value: c.code, label: countryName(c.code, lang), group: c.isEu ? eu : other }))
+      .sort((a, b) => (a.group === b.group ? a.label.localeCompare(b.label, lang) : a.group === eu ? -1 : 1));
   });
 
-  protected readonly voivodeshipOptions = computed<SelectOption[]>(() => {
-    this.translations();
-    return [{ value: '', label: '—' }, ...this.voivodeships().map((r) => ({ value: r.code, label: r.name, hint: r.code }))];
+  /** All NUTS 3 subregions of the country, grouped under their NUTS 2 region; searchable by both names. */
+  protected readonly baseOptions = computed<SelectOption[]>(() => {
+    const [level2, level3] = this.baseRegions();
+    const lang = this.language.current();
+    const regionName = new Map(level2.map((r) => [r.code, r.name]));
+    return level3
+      .map((r) => ({ value: r.code, label: r.name, hint: r.code, group: regionName.get(r.code.slice(0, 4)) ?? r.code.slice(0, 4) }))
+      .sort((a, b) => a.group.localeCompare(b.group, lang) || a.label.localeCompare(b.label, lang));
   });
-  protected readonly subregionOptions = computed<SelectOption[]>(() => {
-    const v = this.voivodeship();
-    return [{ value: '', label: '—' }, ...this.subregions().filter((r) => v && r.code.startsWith(v)).map((r) => ({ value: r.code, label: r.name, hint: r.code }))];
+
+  protected readonly extraOptions = computed<MultiOption[]>(() => {
+    const lang = this.language.current();
+    return this.extraRegions()
+      .map((r) => ({ value: r.code, label: r.name, hint: r.code, group: countryName(r.country, lang) }))
+      .sort((a, b) => a.group.localeCompare(b.group, lang) || a.label.localeCompare(b.label, lang));
   });
-  protected readonly extraOptions = computed<CheckOption[]>(() => {
-    const several = new Set(this.extraRegions().map((r) => r.code.slice(0, 2))).size > 1;
-    return this.extraRegions().map((r) => ({ value: r.code, label: several ? `${r.name} (${r.code.slice(0, 2)})` : r.name }));
-  });
+
   protected readonly radiusOptions = computed<SelectOption[]>(() => {
     this.translations();
     return [{ value: '', label: this.transloco.translate('matchSettings.noLimit') },
@@ -175,52 +174,14 @@ export class MatchingSettingsComponent {
       ...PREP_DAYS.map((d) => ({ value: String(d), label: this.transloco.translate('matchSettings.days', { n: d }) }))];
   });
 
-  constructor() {
-    effect(() => {
-      const m = this.profile().matching ?? DEFAULT_MATCHING;
-      this.s.set({ ...DEFAULT_MATCHING, ...m });
-      // Polish voivodeships changed in NUTS 2016+ (PL91/PL92 = Mazowieckie): the first four characters identify them.
-      this.voivodeship.set(m.baseNuts ? m.baseNuts.slice(0, 4) : '');
-      const nutsCountry = m.baseNuts?.slice(0, 2);
-      this.baseCountry.set(nutsCountry === 'EL' ? 'GR' : nutsCountry === 'UK' ? 'GB' : nutsCountry ?? this.profile().registrationCountry ?? 'PL');
-      this.dirty.set(false);
-    });
-  }
-
   protected setCountry(code: string): void {
-    this.baseCountry.set(code);
-    this.voivodeship.set('');
-    this.patch({ baseNuts: null });
-  }
-
-  protected setVoivodeship(code: string): void {
-    this.voivodeship.set(code);
-    if (!this.s().baseNuts?.startsWith(code)) {
+    this.chosenCountry.set(code);
+    if (this.settings().baseNuts && !this.settings().baseNuts!.startsWith(nutsPrefix(code))) {
       this.patch({ baseNuts: null });
     }
   }
 
   protected patch(change: Partial<MatchingSettings>): void {
-    this.s.update((v) => ({ ...v, ...change }));
-    this.dirty.set(true);
-    this.saved.set(false);
-  }
-
-  protected save(): void {
-    this.busy.set(true);
-    this.error.set(null);
-    const body = { ...profileToRequest(this.profile()), matching: this.s() };
-    this.api.save(this.orgId(), body, this.language.current()).subscribe({
-      next: (p) => {
-        this.busy.set(false);
-        this.saved.set(true);
-        this.dirty.set(false);
-        this.savedProfile.emit(p);
-      },
-      error: (err: unknown) => {
-        this.busy.set(false);
-        this.error.set(toApiError(err));
-      },
-    });
+    this.settings.update((v) => ({ ...v, ...change }));
   }
 }
