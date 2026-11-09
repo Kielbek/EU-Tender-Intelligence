@@ -184,6 +184,17 @@ class MatchingIntegrationTest {
                 .andExpect(jsonPath("$.hasProfile").value(true))
                 .andExpect(jsonPath("$.goodMatches").value(matching.countAtLeast(UUID.fromString(org), 60)))
                 .andExpect(jsonPath("$.topMatches[0].score").value(85));
+        // Map of the organization's good matches: T1 (DE, 85) is one, T2 (59) is not.
+        mvc.perform(get("/api/v1/organizations/" + org + "/dashboard/map?level=0&scope=MATCHES").with(alice.bearer()))
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.points[0].country").value("DE"))
+                .andExpect(jsonPath("$.points[0].lat").isNumber());
+        mvc.perform(get("/api/v1/organizations/" + org + "/dashboard/map?level=1").with(alice.bearer()))
+                .andExpect(status().isBadRequest());
+        Session stranger = api.registerVerifyLogin("stranger-" + System.nanoTime() + "@match.test");
+        // not a member: the organization is not revealed
+        mvc.perform(get("/api/v1/organizations/" + org + "/dashboard/map").with(stranger.bearer()))
+                .andExpect(status().isNotFound());
     }
 
     @Test
