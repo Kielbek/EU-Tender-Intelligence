@@ -63,6 +63,15 @@
       }
     </section>
 
+    <!-- Map of tenders in Europe -->
+    @if (org.currentId(); as orgId) {
+      <section class="eti-card mt-5 px-[22px] py-5" aria-labelledby="map-heading">
+        <eti-card-header headingId="map-heading" [title]="'dashboard.map.title' | transloco"
+                         [description]="'dashboard.map.subtitle' | transloco" />
+        <div class="mt-4"><eti-tender-map [orgId]="orgId" [lang]="lang" [hasProfile]="d.hasProfile" /></div>
+      </section>
+    }
+
     <!-- Notices per day + contract types -->
     <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3 [&>*]:min-w-0">
       <section class="eti-card px-[22px] py-5 lg:col-span-2" aria-labelledby="perday-heading">

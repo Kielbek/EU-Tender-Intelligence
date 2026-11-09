@@ -190,3 +190,23 @@ export interface CpvOption {
   /** Open tenders whose main code falls under this code. */
   openTenders?: number | null;
 }
+
+export interface MapPoint {
+  /** NUTS code (country code at level 0, e.g. EL for Greece). */
+  code: string;
+  name: string;
+  /** ISO 3166 country code. */
+  country: string;
+  lat: number;
+  lon: number;
+  count: number;
+}
+
+export interface TenderMap {
+  level: 0 | 2 | 3;
+  scope: 'ALL' | 'MATCHES';
+  total: number;
+  /** Tenders whose notice has no usable region (only counted per country). */
+  withoutRegion: number;
+  points: MapPoint[];
+}

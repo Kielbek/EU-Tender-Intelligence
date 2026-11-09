@@ -10,6 +10,7 @@ import {
   SavedTender,
   SearchFilters,
   TenderDetail,
+  TenderMap,
   TenderSummary,
   TenderVersion,
   WatchStatus,
@@ -63,6 +64,11 @@ export class TenderService {
   /** Children of a CPV code, or the 45 divisions when {@code parent} is null (for browsing the tree). */
   cpvChildren(parent: string | null, lang: string): Observable<CpvOption[]> {
     return this.http.get<CpvOption[]>('/api/v1/cpv', { params: parent ? { parent, lang, limit: 100 } : { lang, limit: 100 } });
+  }
+
+  /** Open tenders per country (level 0), NUTS 2 region or NUTS 3 subregion; MATCHES = the organization's good matches. */
+  tenderMap(orgId: string, level: 0 | 2 | 3, scope: 'ALL' | 'MATCHES'): Observable<TenderMap> {
+    return this.http.get<TenderMap>(`/api/v1/organizations/${orgId}/dashboard/map`, { params: { level, scope } });
   }
 
   dashboard(orgId: string, lang: string): Observable<DashboardSummary> {

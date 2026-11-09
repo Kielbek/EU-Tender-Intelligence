@@ -24,7 +24,9 @@
                 "input": "public"
               }
             ],
+            "allowedCommonJsDependencies": ["leaflet"],
             "styles": [
+              "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
             ],
             "outputPath": "dist/eti-frontend"
@@ -34,7 +36,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "650kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {

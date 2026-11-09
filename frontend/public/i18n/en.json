@@ -580,7 +580,36 @@
     "pipeline": "Team bids",
     "pipelineHint": "Watched tenders by stage, with the summed estimated value.",
     "pipelineEmpty": "Your team is not watching any tenders yet.",
-    "topCpvHint": "The most common CPV divisions among open tenders."
+    "topCpvHint": "The most common CPV divisions among open tenders.",
+    "map": {
+      "title": "Tenders on the map of Europe",
+      "subtitle": "Zoom in to see regions and subregions. Click a circle to go deeper and, in a subregion, to see its tenders.",
+      "scope": "Map scope",
+      "scopes": {
+        "ALL": "All open",
+        "MATCHES": "My matches"
+      },
+      "level": "Level of detail",
+      "levels": {
+        "0": "Countries",
+        "2": "Regions",
+        "3": "Subregions"
+      },
+      "reset": "All of Europe",
+      "aria": "Map of open tenders in Europe",
+      "legendShade": "Tenders per country",
+      "legendSize": "Circle size = number of tenders",
+      "top": "Most in view – {{level}}",
+      "empty": "No tenders in this view.",
+      "total": "Total: {{n}}.",
+      "without": "{{n}} without a region in the notice – shown only in the country view.",
+      "hint": "Click the map to zoom with the mouse wheel; on a phone use two fingers. Tender location = NUTS region from the notice (in BZP – the contracting authority).",
+      "openN": "{{n}} open tenders",
+      "matchesN": "{{n}} matches",
+      "showTenders": "Show tenders",
+      "showMatches": "Show tenders in this subregion",
+      "attribution": "Borders: Natural Earth · NUTS regions: © EuroGeographics (Eurostat GISCO)"
+    }
   },
   "company": {
     "title": "Company profile",

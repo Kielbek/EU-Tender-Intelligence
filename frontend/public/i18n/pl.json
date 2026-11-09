@@ -580,7 +580,36 @@
     "pipeline": "Oferty zespołu",
     "pipelineHint": "Obserwowane przetargi według etapu, z sumą wartości szacunkowej.",
     "pipelineEmpty": "Zespół nie obserwuje jeszcze żadnych przetargów.",
-    "topCpvHint": "Najczęstsze działy CPV wśród otwartych przetargów."
+    "topCpvHint": "Najczęstsze działy CPV wśród otwartych przetargów.",
+    "map": {
+      "title": "Przetargi na mapie Europy",
+      "subtitle": "Przybliżaj, aby zobaczyć regiony i podregiony. Kliknij koło, aby wejść głębiej, a w podregionie – zobaczyć przetargi.",
+      "scope": "Zakres mapy",
+      "scopes": {
+        "ALL": "Wszystkie otwarte",
+        "MATCHES": "Moje dopasowania"
+      },
+      "level": "Poziom szczegółowości",
+      "levels": {
+        "0": "Kraje",
+        "2": "Regiony",
+        "3": "Podregiony"
+      },
+      "reset": "Cała Europa",
+      "aria": "Mapa otwartych przetargów w Europie",
+      "legendShade": "Liczba przetargów w kraju",
+      "legendSize": "Wielkość koła = liczba przetargów",
+      "top": "Najwięcej w widoku – {{level}}",
+      "empty": "Brak przetargów w tym widoku.",
+      "total": "Razem: {{n}}.",
+      "without": "{{n}} bez regionu w ogłoszeniu – widać je tylko w widoku krajów.",
+      "hint": "Kliknij mapę, aby przybliżać kółkiem myszy; na telefonie – dwoma palcami. Miejsce przetargu = region NUTS z ogłoszenia (w BZP – zamawiającego).",
+      "openN": "{{n}} otwartych przetargów",
+      "matchesN": "{{n}} dopasowań",
+      "showTenders": "Pokaż przetargi",
+      "showMatches": "Pokaż przetargi w tym podregionie",
+      "attribution": "Granice: Natural Earth · Regiony NUTS: © EuroGeographics (Eurostat GISCO)"
+    }
   },
   "company": {
     "title": "Profil firmy",
