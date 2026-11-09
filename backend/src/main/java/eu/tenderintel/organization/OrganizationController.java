@@ -34,9 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 class OrganizationController {
 
     private final OrganizationService service;
+    private final OrganizationActivity activity;
 
-    OrganizationController(OrganizationService service) {
+    OrganizationController(OrganizationService service, OrganizationActivity activity) {
         this.service = service;
+        this.activity = activity;
     }
 
     @GetMapping("/organizations")
@@ -85,6 +87,20 @@ class OrganizationController {
     @GetMapping("/organizations/{orgId}/invitations")
     List<InvitationView> invitations(@PathVariable UUID orgId) {
         return service.openInvitations(orgId, CurrentUser.id());
+    }
+
+    @PostMapping("/organizations/{orgId}/invitations/{invitationId}/resend")
+    @Operation(summary = "Ponowne wysłanie zaproszenia z nowym linkiem i terminem (COMPANY_ADMIN)")
+    InvitationView resend(@PathVariable UUID orgId, @PathVariable UUID invitationId) {
+        return service.resendInvitation(orgId, CurrentUser.id(), invitationId);
+    }
+
+    @GetMapping("/organizations/{orgId}/activity")
+    @Operation(summary = "Aktywność zespołu z dziennika audytu: członkowie, zaproszenia, role, profil, plan (COMPANY_ADMIN)")
+    eu.tenderintel.common.api.PageResponse<OrganizationDtos.ActivityView> activity(@PathVariable UUID orgId,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size) {
+        return activity.list(orgId, CurrentUser.id(), page, size);
     }
 
     @DeleteMapping("/organizations/{orgId}/invitations/{invitationId}")

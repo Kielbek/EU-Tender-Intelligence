@@ -58,4 +58,5 @@ class OrganizationInvitation {
     OrganizationRole getRole() { return role; }
     Instant getExpiresAt() { return expiresAt; }
     Instant getCreatedAt() { return createdAt; }
+    UUID getInvitedBy() { return invitedBy; }
 }

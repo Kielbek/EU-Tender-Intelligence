@@ -1,164 +1,415 @@
-<div class="flex flex-wrap items-end justify-between gap-4">
-  <h1 class="eti-h1">{{ 'org.title' | transloco }}</h1>
-  @if (memberships().length > 1) {
-    <div>
-      <label class="eti-label" for="org-switch">{{ 'org.switch' | transloco }}</label>
-      <eti-select class="min-w-56" inputId="org-switch" [options]="orgOptions()" [value]="current()?.id ?? null"
-                  (valueChange)="switchTo($any($event))" />
-    </div>
-  }
+@let lang = language.current();
+<div class="flex flex-wrap items-end gap-4">
+  <div class="min-w-0">
+    <p class="eti-eyebrow">{{ 'org.title' | transloco }}</p>
+    <h1 class="eti-h1 mt-1 truncate">{{ organization()?.name ?? ('org.title' | transloco) }}</h1>
+    @if (organization(); as o) {
+      <p class="eti-subtitle mt-1.5">
+        {{ 'org.subtitle' | transloco: { plan: o.planCode, date: (o.createdAt | date: 'mediumDate' : undefined : lang) } }}
+      </p>
+    }
+  </div>
+  <div class="ml-auto flex flex-wrap items-end gap-2">
+    @if (memberships().length > 1) {
+      <div>
+        <label class="eti-label" for="org-switch">{{ 'org.switch' | transloco }}</label>
+        <eti-select class="min-w-56" inputId="org-switch" [options]="orgOptions()" [value]="current()?.id ?? null"
+                    (valueChange)="switchTo($any($event))" />
+      </div>
+    }
+    @if (isAdmin()) {
+      <button type="button" class="eti-btn-primary" (click)="openTab('invitations')">
+        <svg lucideUserPlus class="size-4" aria-hidden="true"></svg>{{ 'org.invite' | transloco }}
+      </button>
+    }
+  </div>
 </div>
 
-<div class="mt-6 space-y-6" aria-live="polite" [attr.aria-busy]="loading()">
+<div class="mt-6" aria-live="polite" [attr.aria-busy]="loading()">
   @if (loadError()) {
     <eti-api-error [error]="loadError()" />
+    <button type="button" class="eti-btn-secondary mt-3" (click)="reload()">{{ 'common.retry' | transloco }}</button>
   } @else if (loading() && !organization()) {
     <p class="sr-only">{{ 'common.loading' | transloco }}</p>
-    <div class="eti-card space-y-3 p-5">
-      <eti-skeleton size="h-5 w-48" />
-      <eti-skeleton size="h-10 w-full" />
-      <eti-skeleton size="h-10 w-full" />
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-hidden="true">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="eti-card space-y-2 p-4"><eti-skeleton size="h-3 w-24" /><eti-skeleton size="h-7 w-16" /></div>
+      }
+    </div>
+    <div class="eti-card mt-5 space-y-3 p-5" aria-hidden="true">
+      <eti-skeleton size="h-10 w-full" /><eti-skeleton size="h-10 w-full" /><eti-skeleton size="h-10 w-full" />
     </div>
   } @else if (organization(); as org) {
-    <eti-api-error [error]="actionError()" />
-
-    <section class="eti-card p-5" aria-labelledby="details-heading">
-      <div class="flex items-center justify-between gap-3">
-        <h2 id="details-heading" class="eti-h2">{{ 'org.details' | transloco }}</h2>
-        <span class="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
-          {{ 'org.plan' | transloco }}: {{ org.planCode }}
-        </span>
-      </div>
-      @if (!isAdmin()) {
-        <p class="mt-1 text-sm text-ink-muted">{{ 'org.readOnly' | transloco }}</p>
-      }
-      <form class="mt-4 grid gap-4 sm:grid-cols-2" [formGroup]="details" (ngSubmit)="saveDetails()" novalidate>
-        <div class="sm:col-span-2">
-          <label class="eti-label" for="org-name">{{ 'org.name' | transloco }}</label>
-          <input id="org-name" class="eti-input" formControlName="name" autocomplete="organization" />
-        </div>
-        <div>
-          <label class="eti-label" for="org-country">{{ 'org.country' | transloco }}</label>
-          <eti-select inputId="org-country" formControlName="countryCode" [options]="countryOptions()" />
-        </div>
-        <div>
-          <label class="eti-label" for="org-vat">{{ 'org.vatId' | transloco }}</label>
-          <input id="org-vat" class="eti-input" formControlName="vatId" />
-        </div>
-        <div class="sm:col-span-2">
-          <label class="eti-label" for="org-billing">{{ 'org.billingEmail' | transloco }}</label>
-          <input id="org-billing" type="email" class="eti-input" formControlName="billingEmail" />
-          @if (details.controls.billingEmail.invalid && details.controls.billingEmail.touched) {
-            <p class="eti-field-error">{{ 'common.invalidEmail' | transloco }}</p>
+    <!-- Summary -->
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-4" [attr.aria-label]="'org.summary' | transloco">
+      <div class="eti-card p-4">
+        <p class="text-[12px] text-ink-muted">{{ 'org.seats' | transloco }}</p>
+        @if (seats(); as s) {
+          <p class="eti-num mt-1 text-[22px] font-semibold text-ink">
+            {{ s.used }}<span class="text-[15px] font-normal text-ink-muted"> / {{ s.limit ?? '∞' }}</span>
+          </p>
+          @if (s.limit) {
+            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-track" aria-hidden="true">
+              <div class="h-full rounded-full" [class]="seatsFull() ? 'bg-warning' : 'bg-accent'"
+                   [style.width.%]="(s.used / s.limit) * 100"></div>
+            </div>
           }
-        </div>
-        @if (isAdmin()) {
-          <div class="flex items-center gap-3 sm:col-span-2">
-            <button type="submit" class="eti-btn-primary" [disabled]="busy()">{{ 'common.save' | transloco }}</button>
-            @if (saved()) {
-              <span role="status" class="text-sm text-success">{{ 'common.saved' | transloco }}</span>
+          <p class="mt-1.5 text-[11px] text-ink-muted">
+            @if (seatsFull()) {
+              <a routerLink="/billing" class="eti-link">{{ 'org.seatsFull' | transloco }}</a>
+            } @else {
+              {{ 'org.seatsHint' | transloco }}
+            }
+          </p>
+        } @else {
+          <p class="eti-num mt-1 text-[22px] font-semibold text-ink">{{ members().length }}</p>
+        }
+      </div>
+      <div class="eti-card p-4">
+        <p class="text-[12px] text-ink-muted">{{ 'org.admins' | transloco }}</p>
+        <p class="eti-num mt-1 text-[22px] font-semibold text-ink">{{ adminCount() }}</p>
+        <p class="mt-1.5 text-[11px] text-ink-muted">{{ 'org.adminsHint' | transloco }}</p>
+      </div>
+      <div class="eti-card p-4">
+        <p class="text-[12px] text-ink-muted">{{ 'org.activeMembers' | transloco }}</p>
+        <p class="eti-num mt-1 text-[22px] font-semibold text-ink">{{ activeCount() }}<span class="text-[15px] font-normal text-ink-muted"> / {{ members().length }}</span></p>
+        <p class="mt-1.5 text-[11px] text-ink-muted">{{ 'org.activeHint' | transloco }}</p>
+      </div>
+      <div class="eti-card p-4">
+        <p class="text-[12px] text-ink-muted">{{ 'org.pending' | transloco }}</p>
+        <p class="eti-num mt-1 text-[22px] font-semibold text-ink">{{ isAdmin() ? invitations().length : '—' }}</p>
+        <p class="mt-1.5 text-[11px] text-ink-muted">{{ 'org.pendingHint' | transloco }}</p>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="mt-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div role="tablist" class="flex min-w-max gap-1 border-b border-border" [attr.aria-label]="'org.tabsLabel' | transloco">
+        @for (t of tabs(); track t) {
+          <button type="button" role="tab" [id]="'org-tab-' + t" [attr.aria-controls]="'org-panel-' + t"
+                  [attr.aria-selected]="tab() === t" [attr.tabindex]="tab() === t ? 0 : -1"
+                  class="-mb-px flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-[13px] font-medium whitespace-nowrap transition-colors"
+                  [class]="tab() === t ? 'border-accent text-accent' : 'border-transparent text-ink-muted hover:text-ink'"
+                  (click)="openTab(t)" (keydown)="tabKey($event)">
+            {{ 'org.tabs.' + t | transloco }}
+            @if (t === 'members') {
+              <span class="eti-num rounded-full bg-track px-1.5 text-[11px] text-ink-soft">{{ members().length }}</span>
+            } @else if (t === 'invitations' && invitations().length) {
+              <span class="eti-num rounded-full bg-accent-soft px-1.5 text-[11px] text-accent">{{ invitations().length }}</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="mt-4 space-y-3">
+      <eti-api-error [error]="actionError()" />
+      @if (notice(); as n) {
+        <p role="status" class="eti-alert-success flex items-center gap-2"><svg lucideCheck class="size-4 shrink-0" aria-hidden="true"></svg>{{ n }}</p>
+      }
+    </div>
+
+    <section class="mt-3" role="tabpanel" [id]="'org-panel-' + tab()" [attr.aria-labelledby]="'org-tab-' + tab()">
+      @switch (tab()) {
+        <!-- Members -->
+        @case ('members') {
+          <div class="eti-card">
+            <div class="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3 sm:px-5">
+              <div class="relative min-w-0 basis-full sm:max-w-xs sm:flex-1 sm:basis-auto">
+                <svg lucideSearch class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-faint" aria-hidden="true"></svg>
+                <input type="search" class="eti-input mt-0 h-9 pl-9" [placeholder]="'org.searchMembers' | transloco"
+                       [attr.aria-label]="'org.searchMembers' | transloco" [value]="query()" (input)="query.set($any($event.target).value)" />
+              </div>
+              <eti-select class="w-48" size="sm" [spaced]="false" [ariaLabel]="'org.role' | transloco"
+                          [options]="roleFilterOptions()" [value]="roleFilter()" (valueChange)="roleFilter.set($any($event) ?? '')" />
+              <span class="ml-auto text-[12px] text-ink-muted">{{ 'org.shown' | transloco: { n: filteredMembers().length, total: members().length } }}</span>
+            </div>
+
+            <table class="w-full table-fixed text-left text-[13px]">
+              <thead class="eti-table-head">
+                <tr>
+                  <th scope="col" class="px-4 py-2.5 font-medium sm:px-5">{{ 'org.member' | transloco }}</th>
+                  <th scope="col" class="hidden w-56 px-3 py-2.5 font-medium sm:table-cell">{{ 'org.role' | transloco }}</th>
+                  <th scope="col" class="hidden w-40 px-3 py-2.5 font-medium lg:table-cell">{{ 'org.lastActive' | transloco }}</th>
+                  <th scope="col" class="hidden w-32 px-3 py-2.5 font-medium md:table-cell">{{ 'org.joined' | transloco }}</th>
+                  <th scope="col" class="w-16 px-4 py-2.5 text-right font-medium sm:w-28 sm:px-5"><span class="sr-only">{{ 'org.actions' | transloco }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (member of filteredMembers(); track member.userId) {
+                  @let self = isSelf(member);
+                  <tr class="border-t border-track align-middle">
+                    <th scope="row" class="px-4 py-3 font-normal sm:px-5">
+                      <div class="flex items-center gap-3">
+                        <span class="flex size-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold"
+                              [class]="member.role === 'COMPANY_ADMIN' ? 'bg-navy-950 text-white' : 'bg-accent-soft text-accent'"
+                              aria-hidden="true">{{ initials(member.fullName, member.email) }}</span>
+                        <div class="min-w-0">
+                          <p class="flex items-center gap-1.5 font-medium text-ink">
+                            <span class="truncate">{{ member.fullName }}</span>
+                            @if (self) {
+                              <span class="rounded bg-track px-1.5 text-[10px] font-semibold tracking-wide text-ink-soft uppercase">{{ 'common.you' | transloco }}</span>
+                            }
+                          </p>
+                          <p class="truncate text-[12px] text-ink-muted">{{ member.email }}</p>
+                          <!-- role on phones (the role column is hidden) -->
+                          @if (isAdmin() && !(member.role === 'COMPANY_ADMIN' && adminCount() <= 1)) {
+                            <eti-select class="mt-1.5 block w-44 sm:hidden" size="sm" [spaced]="false" [disabled]="busy()"
+                                        [ariaLabel]="'org.changeRole' | transloco: { name: member.fullName }"
+                                        [options]="roles | etiOptions: 'org.roles.'" [value]="member.role"
+                                        (valueChange)="changeRole(member, $any($event))" />
+                          } @else {
+                            <p class="mt-1 text-[12px] text-ink-soft sm:hidden">{{ 'org.roles.' + member.role | transloco }}</p>
+                          }
+                        </div>
+                      </div>
+                    </th>
+                    <td class="hidden px-3 py-3 sm:table-cell">
+                      @if (isAdmin() && !(member.role === 'COMPANY_ADMIN' && adminCount() <= 1)) {
+                        <eti-select class="w-48" size="sm" [spaced]="false" [disabled]="busy()"
+                                    [ariaLabel]="'org.changeRole' | transloco: { name: member.fullName }"
+                                    [options]="roles | etiOptions: 'org.roles.'" [value]="member.role"
+                                    (valueChange)="changeRole(member, $any($event))" />
+                      } @else {
+                        <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px] font-medium"
+                              [class]="member.role === 'COMPANY_ADMIN' ? 'bg-navy-950/5 text-navy-950' : 'bg-track text-ink-soft'">
+                          @if (member.role === 'COMPANY_ADMIN') { <svg lucideShield class="size-3.5" aria-hidden="true"></svg> }
+                          {{ 'org.roles.' + member.role | transloco }}
+                        </span>
+                        @if (isAdmin() && member.role === 'COMPANY_ADMIN') {
+                          <span class="mt-0.5 block text-[11px] text-ink-faint">{{ 'org.lastAdmin' | transloco }}</span>
+                        }
+                      }
+                    </td>
+                    <td class="hidden px-3 py-3 text-ink-soft lg:table-cell" [title]="member.lastActiveAt ? (member.lastActiveAt | date: 'medium' : undefined : lang) : ''">
+                      {{ ago(member.lastActiveAt) }}
+                    </td>
+                    <td class="hidden px-3 py-3 text-ink-soft md:table-cell">{{ member.joinedAt | date: 'mediumDate' : undefined : lang }}</td>
+                    <td class="px-4 py-3 text-right sm:px-5">
+                      @if (canRemove(member)) {
+                        <button type="button" class="eti-btn-ghost h-8 px-2.5 text-[12px] text-danger" [disabled]="busy()"
+                                [attr.aria-label]="(self ? 'org.leave' : 'org.removeNamed') | transloco: { name: member.fullName }"
+                                (click)="remove(member)">
+                          <svg lucideUserMinus class="size-4" aria-hidden="true"></svg>
+                          <span class="hidden sm:inline">{{ (self ? 'org.leaveShort' : 'org.remove') | transloco }}</span>
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="px-5 py-8 text-center text-ink-muted">{{ 'org.noMembersFound' | transloco }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Roles explained -->
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            @for (r of roles; track r) {
+              <div class="eti-card p-5">
+                <h3 class="flex items-center gap-2 text-[14px] font-semibold text-ink">
+                  @if (r === 'COMPANY_ADMIN') { <svg lucideShield class="size-4 text-navy-950" aria-hidden="true"></svg> } @else { <svg lucideUser class="size-4 text-accent" aria-hidden="true"></svg> }
+                  {{ 'org.roles.' + r | transloco }}
+                </h3>
+                <ul class="mt-3 space-y-1.5 text-[13px] text-ink-soft">
+                  @for (i of [1, 2, 3, 4]; track i) {
+                    <li class="flex gap-2"><svg lucideCheck class="mt-0.5 size-3.5 shrink-0 text-success" aria-hidden="true"></svg>{{ 'org.can.' + r + '.' + i | transloco }}</li>
+                  }
+                </ul>
+              </div>
             }
           </div>
         }
-      </form>
-    </section>
 
-    <section class="eti-card" aria-labelledby="members-heading">
-      <h2 id="members-heading" class="eti-h2 px-5 pt-5">{{ 'org.members' | transloco }}</h2>
-      <div class="mt-3 overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="eti-table-head border-y border-border">
-            <tr>
-              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.member' | transloco }}</th>
-              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.role' | transloco }}</th>
-              <th scope="col" class="px-5 py-2 font-medium">{{ 'org.joined' | transloco }}</th>
-              <th scope="col" class="px-5 py-2 text-right font-medium">{{ 'org.actions' | transloco }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            @for (member of members(); track member.userId) {
-              @let self = member.userId === auth.user()?.id;
-              <tr>
-                <th scope="row" class="px-5 py-3 font-normal">
-                  <span class="font-medium">{{ member.fullName }}</span>
-                  @if (self) {
-                    <span class="ml-1 text-xs text-ink-muted">({{ 'common.you' | transloco }})</span>
+        <!-- Invitations -->
+        @case ('invitations') {
+          <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+            <div class="eti-card p-5">
+              <h2 class="eti-h2">{{ 'org.invite' | transloco }}</h2>
+              <p class="eti-subtitle mt-0.5">{{ 'org.inviteHint' | transloco: { max: maxInvites } }}</p>
+              @if (seatsFull()) {
+                <p class="eti-note mt-4">
+                  {{ 'org.seatsFullLong' | transloco }} <a routerLink="/billing" class="eti-link">{{ 'org.changePlan' | transloco }}</a>
+                </p>
+              }
+              <form class="mt-4 space-y-4" [formGroup]="inviteForm" (ngSubmit)="invite()" novalidate>
+                <div>
+                  <label class="eti-label" for="invite-emails">{{ 'org.inviteEmails' | transloco }}</label>
+                  <textarea id="invite-emails" rows="3" class="eti-input h-auto py-2" formControlName="emails"
+                            placeholder="anna@firma.pl, jan@firma.pl" (input)="onEmails($any($event.target).value)"
+                            [attr.aria-invalid]="parsed().invalid.length > 0"></textarea>
+                  @if (parsed().invalid.length) {
+                    <p class="eti-field-error">{{ 'org.invalidEmails' | transloco: { list: parsed().invalid.join(', ') } }}</p>
+                  } @else if (parsed().valid.length > maxInvites) {
+                    <p class="eti-field-error">{{ 'org.tooManyEmails' | transloco: { max: maxInvites } }}</p>
+                  } @else if (parsed().valid.length) {
+                    <p class="eti-hint">{{ 'org.willInvite' | transloco: { n: parsed().valid.length } }}</p>
                   }
-                  <span class="block text-xs text-ink-muted">{{ member.email }}</span>
-                </th>
-                <td class="px-5 py-3">
-                  @if (isAdmin()) {
-                    <eti-select class="w-48" size="sm" [spaced]="false" [disabled]="busy()"
-                                [ariaLabel]="'org.changeRole' | transloco: { name: member.fullName }"
-                                [options]="roles | etiOptions: 'org.roles.'" [value]="member.role"
-                                (valueChange)="changeRole(member, $any($event))" />
-                  } @else {
-                    {{ 'org.roles.' + member.role | transloco }}
-                  }
-                </td>
-                <td class="px-5 py-3 text-ink-muted">{{ member.joinedAt | date: 'mediumDate' : undefined : language.current() }}</td>
-                <td class="px-5 py-3 text-right">
-                  @if (canRemove(member)) {
-                    <button type="button" class="eti-btn-danger h-8 px-3" [disabled]="busy()" (click)="remove(member)">
-                      {{ (self ? 'org.leave' : 'org.remove') | transloco }}
-                    </button>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
+                </div>
+                <div>
+                  <label class="eti-label" for="invite-role">{{ 'org.role' | transloco }}</label>
+                  <eti-select inputId="invite-role" formControlName="role" [options]="roles | etiOptions: 'org.roles.'" />
+                  <p class="eti-hint">{{ 'org.inviteRoleHint' | transloco }}</p>
+                </div>
+                <button type="submit" class="eti-btn-primary" [disabled]="busy() || seatsFull() || !parsed().valid.length || parsed().invalid.length > 0 || parsed().valid.length > maxInvites">
+                  <svg lucideMail class="size-4" aria-hidden="true"></svg>
+                  {{ (parsed().valid.length > 1 ? 'org.inviteSubmitN' : 'org.inviteSubmit') | transloco: { n: parsed().valid.length } }}
+                </button>
+              </form>
+            </div>
 
-    @if (isAdmin()) {
-      <div class="grid gap-6 lg:grid-cols-2">
-        <section class="eti-card p-5" aria-labelledby="invite-heading">
-          <h2 id="invite-heading" class="eti-h2">{{ 'org.invite' | transloco }}</h2>
-          <form class="mt-4 space-y-4" [formGroup]="inviteForm" (ngSubmit)="invite()" novalidate>
-            @if (invitedEmail(); as email) {
-              <p role="status" class="eti-alert-success">{{ 'org.invited' | transloco: { email } }}</p>
-            }
-            <div>
-              <label class="eti-label" for="invite-email">{{ 'common.email' | transloco }}</label>
-              <input id="invite-email" type="email" class="eti-input" formControlName="email"
-                     [attr.aria-invalid]="inviteForm.controls.email.invalid && inviteForm.controls.email.touched" />
-              @if (inviteForm.controls.email.invalid && inviteForm.controls.email.touched) {
-                <p class="eti-field-error">{{ 'common.invalidEmail' | transloco }}</p>
+            <div class="eti-card">
+              <div class="px-5 pt-5 pb-3">
+                <h2 class="eti-h2">{{ 'org.invitations' | transloco }}</h2>
+                <p class="eti-subtitle mt-0.5">{{ 'org.invitationsHint' | transloco }}</p>
+              </div>
+              @if (invitations().length === 0) {
+                <p class="border-t border-border px-5 py-8 text-center text-[13px] text-ink-muted">{{ 'org.noInvitations' | transloco }}</p>
+              } @else {
+                <ul class="divide-y divide-track border-t border-border">
+                  @for (inv of invitations(); track inv.id) {
+                    @let days = daysLeft(inv);
+                    <li class="flex flex-wrap items-center gap-3 px-5 py-3">
+                      <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashed border-border-strong text-ink-faint" aria-hidden="true">
+                        <svg lucideMail class="size-4"></svg>
+                      </span>
+                      <div class="min-w-0 flex-1 basis-52 text-[13px]">
+                        <p class="truncate font-medium text-ink" [title]="inv.email">{{ inv.email }}</p>
+                        <p class="text-[12px] text-ink-muted">
+                          {{ 'org.roles.' + inv.role | transloco }}
+                          · {{ 'org.sentAgo' | transloco: { when: ago(inv.createdAt) } }}
+                          @if (inv.invitedByName) { · {{ 'org.by' | transloco: { name: inv.invitedByName } }} }
+                        </p>
+                      </div>
+                      <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium"
+                            [class]="days <= 2 ? 'bg-warning-soft text-warning' : 'bg-track text-ink-soft'">
+                        <svg lucideClock class="size-3" aria-hidden="true"></svg>{{ 'org.expiresIn' | transloco: { n: days } }}
+                      </span>
+                      <div class="flex gap-1">
+                        <button type="button" class="eti-btn-ghost h-8 px-2.5 text-[12px]" [disabled]="busy()" (click)="resend(inv)"
+                                [title]="'org.resend' | transloco" [attr.aria-label]="'org.resendTo' | transloco: { email: inv.email }">
+                          <svg lucideRefreshCw class="size-3.5" aria-hidden="true"></svg><span class="hidden 2xl:inline">{{ 'org.resend' | transloco }}</span>
+                        </button>
+                        <button type="button" class="eti-btn-ghost h-8 px-2.5 text-[12px] text-danger" [disabled]="busy()" (click)="revoke(inv)"
+                                [title]="'org.revoke' | transloco" [attr.aria-label]="'org.revokeFor' | transloco: { email: inv.email }">
+                          <svg lucideX class="size-3.5" aria-hidden="true"></svg><span class="hidden 2xl:inline">{{ 'org.revoke' | transloco }}</span>
+                        </button>
+                      </div>
+                    </li>
+                  }
+                </ul>
               }
             </div>
-            <div>
-              <label class="eti-label" for="invite-role">{{ 'org.role' | transloco }}</label>
-              <eti-select inputId="invite-role" formControlName="role" [options]="roles | etiOptions: 'org.roles.'" />
-            </div>
-            <button type="submit" class="eti-btn-primary" [disabled]="busy()">{{ 'org.inviteSubmit' | transloco }}</button>
-          </form>
-        </section>
+          </div>
+        }
 
-        <section class="eti-card p-5" aria-labelledby="invitations-heading">
-          <h2 id="invitations-heading" class="eti-h2">{{ 'org.invitations' | transloco }}</h2>
-          @if (invitations().length === 0) {
-            <p class="mt-3 text-sm text-ink-muted">{{ 'org.noInvitations' | transloco }}</p>
-          } @else {
-            <ul class="mt-3 divide-y divide-border text-sm">
-              @for (inv of invitations(); track inv.id) {
-                <li class="flex items-center justify-between gap-3 py-2">
-                  <div>
-                    <p class="font-medium">{{ inv.email }}</p>
-                    <p class="text-xs text-ink-muted">
-                      {{ 'org.roles.' + inv.role | transloco }} · {{ 'org.expires' | transloco }}
-                      {{ inv.expiresAt | date: 'mediumDate' : undefined : language.current() }}
-                    </p>
-                  </div>
-                  <button type="button" class="eti-btn-secondary h-8 px-3" [disabled]="busy()" (click)="revoke(inv)">
-                    {{ 'org.revoke' | transloco }}
+        <!-- Activity -->
+        @case ('activity') {
+          <div class="eti-card">
+            <div class="px-5 pt-5 pb-3">
+              <h2 class="eti-h2">{{ 'org.activity.title' | transloco }}</h2>
+              <p class="eti-subtitle mt-0.5">{{ 'org.activity.hint' | transloco }}</p>
+            </div>
+            @if (activity().length === 0) {
+              <p class="border-t border-border px-5 py-8 text-center text-[13px] text-ink-muted">
+                {{ (activityLoading() ? 'common.loading' : 'org.activity.empty') | transloco }}
+              </p>
+            } @else {
+              <ol class="border-t border-border px-5 py-2">
+                @for (a of activity(); track $index) {
+                  @let kind = activityIcon(a);
+                  <li class="flex gap-3 py-2.5">
+                    <span class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full"
+                          [class]="kind === 'remove' ? 'bg-danger-soft text-danger' : kind === 'invite' ? 'bg-accent-soft text-accent' : kind === 'role' ? 'bg-navy-950/5 text-navy-950' : 'bg-track text-ink-soft'"
+                          aria-hidden="true">
+                      @switch (kind) {
+                        @case ('invite') { <svg lucideUserPlus class="size-3.5"></svg> }
+                        @case ('remove') { <svg lucideUserMinus class="size-3.5"></svg> }
+                        @case ('role') { <svg lucideShield class="size-3.5"></svg> }
+                        @default { <svg lucideClock class="size-3.5"></svg> }
+                      }
+                    </span>
+                    <div class="min-w-0 flex-1 text-[13px]">
+                      <p class="text-ink">{{ describe(a) }}</p>
+                      <p class="text-[12px] text-ink-muted" [title]="a.occurredAt | date: 'medium' : undefined : lang">{{ ago(a.occurredAt) }}</p>
+                    </div>
+                  </li>
+                }
+              </ol>
+              @if (activityMore()) {
+                <div class="border-t border-border px-5 py-3 text-center">
+                  <button type="button" class="eti-btn-secondary h-8 text-[12px]" [disabled]="activityLoading()" (click)="loadActivity(activityPage() + 1)">
+                    {{ 'org.activity.more' | transloco }}
                   </button>
-                </li>
+                </div>
               }
-            </ul>
-          }
-        </section>
-      </div>
-    }
+            }
+          </div>
+        }
+
+        <!-- Details -->
+        @case ('details') {
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div class="eti-card p-5">
+              <h2 class="eti-h2">{{ 'org.details' | transloco }}</h2>
+              @if (!isAdmin()) {
+                <p class="eti-note mt-3 flex items-center gap-2"><svg lucideLock class="size-3.5" aria-hidden="true"></svg>{{ 'org.readOnly' | transloco }}</p>
+              }
+              <form class="mt-4 grid gap-4 sm:grid-cols-2" [formGroup]="details" (ngSubmit)="saveDetails()" novalidate>
+                <div class="sm:col-span-2">
+                  <label class="eti-label" for="org-name">{{ 'org.name' | transloco }}</label>
+                  <input id="org-name" class="eti-input" formControlName="name" autocomplete="organization"
+                         [attr.aria-invalid]="details.controls.name.invalid && details.controls.name.touched" />
+                  @if (details.controls.name.invalid && details.controls.name.touched) {
+                    <p class="eti-field-error">{{ 'common.required' | transloco }}</p>
+                  }
+                </div>
+                <div>
+                  <label class="eti-label" for="org-country">{{ 'org.country' | transloco }}</label>
+                  <eti-select inputId="org-country" formControlName="countryCode" [options]="countryOptions()" />
+                </div>
+                <div>
+                  <label class="eti-label" for="org-vat">{{ 'org.vatId' | transloco }}</label>
+                  <input id="org-vat" class="eti-input" formControlName="vatId" placeholder="PL1234567890" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="eti-label" for="org-billing">{{ 'org.billingEmail' | transloco }}</label>
+                  <input id="org-billing" type="email" class="eti-input" formControlName="billingEmail" placeholder="faktury@firma.pl" />
+                  @if (details.controls.billingEmail.invalid && details.controls.billingEmail.touched) {
+                    <p class="eti-field-error">{{ 'common.invalidEmail' | transloco }}</p>
+                  } @else {
+                    <p class="eti-hint">{{ 'org.billingEmailHint' | transloco }}</p>
+                  }
+                </div>
+                @if (isAdmin()) {
+                  <div class="flex items-center gap-3 sm:col-span-2">
+                    <button type="submit" class="eti-btn-primary" [disabled]="busy() || details.pristine">{{ 'common.save' | transloco }}</button>
+                  </div>
+                }
+              </form>
+            </div>
+
+            <div class="space-y-4">
+              <div class="eti-card p-5 text-[13px]">
+                <h3 class="font-semibold text-ink">{{ 'org.planTitle' | transloco }}</h3>
+                <p class="mt-1 text-ink-muted">{{ 'org.planNow' | transloco: { plan: org.planCode } }}</p>
+                <a routerLink="/billing" class="eti-btn-secondary mt-3 h-8 text-[12px]">{{ 'org.changePlan' | transloco }}</a>
+              </div>
+              @if (me(); as me) {
+                <div class="eti-card border-danger/30 p-5 text-[13px]">
+                  <h3 class="font-semibold text-danger">{{ 'org.dangerTitle' | transloco }}</h3>
+                  <p class="mt-1 text-ink-muted">{{ 'org.leaveHint' | transloco }}</p>
+                  @if (canRemove(me)) {
+                    <button type="button" class="eti-btn-danger mt-3 h-8 text-[12px]" [disabled]="busy()" (click)="leave()">{{ 'org.leave' | transloco }}</button>
+                  } @else {
+                    <p class="eti-note mt-3">{{ 'org.lastAdminLeave' | transloco }}</p>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
   }
 </div>

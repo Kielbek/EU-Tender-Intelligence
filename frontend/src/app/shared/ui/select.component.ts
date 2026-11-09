@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   ElementRef,
   computed,
   forwardRef,
@@ -73,8 +74,9 @@ export function isSmallScreen(): boolean {
       <div class="z-50 flex flex-col overflow-hidden border border-border bg-surface shadow-[0_12px_32px_-8px_rgba(10,15,28,0.18)]"
            [class]="mobile()
              ? 'fixed inset-x-0 bottom-0 max-h-[75dvh] rounded-t-[16px] pb-[env(safe-area-inset-bottom)]'
-             : 'absolute left-0 mt-1.5 max-h-80 min-w-full w-max max-w-[min(28rem,90vw)] rounded-[var(--radius-control)]'"
-           [class.bottom-full]="!mobile() && dropUp()" [class.mb-1.5]="!mobile() && dropUp()">
+             : 'fixed max-h-80 w-max max-w-[min(28rem,90vw)] rounded-[var(--radius-control)]'"
+           #panel [style.top.px]="mobile() ? null : place().top" [style.bottom.px]="mobile() ? null : place().bottom"
+           [style.left.px]="mobile() ? null : place().left" [style.min-width.px]="mobile() ? null : place().width">
         @if (mobile()) {
           <div class="flex items-center gap-2 border-b border-border px-4 py-3">
             <span class="mx-auto h-1 w-10 rounded-full bg-border-strong absolute left-1/2 top-1.5 -translate-x-1/2" aria-hidden="true"></span>
@@ -153,6 +155,18 @@ export class SelectComponent implements ControlValueAccessor {
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly list = viewChild<ElementRef<HTMLUListElement>>('list');
+  private readonly panel = viewChild<ElementRef<HTMLDivElement>>('panel');
+  /**
+   * Desktop panel position in the viewport. The panel is fixed (not absolute), so a table or card with overflow
+   * hidden/auto around the field can never cut it off; it follows the field while the page scrolls.
+   */
+  protected readonly place = signal<{ top: number | null; bottom: number | null; left: number; width: number }>(
+    { top: 0, bottom: null, left: 0, width: 0 });
+  private readonly follow = () => this.reposition();
+  private readonly cleanup = inject(DestroyRef).onDestroy(() => {
+    window.removeEventListener('scroll', this.follow, true);
+    window.removeEventListener('resize', this.follow);
+  });
   private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
 
   protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());
@@ -213,7 +227,13 @@ export class SelectComponent implements ControlValueAccessor {
     this.filter.set('');
     this.active.set(Math.max(0, this.visible().findIndex((o) => o.value === this.value())));
     this.open.set(true);
+    if (!this.mobile()) {
+      this.reposition();
+      window.addEventListener('scroll', this.follow, true);
+      window.addEventListener('resize', this.follow);
+    }
     setTimeout(() => {
+      this.reposition();
       (this.filterInput()?.nativeElement ?? (this.mobile() ? this.list()?.nativeElement : null))?.focus();
       this.scrollActive();
     });
@@ -224,10 +244,30 @@ export class SelectComponent implements ControlValueAccessor {
       return;
     }
     this.open.set(false);
+    window.removeEventListener('scroll', this.follow, true);
+    window.removeEventListener('resize', this.follow);
     this.onTouched();
     if (returnFocus) {
       this.trigger().nativeElement.focus();
     }
+  }
+
+  /** Places the desktop panel under (or above) the field, inside the viewport; closes it when the field scrolls away. */
+  private reposition(): void {
+    if (!this.open() || this.mobile()) {
+      return;
+    }
+    const r = this.trigger().nativeElement.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) {
+      this.close(false);
+      return;
+    }
+    const gap = 6;
+    const width = this.panel()?.nativeElement.offsetWidth ?? r.width;
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - 8 - width));
+    this.place.set(this.dropUp()
+      ? { top: null, bottom: window.innerHeight - r.top + gap, left, width: r.width }
+      : { top: r.bottom + gap, bottom: null, left, width: r.width });
   }
 
   protected choose(o: SelectOption): void {

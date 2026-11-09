@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Page } from './tender.model';
 
 export type OrganizationRole = 'COMPANY_ADMIN' | 'TEAM_MEMBER';
 
@@ -30,6 +31,8 @@ export interface Member {
   fullName: string;
   role: OrganizationRole;
   joinedAt: string;
+  /** Last sign-in; null when unknown. */
+  lastActiveAt?: string | null;
 }
 
 export interface Invitation {
@@ -38,6 +41,18 @@ export interface Invitation {
   role: OrganizationRole;
   expiresAt: string;
   createdAt: string;
+  invitedByName?: string | null;
+}
+
+/** An entry of the team's activity log (organization admins). */
+export interface Activity {
+  occurredAt: string;
+  action: string;
+  actorName?: string | null;
+  actorEmail?: string | null;
+  /** Member name or invited e-mail. */
+  target?: string | null;
+  details: Record<string, unknown>;
 }
 
 export interface UpdateOrganization {
@@ -73,6 +88,14 @@ export class OrganizationService {
 
   removeMember(id: string, userId: string): Observable<void> {
     return this.http.delete<void>(`/api/v1/organizations/${id}/members/${userId}`);
+  }
+
+  resendInvitation(id: string, invitationId: string): Observable<Invitation> {
+    return this.http.post<Invitation>(`/api/v1/organizations/${id}/invitations/${invitationId}/resend`, {});
+  }
+
+  activity(id: string, page: number, size = 20): Observable<Page<Activity>> {
+    return this.http.get<Page<Activity>>(`/api/v1/organizations/${id}/activity`, { params: { page, size } });
   }
 
   invite(id: string, email: string, role: OrganizationRole): Observable<Invitation> {

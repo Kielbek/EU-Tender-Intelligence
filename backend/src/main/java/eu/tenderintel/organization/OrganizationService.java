@@ -111,7 +111,8 @@ public class OrganizationService {
                 .filter(m -> byId.containsKey(m.getUserId()))
                 .map(m -> {
                     User u = byId.get(m.getUserId());
-                    return new MemberView(u.getId(), u.getEmail(), u.getFullName(), m.getRole(), m.getJoinedAt());
+                    return new MemberView(u.getId(), u.getEmail(), u.getFullName(), m.getRole(), m.getJoinedAt(),
+                            u.getLastLoginAt());
                 })
                 .toList();
     }
@@ -179,7 +180,21 @@ public class OrganizationService {
     public List<InvitationView> openInvitations(UUID orgId, UUID actorId) {
         access.requireAdmin(orgId, actorId);
         Instant now = Instant.now(clock);
-        return invitations.findOpen(orgId).stream().filter(i -> i.isOpen(now)).map(InvitationView::of).toList();
+        List<OrganizationInvitation> open = invitations.findOpen(orgId).stream().filter(i -> i.isOpen(now)).toList();
+        Map<UUID, String> names = users.findAllById(open.stream().map(OrganizationInvitation::getInvitedBy)
+                .filter(java.util.Objects::nonNull).distinct().toList()).stream()
+                .collect(Collectors.toMap(User::getId, User::getFullName));
+        return open.stream().map(i -> InvitationView.of(i, names.get(i.getInvitedBy()))).toList();
+    }
+
+    /** Sends the invitation again with a new link and a new expiry date (the old link stops working). */
+    @Transactional
+    public InvitationView resendInvitation(UUID orgId, UUID actorId, UUID invitationId) {
+        access.requireAdmin(orgId, actorId);
+        OrganizationInvitation invitation = invitations.findById(invitationId)
+                .filter(i -> i.getOrganizationId().equals(orgId) && i.isOpen(Instant.now(clock)))
+                .orElseThrow(() -> ApiException.notFound("Invitation"));
+        return invite(orgId, actorId, invitation.getEmail(), invitation.getRole());
     }
 
     @Transactional

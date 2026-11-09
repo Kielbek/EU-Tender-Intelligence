@@ -2,6 +2,7 @@ package eu.tenderintel.organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -116,6 +117,45 @@ class OrganizationIntegrationTest {
                         .content("{\"token\":\"" + token + "\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("invalid_token"));
+    }
+
+    @Test
+    void invitationsCanBeResentAndTheTeamActivityIsLogged() throws Exception {
+        Session admin = api.registerVerifyLogin("erin@org.test");
+        String org = orgId(admin);
+        jdbc.update("update organizations set plan_code = 'STARTER' where id = ?::uuid", org);
+        var res = mvc.perform(post("/api/v1/organizations/" + org + "/invitations").with(admin.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"again@org.test\",\"role\":\"TEAM_MEMBER\"}")).andReturn().getResponse();
+        String first = api.readJson(res).get("id").asString();
+        String oldToken = api.tokenFromEmail("again@org.test", "ORGANIZATION_INVITATION");
+
+        mvc.perform(get("/api/v1/organizations/" + org + "/invitations").with(admin.bearer()))
+                .andExpect(jsonPath("$[0].invitedByName").isString());
+        // Resend: a new invitation (new link and expiry) replaces the old one, which stops working.
+        mvc.perform(post("/api/v1/organizations/" + org + "/invitations/" + first + "/resend").with(admin.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(not(first)));
+        mvc.perform(get("/api/v1/organizations/" + org + "/invitations").with(admin.bearer()))
+                .andExpect(jsonPath("$", hasSize(1)));
+        String newToken = api.tokenFromEmail("again@org.test", "ORGANIZATION_INVITATION");
+        assertThat(newToken).isNotEqualTo(oldToken);
+        mvc.perform(post("/api/v1/organizations/" + org + "/invitations/" + first + "/resend").with(admin.bearer()))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/v1/organizations/" + org + "/activity").with(admin.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].action").value("MEMBER_INVITED"))
+                .andExpect(jsonPath("$.items[0].target").value("again@org.test"))
+                .andExpect(jsonPath("$.items[0].actorEmail").value("erin@org.test"))
+                .andExpect(jsonPath("$.items[0].details.role").value("TEAM_MEMBER"));
+        Session member = api.registerVerifyLogin("again@org.test");
+        mvc.perform(post("/api/v1/invitations/accept").with(member.bearer()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"" + newToken + "\"}")).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/organizations/" + org + "/activity").with(member.bearer()))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/v1/organizations/" + org + "/members").with(admin.bearer()))
+                .andExpect(jsonPath("$[0].lastActiveAt").isString());
     }
 
     private String orgId(Session s) throws Exception {

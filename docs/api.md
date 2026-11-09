@@ -27,7 +27,9 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/organizations/{id}/members` | członek | |
 | PUT | `/api/v1/organizations/{id}/members/{userId}/role` | `COMPANY_ADMIN` | ostatni admin chroniony (409 `last_admin`) |
 | DELETE | `/api/v1/organizations/{id}/members/{userId}` | `COMPANY_ADMIN` lub sam członek | |
-| POST/GET/DELETE | `/api/v1/organizations/{id}/invitations[/{invId}]` | `COMPANY_ADMIN` | |
+| POST/GET/DELETE | `/api/v1/organizations/{id}/invitations[/{invId}]` | `COMPANY_ADMIN` | lista zawiera `invitedByName` |
+| POST | `/api/v1/organizations/{id}/invitations/{invId}/resend` | `COMPANY_ADMIN` | nowy link i termin; stary link przestaje działać |
+| GET | `/api/v1/organizations/{id}/activity?page=&size≤50` | `COMPANY_ADMIN` | aktywność zespołu z dziennika audytu (kto, co, komu; bez IP i user-agenta) |
 | POST | `/api/v1/invitations/accept` | zalogowany, zweryfikowany e-mail = adres zaproszenia | |
 | GET | `/api/v1/countries`, `/currencies`, `/currencies/rates/latest` | publiczny | |
 | GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po prefiksie kodu lub słowach (odmiana: „drogi” → „drogowe”, kilka słów, mały słownik synonimów: remont → naprawa/konserwacja), drzewo (`parent`), bez parametrów – 45 działów; każdy wynik: `parentLabel`, `hasChildren`, `openTenders` (otwarte przetargi z kodem głównym pod tym kodem, cache 10 min) |
@@ -37,6 +39,7 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | GET | `/api/v1/tenders?…&lang=` | zalogowany | + `mainCpvLabel` w języku `lang` |
 | GET | `/api/v1/tenders/export?…&format=csv\|xlsx&lang=` | zalogowany (30/h) | maks. 5 000 wierszy; nagłówki `X-Total-Count`, `X-Export-Limit`; audyt `DATA_EXPORTED` |
 | GET | `/api/v1/organizations/{id}/dashboard?lang=` | członek | agregaty z bazy (szczegóły w kodzie `DashboardService`) |
+| GET | `/api/v1/organizations/{id}/dashboard/map?level=0\|2\|3&scope=ALL\|MATCHES` | członek | otwarte przetargi per kraj / region NUTS 2 / podregion NUTS 3 z punktem (Eurostat); `withoutRegion` – bez kodu regionu; ALL w cache 5 min |
 | GET/PUT/DELETE | `/api/v1/organizations/{id}/saved-tenders[/{tenderId}]` | członek | lista wspólna dla organizacji; PUT `{status?, notes?}` – idempotentne |
 | GET/POST/PUT/PATCH/DELETE | `/api/v1/organizations/{id}/saved-searches[/{sid}]`, `POST …/{sid}/run` | członek (tylko własne) | filtry walidowane jak w wyszukiwarce |
 | GET/POST | `/api/v1/admin/users`, `/users/{id}/lock`, `/unlock`, `/audit-logs`, `/data-sources`, `/ingestion-jobs`, `/email-outbox`, `/reference/cpv/import`, `/reference/exchange-rates/import` | `PLATFORM_ADMIN` | |

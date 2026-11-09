@@ -33,7 +33,9 @@ public final class OrganizationDtos {
             @Email @Size(max = 254) String billingEmail) {
     }
 
-    public record MemberView(UUID userId, String email, String fullName, OrganizationRole role, Instant joinedAt) {
+    /** {@code lastActiveAt}: the member's last sign-in (null = never since joining tracking). */
+    public record MemberView(UUID userId, String email, String fullName, OrganizationRole role, Instant joinedAt,
+            Instant lastActiveAt) {
     }
 
     public record ChangeRoleRequest(@NotNull OrganizationRole role) {
@@ -42,11 +44,25 @@ public final class OrganizationDtos {
     public record InviteRequest(@NotBlank @Email @Size(max = 254) String email, @NotNull OrganizationRole role) {
     }
 
-    public record InvitationView(UUID id, String email, OrganizationRole role, Instant expiresAt, Instant createdAt) {
+    public record InvitationView(UUID id, String email, OrganizationRole role, Instant expiresAt, Instant createdAt,
+            String invitedByName) {
 
         static InvitationView of(OrganizationInvitation i) {
-            return new InvitationView(i.getId(), i.getEmail(), i.getRole(), i.getExpiresAt(), i.getCreatedAt());
+            return of(i, null);
         }
+
+        static InvitationView of(OrganizationInvitation i, String invitedByName) {
+            return new InvitationView(i.getId(), i.getEmail(), i.getRole(), i.getExpiresAt(), i.getCreatedAt(),
+                    invitedByName);
+        }
+    }
+
+    /**
+     * One entry of the team's activity log (audit): who did what to whom. {@code target}: the member's name or the
+     * invited e-mail; {@code details}: e.g. {@code {"from": "TEAM_MEMBER", "to": "COMPANY_ADMIN"}}.
+     */
+    public record ActivityView(Instant occurredAt, String action, String actorName, String actorEmail, String target,
+            java.util.Map<String, Object> details) {
     }
 
     public record AcceptInvitationRequest(@NotBlank @Size(max = 128) String token) {
