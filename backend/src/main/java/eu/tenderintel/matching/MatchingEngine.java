@@ -207,6 +207,19 @@ public final class MatchingEngine {
             List<Reason> missing) {
         // NUTS uses EL/UK where tenders use the ISO codes GR/GB.
         String home = p.baseNuts() != null ? NutsRegions.iso(p.baseNuts().substring(0, 2)) : p.registrationCountry();
+        // Explicitly chosen regions (a voivodeship, a region abroad or a whole country) always count as the working
+        // area – also in countries that are not on the profile's list.
+        for (String region : p.extraRegions()) {
+            boolean in = region.length() == 2
+                    ? NutsRegions.iso(region).equals(t.countryCode())
+                    : t.nutsCode() != null && t.nutsCode().startsWith(region);
+            if (in) {
+                met.add(Reason.of("IN_SELECTED_REGION", "region", region));
+                Integer km = p.base() != null && t.place() != null ? (int) Math.round(distanceKm(p.base(), t.place()))
+                        : null;
+                return new Location(MAX_LOCATION, null, km);
+            }
+        }
         boolean countryOk = p.countriesOfInterest().isEmpty()
                 ? home == null || home.equals(t.countryCode()) : p.countriesOfInterest().contains(t.countryCode());
         if (!countryOk) {
@@ -216,15 +229,6 @@ public final class MatchingEngine {
         }
         Integer km = p.base() != null && t.place() != null ? (int) Math.round(distanceKm(p.base(), t.place())) : null;
 
-        // Explicitly chosen regions (e.g. a whole voivodeship) always count as the working area.
-        if (t.nutsCode() != null) {
-            for (String region : p.extraRegions()) {
-                if (t.nutsCode().startsWith(region)) {
-                    met.add(Reason.of("IN_SELECTED_REGION", "region", region));
-                    return new Location(MAX_LOCATION, null, km);
-                }
-            }
-        }
         // Only for companies that do supplies at all: a works-only company keeps its radius for everything.
         boolean doesSupplies = p.contractTypes().isEmpty() || p.contractTypes().contains("SUPPLIES");
         if ("SUPPLIES".equals(t.contractType()) && p.suppliesNationwide() && doesSupplies && home != null

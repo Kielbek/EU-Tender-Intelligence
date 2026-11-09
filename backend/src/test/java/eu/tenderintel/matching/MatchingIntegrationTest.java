@@ -1,6 +1,7 @@
 package eu.tenderintel.matching;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -276,6 +277,12 @@ class MatchingIntegrationTest {
                 .andExpect(jsonPath("$[0].code").value(startsWith("EL")));
         mvc.perform(get("/api/v1/regions").param("country", "DE").param("level", "2"))
                 .andExpect(jsonPath("$.length()").value(greaterThan(30)));
+        // Without a country: every country at once (one request for the "extra regions" list), with ISO codes.
+        mvc.perform(get("/api/v1/regions").param("level", "2"))
+                .andExpect(jsonPath("$.length()").value(greaterThan(300)))
+                .andExpect(jsonPath("$[?(@.code == 'EL30')].country").value(contains("GR")));
+        mvc.perform(get("/api/v1/regions").param("level", "0"))
+                .andExpect(jsonPath("$[?(@.code == 'PL')].name").value(contains("Polska")));
         // Keywords with commas/quotes are stored as data, not SQL.
         mvc.perform(put(profile).with(ola.bearer()).contentType(MediaType.APPLICATION_JSON)
                 .content(body.replace("[\"drog\"]", "[\"a,b\", \"x'y\\\"z\"]")))

@@ -46,6 +46,17 @@ export class ReferenceService {
     return cached;
   }
 
+  /** Regions of every country at a level (0 = the countries themselves, 2 = e.g. voivodeships). Cached. */
+  allRegions(level: 0 | 2): Observable<Region[]> {
+    const key = `*:${level}`;
+    let cached = this.regionCache.get(key);
+    if (!cached) {
+      cached = this.http.get<Region[]>('/api/v1/regions', { params: { level } }).pipe(shareReplay(1));
+      this.regionCache.set(key, cached);
+    }
+    return cached;
+  }
+
   private readonly regionCache = new Map<string, Observable<Region[]>>();
 }
 
@@ -53,4 +64,6 @@ export interface Region {
   code: string;
   name: string;
   level: number;
+  /** ISO 3166 code of the country (GR for the NUTS prefix EL). */
+  country?: string;
 }

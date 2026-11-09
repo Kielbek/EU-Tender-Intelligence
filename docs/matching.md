@@ -32,7 +32,10 @@ Każdy punkt ma przyczynę: kod (`CPV_MATCH`, `WITHIN_DISTANCE`, …) z parametr
   poza promieniem → 0. Bez promienia: ≤ 50 km → 25, ≤ 150 → 20, ≤ 300 → 14, dalej 9 (bliżej = lepiej).
 * **Tryb „tylko mój obszar”** (`STRICT`): przetarg poza promieniem, wybranymi województwami lub krajami jest
   **wykluczony** – nie trafia do dopasowań ani powiadomień.
-* **Dodatkowe województwa** (dowolny poziom NUTS, np. PL22 Śląskie) zawsze liczą się jako obszar firmy (oddziały).
+* **Dodatkowe regiony** – dowolny region NUTS 2 w całej UE/EOG (np. PL22 Śląskie, DE21 Oberbayern) albo cały kraj
+  (np. `EL` – Grecja) – zawsze liczą się jako obszar firmy (oddziały), **także w krajach spoza listy krajów firmy**
+  i w trybie `STRICT` (przeliczanie czyta wtedy również przetargi z tych krajów). Cały kraj działa po kodzie kraju
+  ogłoszenia, więc obejmuje też przetargi bez kodu regionu.
 * **Dostawy w całym kraju** (domyślnie włączone): promień nie dotyczy dostaw w kraju siedziby.
 * **Kraje**: lista krajów z profilu; bez listy – kraj siedziby (lub rejestracji). Odległość działa też przez granicę
   (np. Szczecin – Görlitz), gdy kraj jest na liście.
@@ -41,7 +44,7 @@ Każdy punkt ma przyczynę: kod (`CPV_MATCH`, `WITHIN_DISTANCE`, …) z parametr
 
 * Regiony NUTS są dla wszystkich państw UE oraz NO, CH, IS, LI (Eurostat, 2148 regionów). Siedzibę wybiera się w zakładce
   „Lokalizacja” profilu: kraj → podregion (NUTS 3, lista pogrupowana wg regionów NUTS 2, z wyszukiwaniem);
-  dodatkowe regiony – z kraju siedziby i krajów z listy firmy.
+  dodatkowe regiony – z każdego kraju UE/EOG (kraj siedziby i kraje z listy firmy na początku listy).
 * Kody NUTS Grecji i Wielkiej Brytanii to `EL` i `UK`, a w ogłoszeniach (ISO) `GR` i `GB` – silnik je mapuje.
 * Pokrycie kodem regionu otwartych przetargów (8.11.2026): PL 99%, DE 95%, FR 93%, ES 96%, IT 92%, CZ 92%, RO 100%,
   PT 97%, BE 82%, SE 79%, FI 65%, **NL 43%** – przetarg bez regionu liczy się tylko po kraju („brakujące informacje”).

@@ -161,11 +161,7 @@ public class MatchingService {
             String[] divisions = profile.cpvCodes().stream().map(c -> c.substring(0, 2)).distinct()
                     .toArray(String[]::new);
             // STRICT: tenders from countries outside the profile can never match – do not even read them.
-            String[] countries = !profile.strictRegion() ? new String[0]
-                    : !profile.countriesOfInterest().isEmpty() ? profile.countriesOfInterest().toArray(String[]::new)
-                    : profile.baseNuts() != null ? new String[] {NutsRegions.iso(profile.baseNuts().substring(0, 2))}
-                    : profile.registrationCountry() != null ? new String[] {profile.registrationCountry()}
-                    : new String[0];
+            String[] countries = strictCountries(profile);
             List<Object[]> rows = new java.util.ArrayList<>();
             jdbc.query("""
                     select TENDER_COLUMNS
@@ -371,5 +367,27 @@ public class MatchingService {
     private static List<String> list(Array array) throws SQLException {
         return array == null ? List.of()
                 : Arrays.stream((Object[]) array.getArray()).map(o -> o.toString().strip()).toList();
+    }
+
+    /**
+     * STRICT: the only countries a tender can match in – the profile's countries (or the home country) plus the
+     * countries of extra regions. Empty = no filter (not strict, or nothing known about the company's location).
+     */
+    static String[] strictCountries(Profile profile) {
+        if (!profile.strictRegion()) {
+            return new String[0];
+        }
+        java.util.Set<String> out = new java.util.LinkedHashSet<>();
+        if (!profile.countriesOfInterest().isEmpty()) {
+            out.addAll(profile.countriesOfInterest());
+        } else if (profile.baseNuts() != null) {
+            out.add(NutsRegions.iso(profile.baseNuts().substring(0, 2)));
+        } else if (profile.registrationCountry() != null) {
+            out.add(profile.registrationCountry());
+        } else {
+            return new String[0];
+        }
+        profile.extraRegions().forEach(r -> out.add(NutsRegions.iso(r.substring(0, 2))));
+        return out.toArray(String[]::new);
     }
 }

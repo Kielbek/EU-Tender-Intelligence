@@ -1209,7 +1209,7 @@
     "suppliesHint": "Promień nie dotyczy zamówień na dostawy w Twoim kraju.",
     "extra": "Dodatkowe regiony",
     "extraNone": "brak",
-    "extraHint": "Np. oddział w innym województwie lub kraju z Twojej listy – zawsze liczą się jako Twój obszar.",
+    "extraHint": "Oddział w innym regionie lub kraju UE/EOG, albo cały kraj – zawsze liczy się jako Twój obszar, także poza listą krajów.",
     "what": "Czego szukasz, a czego nie robisz",
     "include": "Słowa kluczowe",
     "includePh": "np. drog, nawierzchni, oświetleni…",
@@ -1227,7 +1227,8 @@
     "saved": "Zapisano. Dopasowania przeliczamy w tle (kilka sekund).",
     "country": "Kraj siedziby",
     "basePh": "Wybierz podregion (miasto, powiat)…",
-    "radiusHint": "Dotyczy robót i usług na miejscu. Bez limitu – bliższe przetargi mają wyższy wynik."
+    "radiusHint": "Dotyczy robót i usług na miejscu. Bez limitu – bliższe przetargi mają wyższy wynik.",
+    "wholeCountry": "{{country}} – cały kraj"
   },
   "cpvPicker": {
     "srHint": "Wpisz kod lub nazwę. Strzałki wybierają, Enter dodaje, strzałka w prawo otwiera kody podrzędne.",

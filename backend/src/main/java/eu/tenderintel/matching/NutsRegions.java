@@ -85,15 +85,19 @@ public class NutsRegions {
         return r == null ? null : r.point();
     }
 
-    /** Regions of a country (ISO code, e.g. PL or GR) at a level (2 = voivodeships in PL), sorted by name. */
+    /**
+     * Regions of a country (ISO code, e.g. PL or GR) at a level (0 = the country, 2 = voivodeships in PL), sorted by
+     * name; {@code country} null = every country, sorted by country and name.
+     */
     public List<Region> list(String country, int level) {
-        String iso = iso(nutsCountry(country));
+        String iso = country == null ? null : iso(nutsCountry(country));
+        List<Region> atLevel = all().values().stream()
+                .filter(r -> r.level() == level && (iso == null || r.countryCode().equals(iso))).toList();
         // Older NUTS versions stay in the table for codes in older notices, but are not offered for choosing.
-        List<Region> ofCountry = all().values().stream().filter(r -> r.countryCode().equals(iso) && r.level() == level)
-                .toList();
-        int newest = ofCountry.stream().mapToInt(Region::version).max().orElse(0);
-        return ofCountry.stream().filter(r -> r.version() == newest)
-                .sorted(java.util.Comparator.comparing(Region::name)).toList();
+        Map<String, Integer> newest = new java.util.HashMap<>();
+        atLevel.forEach(r -> newest.merge(r.countryCode(), r.version(), Math::max));
+        return atLevel.stream().filter(r -> r.version() == newest.get(r.countryCode()))
+                .sorted(java.util.Comparator.comparing(Region::countryCode).thenComparing(Region::name)).toList();
     }
 
     public boolean exists(String code) {

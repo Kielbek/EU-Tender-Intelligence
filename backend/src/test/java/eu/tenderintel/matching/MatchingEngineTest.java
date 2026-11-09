@@ -121,6 +121,25 @@ class MatchingEngineTest {
     }
 
     @Test
+    void regionsAbroadAndWholeCountriesCountEvenOutsideTheCountryList() {
+        // Kraków company, STRICT 100 km, only PL on its list, but a branch in Bavaria and all of Greece chosen.
+        Profile p = new Profile(List.of("45233000"), List.of("PL"), "PL", List.of("WORKS"), null, null, List.of(),
+                "PL213", KRAKOW, 100, true, List.of("DE2", "EL"), true, List.of(), List.of(), List.of());
+        Result bavaria = MatchingEngine.score(p, new Tender("DE", "45233120", List.of(), "WORKS", null, "DE212", null,
+                null));
+        assertThat(bavaria.excluded()).isFalse();
+        assertThat(codes(bavaria.met())).contains("IN_SELECTED_REGION");
+        // whole country: matches by ISO country even without a NUTS code in the notice
+        Result greece = MatchingEngine.score(p, new Tender("GR", "45233120", List.of(), "WORKS", null, null, null, null));
+        assertThat(greece.excluded()).isFalse();
+        assertThat(codes(greece.met())).contains("IN_SELECTED_REGION");
+        Result berlin = MatchingEngine.score(p, new Tender("DE", "45233120", List.of(), "WORKS", null, "DE300", null,
+                null));
+        assertThat(berlin.excluded()).isTrue();
+        assertThat(MatchingService.strictCountries(p)).containsExactly("PL", "DE", "GR");
+    }
+
+    @Test
     void chosenRegionsAndNationwideSuppliesIgnoreTheRadius() {
         Profile p = new Profile(List.of("45233000", "44000000"), List.of(), "PL", List.of("WORKS", "SUPPLIES"), null,
                 null, List.of(), "PL213", KRAKOW, 100, true, List.of("PL63"), true, List.of(), List.of(), List.of());

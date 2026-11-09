@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { combineLatest, map, of, switchMap } from 'rxjs';
+import { combineLatest, switchMap } from 'rxjs';
 import { DEFAULT_MATCHING, MatchingSettings } from '../../core/api/company.service';
 import { Region, ReferenceService } from '../../core/api/reference.service';
 import { countryName } from '../../core/format/format';
@@ -130,13 +130,8 @@ export class MatchingSettingsComponent {
     switchMap((c) => combineLatest([this.reference.regions(c, 2), this.reference.regions(c, 3)])),
   ), { initialValue: [[], []] as [Region[], Region[]] });
 
-  /** Level-2 regions of the base country and of every country of interest. */
-  private readonly extraRegions = toSignal(toObservable(computed(() =>
-    [...new Set([this.baseCountry(), ...this.countriesOfInterest()])])).pipe(
-    switchMap((codes) => codes.length ? combineLatest(codes.map((c) => this.reference.regions(c, 2).pipe(
-      map((list) => list.map((r) => ({ ...r, country: c })))))) : of([])),
-    map((lists) => lists.flat()),
-  ), { initialValue: [] });
+  /** Level-2 regions of every country (one request, cached). */
+  private readonly allLevel2 = toSignal(this.reference.allRegions(2), { initialValue: [] as Region[] });
 
   protected readonly countryOptions = computed<SelectOption[]>(() => {
     const lang = this.language.current();
@@ -158,11 +153,31 @@ export class MatchingSettingsComponent {
       .sort((a, b) => a.group.localeCompare(b.group, lang) || a.label.localeCompare(b.label, lang));
   });
 
+  /**
+   * Extra regions anywhere in the EU / EEA: for every country "the whole country" and its NUTS 2 regions. The base
+   * country and the countries of interest come first, then the others alphabetically.
+   */
   protected readonly extraOptions = computed<MultiOption[]>(() => {
     const lang = this.language.current();
-    return this.extraRegions()
-      .map((r) => ({ value: r.code, label: r.name, hint: r.code, group: countryName(r.country, lang) }))
-      .sort((a, b) => a.group.localeCompare(b.group, lang) || a.label.localeCompare(b.label, lang));
+    this.translations();
+    const allowed = new Set(this.countries().filter((c) => c.isEu || NUTS_EXTRA.includes(c.code)).map((c) => c.code));
+    const first = [...new Set([this.baseCountry(), ...this.countriesOfInterest()])];
+    const rank = (iso: string) => (first.includes(iso) ? first.indexOf(iso) : first.length);
+    const byCountry = new Map<string, Region[]>();
+    for (const r of this.allLevel2()) {
+      if (r.country && allowed.has(r.country)) {
+        byCountry.set(r.country, [...(byCountry.get(r.country) ?? []), r]);
+      }
+    }
+    return [...allowed]
+      .map((iso) => ({ iso, name: countryName(iso, lang) }))
+      .sort((a, b) => rank(a.iso) - rank(b.iso) || a.name.localeCompare(b.name, lang))
+      .flatMap(({ iso, name }) => [
+        { value: nutsPrefix(iso), label: this.transloco.translate('matchSettings.wholeCountry', { country: name }), hint: nutsPrefix(iso), group: name },
+        ...(byCountry.get(iso) ?? [])
+          .sort((a, b) => a.name.localeCompare(b.name, lang))
+          .map((r) => ({ value: r.code, label: r.name, hint: r.code, group: name })),
+      ]);
   });
 
   protected readonly radiusOptions = computed<SelectOption[]>(() => {

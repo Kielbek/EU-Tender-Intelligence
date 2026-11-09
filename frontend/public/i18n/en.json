@@ -1209,7 +1209,7 @@
     "suppliesHint": "The radius does not apply to supply contracts in your country.",
     "extra": "Additional regions",
     "extraNone": "none",
-    "extraHint": "E.g. a branch in another region or in a country from your list – always counted as your area.",
+    "extraHint": "A branch in another EU/EEA region or country, or a whole country – always counted as your area, even outside your country list.",
     "what": "What you look for and what you do not do",
     "include": "Keywords",
     "includePh": "e.g. road, pavement, lighting…",
@@ -1227,7 +1227,8 @@
     "saved": "Saved. Matches are recomputed in the background (a few seconds).",
     "country": "Country of the base",
     "basePh": "Choose a subregion (city, district)…",
-    "radiusHint": "Applies to works and on-site services. No limit – closer tenders score higher."
+    "radiusHint": "Applies to works and on-site services. No limit – closer tenders score higher.",
+    "wholeCountry": "{{country}} – whole country"
   },
   "cpvPicker": {
     "srHint": "Type a code or a name. Arrows move, Enter adds, right arrow opens sub-codes.",

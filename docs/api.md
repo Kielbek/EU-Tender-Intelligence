@@ -31,6 +31,7 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | POST | `/api/v1/invitations/accept` | zalogowany, zweryfikowany e-mail = adres zaproszenia | |
 | GET | `/api/v1/countries`, `/currencies`, `/currencies/rates/latest` | publiczny | |
 | GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po prefiksie kodu lub słowach (odmiana: „drogi” → „drogowe”, kilka słów, mały słownik synonimów: remont → naprawa/konserwacja), drzewo (`parent`), bez parametrów – 45 działów; każdy wynik: `parentLabel`, `hasChildren`, `openTenders` (otwarte przetargi z kodem głównym pod tym kodem, cache 10 min) |
+| GET | `/api/v1/regions?country=&level=` | publiczny | regiony NUTS (Eurostat): `level` 0 = kraj, 1–3; bez `country` – wszystkie kraje naraz; pola `code, name, level, country` (ISO, np. GR dla EL) |
 | GET | `/api/v1/tenders` | zalogowany | filtry: `q, country[], cpv[], status[], contractType[], procedureType[], authority, city, nuts, currency, language, valueMinEur, valueMaxEur, publishedFrom/To, deadlineFrom/To, sort, direction, page, size≤100` |
 | GET | `/api/v1/tenders/{id}`, `/{id}/versions` | zalogowany | szczegóły, źródła, historia zmian |
 | GET | `/api/v1/tenders?…&lang=` | zalogowany | + `mainCpvLabel` w języku `lang` |

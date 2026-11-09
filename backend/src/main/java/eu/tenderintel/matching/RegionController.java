@@ -22,13 +22,16 @@ class RegionController {
         this.regions = regions;
     }
 
-    record RegionView(String code, String name, int level) {
+    /** {@code country}: ISO 3166 code (GR, not EL). */
+    record RegionView(String code, String name, int level, String country) {
     }
 
     @GetMapping("/api/v1/regions")
-    @Operation(summary = "Regiony NUTS kraju (poziom 2 = województwa w PL, 3 = podregiony); źródło: Eurostat GISCO")
-    List<RegionView> list(@RequestParam @Pattern(regexp = "^[A-Z]{2}$") String country,
-            @RequestParam(defaultValue = "3") @Min(1) @Max(3) int level) {
-        return regions.list(country, level).stream().map(r -> new RegionView(r.code(), r.name(), r.level())).toList();
+    @Operation(summary = "Regiony NUTS (0 = kraj, 2 = województwa w PL, 3 = podregiony); bez country – wszystkie kraje; "
+            + "źródło: Eurostat GISCO")
+    List<RegionView> list(@RequestParam(required = false) @Pattern(regexp = "^[A-Z]{2}$") String country,
+            @RequestParam(defaultValue = "3") @Min(0) @Max(3) int level) {
+        return regions.list(country, level).stream()
+                .map(r -> new RegionView(r.code(), r.name(), r.level(), r.countryCode())).toList();
     }
 }
