@@ -97,6 +97,23 @@ class ReferenceIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code").value("45000000"))
                 .andExpect(jsonPath("$[0].label").value("Roboty budowlane"));
+        // inflected words and several words in any order; general codes first; context for suggestions
+        mvc.perform(get("/api/v1/cpv").param("query", "budowa").param("lang", "pl"))
+                .andExpect(jsonPath("$[0].code").value("45000000"));
+        mvc.perform(get("/api/v1/cpv").param("query", "construction works").param("lang", "en"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].code").value("45000000"))
+                .andExpect(jsonPath("$[0].hasChildren").value(true))
+                .andExpect(jsonPath("$[0].openTenders").isNumber())
+                .andExpect(jsonPath("$[1].code").value("45200000"))
+                .andExpect(jsonPath("$[1].parentLabel").value("Construction work"));
+        // punctuation is not passed to SQL patterns; any matching word is enough, full matches come first
+        mvc.perform(get("/api/v1/cpv").param("query", "construction 'drop%").param("lang", "en"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].code").value("45000000"));
+        mvc.perform(get("/api/v1/cpv").param("query", "%_'").param("lang", "en"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
+        mvc.perform(get("/api/v1/cpv").param("parent", "45000000").param("lang", "en"))
+                .andExpect(jsonPath("$[0].code").value("45200000"));
         mvc.perform(get("/api/v1/cpv/45200000").param("lang", "pl"))
                 .andExpect(jsonPath("$.level").value(2))
                 .andExpect(jsonPath("$.ancestors", hasSize(1)))

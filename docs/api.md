@@ -30,7 +30,7 @@ Pełna, aktualna specyfikacja: Swagger UI. Skrót:
 | POST/GET/DELETE | `/api/v1/organizations/{id}/invitations[/{invId}]` | `COMPANY_ADMIN` | |
 | POST | `/api/v1/invitations/accept` | zalogowany, zweryfikowany e-mail = adres zaproszenia | |
 | GET | `/api/v1/countries`, `/currencies`, `/currencies/rates/latest` | publiczny | |
-| GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po kodzie/nazwie, drzewo |
+| GET | `/api/v1/cpv?query=&parent=&lang=`, `/api/v1/cpv/{code}` | publiczny | wyszukiwanie po prefiksie kodu lub słowach (odmiana: „drogi” → „drogowe”, kilka słów, mały słownik synonimów: remont → naprawa/konserwacja), drzewo (`parent`), bez parametrów – 45 działów; każdy wynik: `parentLabel`, `hasChildren`, `openTenders` (otwarte przetargi z kodem głównym pod tym kodem, cache 10 min) |
 | GET | `/api/v1/tenders` | zalogowany | filtry: `q, country[], cpv[], status[], contractType[], procedureType[], authority, city, nuts, currency, language, valueMinEur, valueMaxEur, publishedFrom/To, deadlineFrom/To, sort, direction, page, size≤100` |
 | GET | `/api/v1/tenders/{id}`, `/{id}/versions` | zalogowany | szczegóły, źródła, historia zmian |
 | GET | `/api/v1/tenders?…&lang=` | zalogowany | + `mainCpvLabel` w języku `lang` |

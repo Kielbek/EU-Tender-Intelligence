@@ -432,7 +432,7 @@
     "euCountries": "Państwa UE",
     "otherCountries": "Inne",
     "cpv": "Branża (kod CPV)",
-    "cpvPlaceholder": "Kod lub nazwa, np. 45 lub roboty drogowe",
+    "cpvPlaceholder": "Kod lub nazwa, np. 4523 lub roboty drogowe – albo przeglądaj listę",
     "noCpv": "Brak pasujących kodów",
     "removeCpv": "Usuń kod {{code}}",
     "status": "Status",
@@ -1228,5 +1228,25 @@
     "country": "Kraj siedziby",
     "basePh": "Wybierz podregion (miasto, powiat)…",
     "radiusHint": "Dotyczy robót i usług na miejscu. Bez limitu – bliższe przetargi mają wyższy wynik."
+  },
+  "cpvPicker": {
+    "srHint": "Wpisz kod lub nazwę. Strzałki wybierają, Enter dodaje, strzałka w prawo otwiera kody podrzędne.",
+    "back": "Wróć poziom wyżej",
+    "addWhole": "Dodaj całość",
+    "yourSectors": "Kody w Twoich branżach",
+    "divisions": "Działy CPV – rozwiń, aby zawęzić",
+    "try": "Spróbuj:",
+    "levels": {
+      "1": "Dział",
+      "2": "Grupa",
+      "3": "Klasa",
+      "4": "Kategoria",
+      "5": "Kod szczegółowy"
+    },
+    "open": "{{n}} otwartych",
+    "noneOpen": "brak otwartych",
+    "openTitle": "Otwarte przetargi z tym kodem głównym (lub podrzędnym)",
+    "expand": "Pokaż kody podrzędne {{code}}",
+    "keys": "↑↓ wybór · Enter dodaj · → kody podrzędne · ← wstecz"
   }
 }

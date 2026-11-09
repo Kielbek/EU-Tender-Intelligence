@@ -20,8 +20,17 @@ public final class ReferenceDtos {
     public record ExchangeRateView(String currency, LocalDate rateDate, BigDecimal ratePerEur, String source) {
     }
 
-    /** {@code label} is in the requested language (falls back to English if missing). */
-    public record CpvView(String code, String parentCode, int level, String label) {
+    /**
+     * {@code label} is in the requested language (falls back to English if missing). {@code parentLabel}: label of the
+     * parent code (context for suggestions); {@code hasChildren}: the code can be browsed further;
+     * {@code openTenders}: open tenders whose main code falls under this code (null where not computed).
+     */
+    public record CpvView(String code, String parentCode, int level, String label, String parentLabel,
+            boolean hasChildren, Integer openTenders) {
+
+        public CpvView(String code, String parentCode, int level, String label) {
+            this(code, parentCode, level, label, null, false, null);
+        }
     }
 
     public record CpvDetailView(String code, String parentCode, int level, Map<String, String> labels,

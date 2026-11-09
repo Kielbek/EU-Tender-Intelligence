@@ -57,7 +57,12 @@ export class TenderService {
   }
 
   cpv(query: string, lang: string): Observable<CpvOption[]> {
-    return this.http.get<CpvOption[]>('/api/v1/cpv', { params: { query, lang, limit: 12 } });
+    return this.http.get<CpvOption[]>('/api/v1/cpv', { params: { query, lang, limit: 15 } });
+  }
+
+  /** Children of a CPV code, or the 45 divisions when {@code parent} is null (for browsing the tree). */
+  cpvChildren(parent: string | null, lang: string): Observable<CpvOption[]> {
+    return this.http.get<CpvOption[]>('/api/v1/cpv', { params: parent ? { parent, lang, limit: 100 } : { lang, limit: 100 } });
   }
 
   dashboard(orgId: string, lang: string): Observable<DashboardSummary> {

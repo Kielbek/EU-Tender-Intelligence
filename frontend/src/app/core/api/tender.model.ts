@@ -184,4 +184,9 @@ export interface CpvOption {
   parentCode?: string;
   level: number;
   label: string;
+  /** Label of the parent code: context in suggestions. */
+  parentLabel?: string | null;
+  hasChildren?: boolean;
+  /** Open tenders whose main code falls under this code. */
+  openTenders?: number | null;
 }

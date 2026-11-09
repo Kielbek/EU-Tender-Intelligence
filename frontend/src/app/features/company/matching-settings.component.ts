@@ -91,7 +91,7 @@ function isoOf(nutsCode: string | null | undefined): string | null {
           <p class="eti-hint">{{ 'matchSettings.excludeHint' | transloco }}</p>
         </div>
         <div>
-          <eti-cpv-picker class="block" [label]="'matchSettings.excludedCpv' | transloco" [lang]="language.current()"
+          <eti-cpv-picker class="block" [label]="'matchSettings.excludedCpv' | transloco" [lang]="language.current()" [suggest]="companyCpv()"
                           [selected]="s.excludedCpv" (selectedChange)="patch({ excludedCpv: $event })" />
           <p class="eti-hint">{{ 'matchSettings.excludedCpvHint' | transloco }}</p>
         </div>
@@ -110,6 +110,8 @@ export class MatchingSettingsComponent {
   readonly part = input<'area' | 'preferences'>('area');
   readonly registrationCountry = input<string | null | undefined>(null);
   readonly countriesOfInterest = input<string[]>([]);
+  /** The company's sectors: their sub-codes are suggested as exclusions. */
+  readonly companyCpv = input<string[]>([]);
   readonly editable = input(true);
 
   private readonly reference = inject(ReferenceService);

@@ -251,7 +251,7 @@
                                        [countriesOfInterest]="countriesOfInterest()" />
               }
               @case ('preferences') {
-                <eti-matching-settings part="preferences" [(settings)]="matching" [editable]="isAdmin()" />
+                <eti-matching-settings part="preferences" [(settings)]="matching" [editable]="isAdmin()" [companyCpv]="cpvCodes()" />
               }
               @case ('basics') {
         <div>

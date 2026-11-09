@@ -432,7 +432,7 @@
     "euCountries": "EU member states",
     "otherCountries": "Other",
     "cpv": "Sector (CPV code)",
-    "cpvPlaceholder": "Code or name, e.g. 45 or road works",
+    "cpvPlaceholder": "Code or name, e.g. 4523 or road works – or browse the list",
     "noCpv": "No matching codes",
     "removeCpv": "Remove code {{code}}",
     "status": "Status",
@@ -1228,5 +1228,25 @@
     "country": "Country of the base",
     "basePh": "Choose a subregion (city, district)…",
     "radiusHint": "Applies to works and on-site services. No limit – closer tenders score higher."
+  },
+  "cpvPicker": {
+    "srHint": "Type a code or a name. Arrows move, Enter adds, right arrow opens sub-codes.",
+    "back": "Up one level",
+    "addWhole": "Add all",
+    "yourSectors": "Codes in your sectors",
+    "divisions": "CPV divisions – open one to narrow down",
+    "try": "Try:",
+    "levels": {
+      "1": "Division",
+      "2": "Group",
+      "3": "Class",
+      "4": "Category",
+      "5": "Detailed code"
+    },
+    "open": "{{n}} open",
+    "noneOpen": "none open",
+    "openTitle": "Open tenders with this main code (or a sub-code)",
+    "expand": "Show sub-codes of {{code}}",
+    "keys": "↑↓ move · Enter add · → sub-codes · ← back"
   }
 }

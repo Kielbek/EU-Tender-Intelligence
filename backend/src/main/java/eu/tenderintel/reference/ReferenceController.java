@@ -53,7 +53,7 @@ class ReferenceController {
             @RequestParam(required = false) @Pattern(regexp = "^\\d{8}$") String parent,
             @RequestParam(defaultValue = "en") String lang,
             @RequestParam(defaultValue = "20") int limit) {
-        return cached(queries.searchCpv(query, parent, lang, limit), Duration.ofHours(1));
+        return cached(queries.searchCpv(query, parent, lang, limit), Duration.ofMinutes(10));
     }
 
     @GetMapping("/cpv/{code}")
